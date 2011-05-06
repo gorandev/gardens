@@ -1,0 +1,2 @@
+class ValorAtributosController < ApplicationController
+end
