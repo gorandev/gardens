@@ -1,5 +1,5 @@
 Gardens::Application.routes.draw do
-  resources :product_types
+  resources :product_types, :properties, :property_values
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
