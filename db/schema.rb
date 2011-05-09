@@ -10,39 +10,30 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110506175913) do
+ActiveRecord::Schema.define(:version => 20110509154638) do
 
-  create_table "atributos", :force => true do |t|
-    t.string   "descripcion"
-    t.integer  "tipo_producto_id"
+  create_table "product_types", :force => true do |t|
+    t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  add_index "atributos", ["tipo_producto_id"], :name => "index_atributos_on_tipo_producto_id"
-
-  create_table "attributes", :force => true do |t|
-    t.string   "descripcion"
-    t.integer  "tipo_producto_id"
+  create_table "properties", :force => true do |t|
+    t.string   "name"
+    t.integer  "product_type_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  add_index "attributes", ["tipo_producto_id"], :name => "index_attributes_on_tipo_producto_id"
+  add_index "properties", ["product_type_id"], :name => "index_properties_on_product_type_id"
 
-  create_table "tipo_productos", :force => true do |t|
-    t.string   "descripcion"
+  create_table "property_values", :force => true do |t|
+    t.string   "value"
+    t.integer  "property_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  create_table "valor_atributos", :force => true do |t|
-    t.string   "descripcion"
-    t.integer  "atributo_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "valor_atributos", ["atributo_id"], :name => "index_valor_atributos_on_atributo_id"
+  add_index "property_values", ["property_id"], :name => "index_property_values_on_property_id"
 
 end
