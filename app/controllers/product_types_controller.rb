@@ -1,45 +1,49 @@
 class ProductTypesController < ApplicationController
   def index
-    product_types = Array.new
+    resultado = Array.new
     ProductType.find_each do |pt|
-      product_line = Hash.new
-      product_line[:id] = pt.id
-      product_line[:name] = pt.name
-      properties = Array.new
-      pt.properties.find_each do |p| 
-        line = Hash.new
-        line[:name] = p.name
-        line[:id] = p.id
-        line[:possible_values] = Array.new
-        p.property_values.each do |pv| 
-          line_pv = Hash.new
-          line_pv[:id] = pv.id
-          line_pv[:value] = pv.value
-          line[:possible_values].push(line_pv)
-        end
-        properties.push(line) 
-      end
-      product_line[:properties] = properties
-      product_types.push(product_line)
-     end
-    render :json => product_types
+      resultado.push(pt_para_json(pt))
+    end
+    
+    render :json => resultado
   end
   
   def show
-    properties = Array.new
-    ProductType.find(params[:id]).properties.find_each do |p| 
-      line = Hash.new
-      line[:name] = p.name
-      line[:id] = p.id
-      line[:possible_values] = Array.new
-      p.property_values.each do |pv| 
-        line_pv = Hash.new
-        line_pv[:id] = pv.id
-        line_pv[:value] = pv.value
-        line[:possible_values].push(line_pv)
-      end
-      properties.push(line) 
+    begin
+      pt = ProductType.find(params[:id])
+    rescue
+      render :json => "ERROR"
+      return false
     end
-    render :json => properties
+    
+    render :json => pt_para_json(pt)
+  end
+  
+  private
+  
+  def pt_para_json(pt)
+      resultado = Hash.new
+      resultado[:name] = pt.name
+      resultado[:id] = pt.id
+      resultado[:properties] = Array.new
+      pt.properties.find_each do |p|
+        resultado[:properties].push(p_para_json(p))
+      end
+      return resultado
+  end
+  
+  def p_para_json(p)
+    resultado = Hash.new
+    resultado[:id] = p.id
+    resultado[:name] = p.name
+    resultado[:possible_values] = Array.new
+    p.property_values.find_each do |pv|
+      resultado[:possible_values].push(pv_para_json(pv))
+    end
+    return resultado
+  end
+  
+  def pv_para_json(pv)
+    return { :id => pv.id, :value => pv.value }
   end
 end
