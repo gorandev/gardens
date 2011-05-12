@@ -12,4 +12,5 @@
 
 class PropertyValue < ActiveRecord::Base
   belongs_to :property
+  validates_presence_of :value, :property
 end
