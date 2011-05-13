@@ -21,6 +21,6 @@ class PropertyValuesController < ApplicationController
   private
   
   def pv_para_json(pv)
-    return { :id => pv.id, :value => pv.value, :product_type => pv.property.name }
+    return { :id => pv.id, :value => pv.value, :property => pv.property.name, :product_type => pv.property.product_type.name }
   end
 end
