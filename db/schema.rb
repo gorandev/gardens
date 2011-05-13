@@ -10,12 +10,50 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110509154638) do
+ActiveRecord::Schema.define(:version => 20110513002353) do
+
+  create_table "countries", :force => true do |t|
+    t.string   "iso_code"
+    t.string   "name"
+    t.string   "status"
+    t.string   "locale"
+    t.string   "decimal_separator"
+    t.string   "thousands_separator"
+    t.string   "time_zone"
+    t.integer  "currency_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "countries", ["currency_id"], :name => "index_countries_on_currency_id"
+
+  create_table "currencies", :force => true do |t|
+    t.string   "name"
+    t.string   "symbol"
+    t.integer  "decimal_places"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "product_types", :force => true do |t|
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "products", :force => true do |t|
+    t.string   "status"
+    t.integer  "product_type_id"
+    t.boolean  "show_on_search"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "products", ["product_type_id"], :name => "index_products_on_product_type_id"
+
+  create_table "products_property_values", :id => false, :force => true do |t|
+    t.integer "product_id"
+    t.integer "property_value_id"
   end
 
   create_table "properties", :force => true do |t|
