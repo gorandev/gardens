@@ -19,4 +19,12 @@
 class Country < ActiveRecord::Base
   belongs_to :currency
   validates_presence_of :name, :iso_code, :locale, :time_zone, :currency
+  
+  def as_json(options = {})
+    {
+      :id => self.id,
+      :name => self.name
+    }
+  end
+  
 end

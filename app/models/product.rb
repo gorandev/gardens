@@ -15,4 +15,16 @@ class Product < ActiveRecord::Base
   belongs_to :product_type
   has_and_belongs_to_many :property_values
   validates_presence_of :product_type
+  
+  def as_json(options = {})
+    {
+      :id => self.id,
+      :product_type => self.product_type.name,
+      :property_values => self.property_values.all.collect{|pv| {
+        :id => pv.id,
+        :value => pv.value
+      }}
+    }
+  end
+  
 end

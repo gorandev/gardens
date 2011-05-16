@@ -1,5 +1,10 @@
 Gardens::Application.routes.draw do
-  resources :product_types, :properties, :property_values, :countries, :products
+
+  resources :product_types, :defaults => { :format => :json }
+  resources :properties, :defaults => { :format => :json }
+  resources :property_values, :defaults => { :format => :json }
+  resources :products, :defaults => { :format => :json }
+  resources :countries, :defaults => { :format => :json }
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

@@ -1,27 +1,13 @@
 class CountriesController < ApplicationController
+  respond_to :json
+  
   def index
-    resultado = Array.new
-    Country.find_each do |c|
-      resultado.push(c_para_json(c))
-    end
-    
-    render :json => resultado
+    @countries = Country.all
+    respond_with(@countries)
   end
   
   def show
-    begin
-      c = Country.find(params[:id])
-    rescue
-      render :json => "ERROR"
-      return false
-    end
-    
-    render :json => c_para_json(c)
-  end
-  
-  private
-  
-  def c_para_json(c)
-    return { :id => c.id, :name => c.name }
+    @country = Country.find(params[:id])
+    respond_with(@country)
   end
 end
