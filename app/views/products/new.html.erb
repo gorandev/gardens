@@ -8,12 +8,6 @@
 	<%= p.label(:product_type_id, "Product Type") %>
 	<%= collection_select(:product, :product_type_id, ProductType.all, :id, :name, :prompt => 'Please select product type') %>
 	</p>
-	<div id="property_values">
-		<%= render :partial => 'property_value', :collection => @product.property_values %>
-	</div>
-	<p>
-		<%= add_property_value_link "Add property value" %>
-	</p>
 	<p>
 		<%= p.submit("Enviar")%>
 	</p>
