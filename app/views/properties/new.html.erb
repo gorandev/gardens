@@ -1,0 +1,13 @@
+<h1>New property</h1>
+<% if flash[:notice] %>
+	<p class="notice"><%= flash[:notice] %></p>
+<% end %>
+<%= form_for @property do |p| %>
+<%= error_messages_for :property %>
+	<%= p.label(:name, "Name") %>
+	<%= p.text_field(:name) %>
+	<br/>
+	<%= p.label(:product_type_id, "Product Type") %>
+	<%= collection_select(:property, :product_type_id, ProductType.all, :id, :name, :prompt => 'Please select product type') %>
+	<%= p.submit("Enviar")%>
+<% end %>
