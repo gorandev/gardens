@@ -21,6 +21,7 @@ class Property < ActiveRecord::Base
       :name => self.name,
       :product_type => self.product_type.name,
       :possible_values => self.property_values.all.collect{|pv| {
+        :id => pv.id,
         :value => pv.value
       }}
     }

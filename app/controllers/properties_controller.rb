@@ -1,6 +1,11 @@
 class PropertiesController < ApplicationController
   respond_to :json
   
+  def get_by_product_type
+    @properties = Property.where("product_type_id = ?", params[:id])
+    respond_with(@properties)
+  end
+  
   def index
     @properties  = Property.all
     respond_with(@properties)

@@ -17,12 +17,31 @@ class ProductsController < ApplicationController
   end
   
   def create
+    pvs = Array.new
+    begin
+      params[:product][:property_values].each_index do |pv|
+        begin
+          pvs.push(PropertyValue.find(params[:product][:property_values][pv]))
+        rescue
+        end
+      end
+    rescue
+    end
+    params[:product][:property_values] = pvs
     @product = Product.new(params[:product])
-    if @product.save
-      flash[:notice] = 'Salvado con éxito'
-      redirect_to :action => "new"
-    else 
+    @product.valid?
+    unless pvs.length > 0
+      if @product.errors.empty?
+        @product.errors[:product_type] = "select at least one property value"
+      end
       render :action => "new"
+    else
+      if @product.save
+        flash[:notice] = "Salvado con éxito"
+        redirect_to :action => "new"
+      else 
+        render :action => "new"
+      end
     end
   end
 end

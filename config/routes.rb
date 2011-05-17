@@ -7,6 +7,9 @@ Gardens::Application.routes.draw do
   match 'products/new' => 'products#new', :defaults => { :format => :html }
   match 'products' => 'products#create', :via => :post, :defaults => { :format => :html }
   resources :products, :defaults => { :format => :json }
+
+  match 'properties/product_type/:id' => 'properties#get_by_product_type', 
+    :as => :get_properties_by_product_type, :defaults => { :format => :json }
   
   match 'properties/new' => 'properties#new', :defaults => { :format => :html }
   match 'properties' => 'properties#create', :via => :post, :defaults => { :format => :html }
