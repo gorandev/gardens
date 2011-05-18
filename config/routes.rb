@@ -5,9 +5,11 @@ Gardens::Application.routes.draw do
   resources :countries, :defaults => { :format => :json }
   resources :retailers, :defaults => { :format => :json }
   resources :currencies, :defaults => { :format => :json }
-  resources :items, :defaults => { :format => :json }
   resources :prices, :defaults => { :format => :json }
 
+  match 'items/:id/product/:product_id' => 'items#associate', :via => :post
+  resources :items, :defaults => { :format => :json }
+  
   match 'products/new' => 'products#new', :defaults => { :format => :html }
   match 'products' => 'products#create', :via => :post, :defaults => { :format => :html }
   resources :products, :defaults => { :format => :json }

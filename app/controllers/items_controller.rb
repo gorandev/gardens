@@ -10,6 +10,27 @@ class ItemsController < ApplicationController
     @Item = Item.find(params[:id])
     respond_with(@Item)
   end
+
+  def associate
+    begin
+      item = Item.find(params[:id])
+    rescue
+      return render :json => "ERROR: invalid item id"
+    end
+    
+    begin
+      product = Product.find(params[:product_id])
+    rescue
+      return render :json => "ERROR: invalid product id"
+    end
+    
+    item.product = product
+    if item.save
+      render :json => "OK"
+    else
+      render :json => "ERROR: couldn't save"
+    end
+  end
   
   def create
     if params.has_key?("item")
