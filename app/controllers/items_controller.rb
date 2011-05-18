@@ -16,28 +16,41 @@ class ItemsController < ApplicationController
       return create_from_form
     end
    
-    if !params.has_key?("product")
-      return render :json => "ERROR: no product"
-    end
-
     if !params.has_key?("retailer")
       return render :json => "ERROR: no retailer"
     end
     
     begin
-      product = Product.find(params[:product])
-    rescue
-      return render :json => "ERROR: no valid product type"
-    end
-
-    begin
       retailer = Retailer.find(params[:retailer])
     rescue
       return render :json => "ERROR: no valid retailer type"
     end
+
+    if !params.has_key?("property_values")
+      return render :json => "ERROR: no property values"
+    end
     
-    item = Item.new( :product => product, :retailer => retailer )
+    pvs = Array.new
+    params[:property_values].split(",").each do |pv|
+      begin
+        pvs.push(PropertyValue.find(pv))
+      rescue
+      end
+    end
     
+    if pvs.empty?
+      return render :json => "ERROR: no valid property values"
+    end
+    
+    begin
+      product = Product.find(params[:product])
+      item = Item.new( :product => product, :retailer => retailer )
+    rescue
+      item = Item.new( :retailer => retailer )
+    end
+   
+    item.property_values << pvs
+   
     if item.save
       render :json => "OK"
     else

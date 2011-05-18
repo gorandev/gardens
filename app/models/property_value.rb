@@ -13,6 +13,7 @@
 class PropertyValue < ActiveRecord::Base
   belongs_to :property
   has_and_belongs_to_many :products
+  has_and_belongs_to_many :items
   validates_presence_of :value, :property
   
   def as_json(options = {})
