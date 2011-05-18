@@ -19,7 +19,7 @@ class ProductsController < ApplicationController
   def create
     pvs = Array.new
     begin
-      params[:property_values].each do |pv|
+      params[:property_values].split(',').each do |pv|
         begin
           pvs.push(PropertyValue.find(pv))
         rescue
