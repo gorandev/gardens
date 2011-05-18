@@ -19,6 +19,35 @@ class ProductsController < ApplicationController
   def create
     pvs = Array.new
     begin
+      params[:property_values].each_index do |pv|
+        begin
+          pvs.push(PropertyValue.find(pv))
+        rescue
+        end
+      end
+    rescue
+    end
+    
+    begin
+      product_type = ProductType.find(params[:product_type])
+      product = Product.new( :product_type => product_type )
+      product.property_values << pvs
+      
+      if product.save
+        render :json => 'OK'
+      else
+        render :json => 'ERROR I'
+      end
+      
+    rescue
+      render :json => 'ERROR II'
+    end    
+
+  end
+  
+  def create_from_form
+    pvs = Array.new
+    begin
       params[:product][:property_values].each_index do |pv|
         begin
           pvs.push(PropertyValue.find(params[:product][:property_values][pv]))

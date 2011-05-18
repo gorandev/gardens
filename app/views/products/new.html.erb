@@ -2,7 +2,7 @@
 <% if flash[:notice] %>
 	<p class="notice"><%= flash[:notice] %></p>
 <% end %>
-<%= semantic_form_for @product do |form| %>
+<%= semantic_form_for(@product, :url => create_from_form_path) do |form| %>
 	<%= form.input :product_type, :input_html => { :onChange => 'update_properties();' } %> 
 	
 	<div id="property_values_select_fields">

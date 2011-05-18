@@ -4,6 +4,7 @@ Gardens::Application.routes.draw do
   resources :product_types, :defaults => { :format => :json }
   resources :countries, :defaults => { :format => :json }
 
+  match 'products/new' => 'products#create_from_form', :via => :post, :defaults => { :format => :html }, :as => :create_from_form
   match 'products/new' => 'products#new', :defaults => { :format => :html }
   match 'products' => 'products#create', :via => :post, :defaults => { :format => :html }
   resources :products, :defaults => { :format => :json }
