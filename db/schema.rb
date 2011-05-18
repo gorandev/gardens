@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110513002353) do
+ActiveRecord::Schema.define(:version => 20110518192749) do
 
   create_table "countries", :force => true do |t|
     t.string   "iso_code"
@@ -34,6 +34,28 @@ ActiveRecord::Schema.define(:version => 20110513002353) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  create_table "items", :force => true do |t|
+    t.integer  "product_id"
+    t.integer  "retailer_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "items", ["product_id"], :name => "index_items_on_product_id"
+  add_index "items", ["retailer_id"], :name => "index_items_on_retailer_id"
+
+  create_table "prices", :force => true do |t|
+    t.integer  "item_id"
+    t.date     "price_date"
+    t.integer  "currency_id"
+    t.integer  "price"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "prices", ["currency_id"], :name => "index_prices_on_currency_id"
+  add_index "prices", ["item_id"], :name => "index_prices_on_item_id"
 
   create_table "product_types", :force => true do |t|
     t.string   "name"
@@ -73,5 +95,14 @@ ActiveRecord::Schema.define(:version => 20110513002353) do
   end
 
   add_index "property_values", ["property_id"], :name => "index_property_values_on_property_id"
+
+  create_table "retailers", :force => true do |t|
+    t.string   "name"
+    t.integer  "country_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "retailers", ["country_id"], :name => "index_retailers_on_country_id"
 
 end

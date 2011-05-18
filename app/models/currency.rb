@@ -14,4 +14,14 @@
 class Currency < ActiveRecord::Base
   validates_presence_of :name, :symbol
   has_one :country
+  has_many :prices
+  
+  def as_json(options = {})
+    {
+      :id => self.id,
+      :name => self.name,
+      :symbol => self.symbol
+    }
+  end
+  
 end
