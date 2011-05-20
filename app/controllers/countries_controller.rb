@@ -57,6 +57,3 @@ class CountriesController < ApplicationController
     end
   end
 end
-
-
-# validates_presence_of :name, :iso_code, :locale, :time_zone, :currency
