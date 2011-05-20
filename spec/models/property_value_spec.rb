@@ -1,5 +1,26 @@
 require 'spec_helper'
 
 describe PropertyValue do
-  pending "add some examples to (or delete) #{__FILE__}"
+
+  context "it should ask for all required fields" do
+    let(:property_value) { PropertyValue.new }
+    let(:product_type) { ProductType.create(:name => 'Squeezer') }
+    let(:property) { Property.create(:name => 'watts', :product_type => product_type) }
+    
+    it "shouldn't be valid with no fields" do
+      property_value.should_not be_valid
+    end
+      
+    it "shouldn't be valid with only the property type" do
+      property_value.property = property
+      property_value.should_not be_valid
+    end
+    
+    it "should be valid with the property type and the value" do
+      property_value.property = property
+      property_value.value = 1
+      property_value.should be_valid
+    end
+  end
+
 end

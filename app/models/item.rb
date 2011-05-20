@@ -17,7 +17,7 @@ class Item < ActiveRecord::Base
   has_and_belongs_to_many :property_values
   has_many :prices
   
-  validates_presence_of :retailer
+  validates_presence_of :retailer, :property_values
   
   def as_json(options = {})
   
@@ -27,8 +27,10 @@ class Item < ActiveRecord::Base
         :retailer => self.retailer.name,
         :product => 0,
         :property_values => self.property_values.all.collect{|pv| {
-          :id => pv.id,
-          :value => pv.value
+        :id => pv.property.id,
+        :name => pv.property.name,
+        :value_id => pv.id,
+        :value => pv.value
         }}
       }
     else

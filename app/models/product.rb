@@ -17,14 +17,17 @@ class Product < ActiveRecord::Base
   has_many :items
   has_many :retailers, :through => :items
   
-  validates_presence_of :product_type
+  validates_presence_of :product_type, :property_values
   
   def as_json(options = {})
     {
       :id => self.id,
       :product_type => self.product_type.name,
+      :active_in_countries => "TBD",
       :property_values => self.property_values.all.collect{|pv| {
-        :id => pv.id,
+        :id => pv.property.id,
+        :name => pv.property.name,
+        :value_id => pv.id,
         :value => pv.value
       }}
     }

@@ -18,9 +18,10 @@ class PropertyValue < ActiveRecord::Base
   
   def as_json(options = {})
     {
-      :id => self.id,
+      :id => self.property.id,
+      :name => self.property.name,
+      :value_id => self.id,
       :value => self.value,
-      :property => self.property.name,
       :product_type => self.property.product_type.name
     }
   end
