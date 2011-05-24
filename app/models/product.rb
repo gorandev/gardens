@@ -23,6 +23,7 @@ class Product < ActiveRecord::Base
     {
       :id => self.id,
       :product_type => self.product_type.name,
+      :product_type_id => self.product_type.id,
       :active_in_countries => "TBD",
       :property_values => self.property_values.all.collect{|pv| {
         :id => pv.property.id,
