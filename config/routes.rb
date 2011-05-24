@@ -10,6 +10,7 @@ Gardens::Application.routes.draw do
   match 'items/:id/product/:product_id' => 'items#associate', :via => :post
   resources :items, :defaults => { :format => :json }
   
+  match 'products/search' => 'products#search', :defaults => { :format => :json }
   match 'products/new' => 'products#new', :defaults => { :format => :html }
   match 'products' => 'products#create', :via => :post, :defaults => { :format => :html }
   resources :products, :defaults => { :format => :json }

@@ -85,4 +85,38 @@ class ProductsController < ApplicationController
       end
     end
   end
+  
+  def search
+    valid_parameters = ['country', 'product_type', 'retailer']
+    search_parameters = Hash.new
+    valid_parameters.each do |p|
+      if params.has_key?(p.to_sym)
+        search_parameters[p] = params[p.to_sym]
+      end
+    end
+    
+    if search_parameters.empty?
+      return render :json => "ERROR -- no parameters"
+    end
+    
+    join = Array.new
+    where = Hash.new
+    
+    if search_parameters.has_key?('product_type')
+      where[:product_type_id] = search_parameters['product_type']
+    end
+    
+    if search_parameters.has_key?('country')
+      join.push(:retailers)
+      where[:retailers] = { :country_id => search_parameters['country'] }
+    end
+    
+    if search_parameters.has_key?('retailer')
+      join.push(:items)
+      where[:items] = { :retailer_id => search_parameters['retailer'] }
+    end
+
+    @products = Product.joins(join).where(where)
+    respond_with(@products)
+  end
 end
