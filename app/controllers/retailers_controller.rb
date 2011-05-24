@@ -27,7 +27,7 @@ class RetailersController < ApplicationController
     begin
       country = Country.find(params[:country])
     rescue
-      return render :json => "ERROR: no valid country type"
+      return render :json => "ERROR: no valid country"
     end
     
     retailer = Retailer.new( :name => params[:name], :country => country )

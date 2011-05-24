@@ -39,7 +39,7 @@ describe CountriesController do
       response.body.should == "ERROR: no currency"
     end
     
-    it "should save a new country" do
+    it "should work with all required values" do
       Currency.create(:name => 'FLD', :symbol => 'F$')
       post :create, :name => 'Felicidonia', :iso_code => 'FD', :locale => 'es_FD', :time_zone => 'GMT-03:00', :currency => 1
       response.body.should == "OK"

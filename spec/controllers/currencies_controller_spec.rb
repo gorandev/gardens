@@ -24,7 +24,7 @@ describe CurrenciesController do
       response.body.should == "ERROR: no symbol"
     end
 
-    it "should save a new currency" do
+    it "should work with all required values" do
       post :create, :name => 'FLD', :symbol => 'F$'
       response.body.should == "OK"
     end

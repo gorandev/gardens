@@ -27,7 +27,7 @@ class PropertyValuesController < ApplicationController
     begin
       property = Property.find(params[:property])
     rescue
-      return render :json => "ERROR: no valid property type"
+      return render :json => "ERROR: no valid property"
     end
     
     property_value = PropertyValue.new( :value => params[:value], :property => property )
