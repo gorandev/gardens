@@ -11,6 +11,11 @@ Country.create(
   :currency => Currency.create( :name => "ARS", :symbol => "$" )
   )
 
+Country.create(
+  :iso_code => "CL", :name => "Chile", :status => "active", :locale => "es_CL", :time_zone => "GMT-03:00", 
+  :currency => Currency.create( :name => "CLP", :symbol => "$" )
+  )  
+  
 ProductType.create([{:name => "computadoras"}, {:name => "televisores"}])
 
 ProductType.find_by_name("computadoras").properties.create([
@@ -41,16 +46,44 @@ ProductType.find_by_name("televisores").properties.find_by_name("marca").propert
   {:value => "Sony"}, {:value => "Philips"}, {:value => "LG Electronics"}
 ])
 
-Product.create(:product_type_id => ProductType.find_by_name("computadoras"), :status => "active", :show_on_search => true).property_values <<
-([
-  ProductType.find_by_name("computadoras").properties.find_by_name("memoria").property_values.find_by_value("1 Gb"),
-  ProductType.find_by_name("computadoras").properties.find_by_name("HDD").property_values.find_by_value("350 Gb"),
-  ProductType.find_by_name("computadoras").properties.find_by_name("marca").property_values.find_by_value("Toshiba"),
-])
+Product.create(
+  :product_type_id => ProductType.find_by_name("computadoras"), 
+  :status => "active", 
+  :show_on_search => true,
+  :property_values => [
+    ProductType.find_by_name("computadoras").properties.find_by_name("memoria").property_values.find_by_value("1 Gb"),
+    ProductType.find_by_name("computadoras").properties.find_by_name("HDD").property_values.find_by_value("350 Gb"),
+    ProductType.find_by_name("computadoras").properties.find_by_name("marca").property_values.find_by_value("Toshiba")
+  ]
+)
 
-Product.create(:product_type_id => ProductType.find_by_name("computadoras"), :status => "active", :show_on_search => true).property_values <<
-([
-  ProductType.find_by_name("computadoras").properties.find_by_name("memoria").property_values.find_by_value("4 Gb"),
-  ProductType.find_by_name("computadoras").properties.find_by_name("HDD").property_values.find_by_value("500 Gb"),
-  ProductType.find_by_name("computadoras").properties.find_by_name("marca").property_values.find_by_value("Toshiba"),
-])
+Product.create(
+  :product_type_id => ProductType.find_by_name("computadoras"),
+  :status => "active",
+  :show_on_search => true,
+  :property_values => [
+    ProductType.find_by_name("computadoras").properties.find_by_name("memoria").property_values.find_by_value("4 Gb"),
+    ProductType.find_by_name("computadoras").properties.find_by_name("HDD").property_values.find_by_value("500 Gb"),
+    ProductType.find_by_name("computadoras").properties.find_by_name("marca").property_values.find_by_value("Toshiba")
+  ]
+)
+
+Retailer.create(
+  :name => "Fravega",
+  :country => Country.find_by_name("Argentina")
+)
+
+Retailer.create(
+  :name => "Garbarino",
+  :country => Country.find_by_name("Argentina")
+)
+
+Retailer.create(
+  :name => "Falabella",
+  :country => Country.find_by_name("Chile")
+)
+
+Retailer.create(
+  :name => "La Polar",
+  :country => Country.find_by_name("Chile")
+)
