@@ -11,6 +11,12 @@ class ItemsController < ApplicationController
     respond_with(@Item)
   end
 
+  def actions
+    if params.has_key?("product")
+      return associate
+    end
+  end
+
   def associate
     begin
       item = Item.find(params[:id])
@@ -19,7 +25,7 @@ class ItemsController < ApplicationController
     end
     
     begin
-      product = Product.find(params[:product_id])
+      product = Product.find(params[:product])
     rescue
       return render :json => "ERROR: invalid product id"
     end

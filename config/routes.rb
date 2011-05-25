@@ -7,7 +7,7 @@ Gardens::Application.routes.draw do
   resources :currencies, :defaults => { :format => :json }
   resources :prices, :defaults => { :format => :json }
 
-  match 'items/:id/product/:product_id' => 'items#associate', :via => :post
+  match 'items/:id' => 'items#actions', :via => :post, :defaults => { :format => :json }
   resources :items, :defaults => { :format => :json }
   
   match 'products/search' => 'products#search', :defaults => { :format => :json }
