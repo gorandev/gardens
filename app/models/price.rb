@@ -21,7 +21,7 @@ class Price < ActiveRecord::Base
   def as_json(options = {})
     {
       :item => self.item.id,
-      :currency => self.currency.symbol,
+      :currency => self.currency.name,
       :price => self.price,
       :price_date => self.price_date || self.created_at
     }
