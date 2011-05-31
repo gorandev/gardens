@@ -32,9 +32,12 @@ describe PropertiesController do
     end
     
     it "should work with all required values" do
-      post :create, :name => 'Tonnage', :product_type => product_type.id
-      response.body.should == "OK"
+      lambda do
+        post :create, :name => 'Tonnage', :product_type => product_type.id
+        response.body.should == "OK"
+      end.should change(Property, :count).by(1)
     end
+    
   end
   
   describe "GET 'show'" do

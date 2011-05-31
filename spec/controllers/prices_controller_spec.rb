@@ -62,8 +62,10 @@ describe PricesController do
     end
     
     it "should work with all required values" do
-      post :create, :value => 99, :item => item.id, :currency => currency.id
-      response.body.should == "OK"
+      lambda do
+        post :create, :value => 99, :item => item.id, :currency => currency.id
+        response.body.should == "OK"
+      end.should change(Price, :count).by(1)
     end
   end
   

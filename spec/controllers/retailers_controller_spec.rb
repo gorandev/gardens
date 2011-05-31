@@ -39,8 +39,10 @@ describe RetailersController do
     end
     
     it "should work with all required values" do
-      post :create, :name => 'Falarino', :country => country.id
-      response.body.should == "OK"
+      lambda do
+        post :create, :name => 'Falarino', :country => country.id
+        response.body.should == "OK"
+      end.should change(Retailer, :count).by(1)
     end
   end
   

@@ -33,8 +33,10 @@ describe PropertyValuesController do
     end
     
     it "should work with all required values" do
-      post :create, :value => 9, :property => property.id
-      response.body.should == "OK"
+      lambda do
+        post :create, :value => 9, :property => property.id
+        response.body.should == "OK"
+      end.should change(PropertyValue, :count).by(1)
     end
   end
   

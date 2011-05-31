@@ -39,8 +39,10 @@ describe ProductsController do
     end
     
     it "should work with all required values" do
-      post :create, :product_type => product_type.id, :property_values => property_value.id.to_s
-      response.body.should == "OK"
+      lambda do
+        post :create, :product_type => product_type.id, :property_values => property_value.id.to_s
+        response.body.should == "OK"
+      end.should change(Product, :count).by(1)
     end
   end
   

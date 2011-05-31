@@ -25,8 +25,10 @@ describe CurrenciesController do
     end
 
     it "should work with all required values" do
-      post :create, :name => 'FLD', :symbol => 'F$'
-      response.body.should == "OK"
+      lambda do
+        post :create, :name => 'FLD', :symbol => 'F$'
+        response.body.should == "OK"
+      end.should change(Currency, :count).by(1)
     end
   end
   

@@ -84,4 +84,67 @@ class ItemsController < ApplicationController
       render :json => "ERROR: item wasn't saved"
     end
   end
+  
+  def update
+    if params.has_key?("item")
+      return create_from_form
+    end
+  
+    unless params.has_key?("id")
+      return render :json => "ERROR: no item id"
+    end
+    
+    begin
+      update_item = Item.find(params[:id])
+    rescue
+      return render :json => "ERROR: no valid item id"
+    end
+    
+    unless params.has_key?("product") || params.has_key?("retailer") || params.has_key?("property_values")
+      return render :json => "ERROR: nothing to update"
+    end
+    
+    if params.has_key?("retailer")
+      begin
+        update_retailer = Retailer.find(params[:retailer])
+      rescue
+        return render :json => "ERROR: invalid retailer"
+      end
+      
+      update_item.retailer = update_retailer
+    end
+      
+    if params.has_key?("product")
+      begin
+        update_product = Product.find(params[:product])
+      rescue
+        return render :json => "ERROR: invalid product"
+      end
+      
+      update_item.product = update_product
+    end
+    
+    if params.has_key?("property_values")
+      pvs = Array.new
+      params[:property_values].split(",").each do |pv|
+        begin
+          pvs.push(PropertyValue.find(pv))
+        rescue
+          return render :json => "ERROR: invalid property value"
+        end
+      end
+      
+      if pvs.empty?
+        return render :json => "ERROR: invalid property value"
+      end
+      
+      update_item.property_values = pvs
+    end
+    
+    if update_item.save
+      render :json => "OK"
+    else
+      render :json => "ERROR: could not save"
+    end
+  end
 end

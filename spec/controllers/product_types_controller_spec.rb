@@ -20,9 +20,11 @@ describe ProductTypesController do
     end
     
     it "should work with all required values" do
-      post :create, :name => "Washing machine"
-      response.body.should == "OK"
-    end
+      lambda do
+        post :create, :name => "Washing machine"
+        response.body.should == "OK"
+      end.should change(ProductType, :count).by(1)
+    end    
   end
   
   describe "GET 'show'" do
@@ -32,5 +34,4 @@ describe ProductTypesController do
       response.should be_ok
     end
   end
-  
 end

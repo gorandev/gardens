@@ -40,9 +40,11 @@ describe CountriesController do
     end
     
     it "should work with all required values" do
-      Currency.create(:name => 'FLD', :symbol => 'F$')
-      post :create, :name => 'Felicidonia', :iso_code => 'FD', :locale => 'es_FD', :time_zone => 'GMT-03:00', :currency => 1
-      response.body.should == "OK"
+      lambda do
+        Currency.create(:name => 'FLD', :symbol => 'F$')
+        post :create, :name => 'Felicidonia', :iso_code => 'FD', :locale => 'es_FD', :time_zone => 'GMT-03:00', :currency => 1
+        response.body.should == "OK"
+      end.should change(Country, :count).by(1)
     end
   end
   
