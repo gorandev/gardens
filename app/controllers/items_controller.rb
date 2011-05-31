@@ -86,16 +86,8 @@ class ItemsController < ApplicationController
   end
   
   def update
-    if params.has_key?("item")
-      return create_from_form
-    end
-  
-    unless params.has_key?("id")
-      return render :json => "ERROR: no item id"
-    end
-    
     begin
-      update_item = Item.find(params[:id])
+      item = Item.find(params[:id])
     rescue
       return render :json => "ERROR: no valid item id"
     end
@@ -106,27 +98,35 @@ class ItemsController < ApplicationController
     
     if params.has_key?("retailer")
       begin
-        update_retailer = Retailer.find(params[:retailer])
+        retailer = Retailer.find(params[:retailer])
       rescue
         return render :json => "ERROR: invalid retailer"
       end
       
-      update_item.retailer = update_retailer
+      item.retailer = retailer
     end
       
     if params.has_key?("product")
       begin
-        update_product = Product.find(params[:product])
+        product = Product.find(params[:product])
       rescue
         return render :json => "ERROR: invalid product"
       end
       
-      update_item.product = update_product
+      item.product = product
     end
     
     if params.has_key?("property_values")
       pvs = Array.new
-      params[:property_values].split(",").each do |pv|
+      pvs_params = Array.new
+    
+      if params[:property_values].is_a?Array
+        pvs_params = params[:property_values]
+      else
+        pvs_params = params[:property_values].split(",")
+      end
+
+      pvs_params.each do |pv|
         begin
           pvs.push(PropertyValue.find(pv))
         rescue
@@ -138,13 +138,24 @@ class ItemsController < ApplicationController
         return render :json => "ERROR: invalid property value"
       end
       
-      update_item.property_values = pvs
+      item.property_values = pvs
     end
     
-    if update_item.save
+    if item.save
       render :json => "OK"
     else
       render :json => "ERROR: could not save"
     end
+  end
+  
+  def destroy
+    begin
+      item = Item.find(params[:id])
+    rescue
+      return render :json => "ERROR: no valid item id"
+    end
+    
+    item.destroy
+    render :json => "OK"
   end
 end

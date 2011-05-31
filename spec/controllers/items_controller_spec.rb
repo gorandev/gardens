@@ -86,8 +86,22 @@ describe ItemsController do
     end
   end
   
-  describe "PUT /:id" do    
-
+  describe "DELETE /:id" do
+    it "shouldn't work with a nonexistent item" do
+      delete :destroy, :id => 99
+      response.body.should == "ERROR: no valid item id"
+    end
+  
+    it "should work" do
+      Item.create(:retailer => retailer, :product => product, :property_values => [ property_value ])
+      lambda do
+        delete :destroy, :id => 1
+        response.body.should == "OK"
+      end.should change(Item, :count).by(-1)
+    end
+  end
+  
+  describe "PUT /:id" do      
     it "should not work with an invalid id" do
       put :update, :id => 99
       response.body.should == "ERROR: no valid item id"
