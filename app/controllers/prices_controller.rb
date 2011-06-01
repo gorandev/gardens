@@ -12,32 +12,14 @@ class PricesController < ApplicationController
   end
   
   def create
-    if params.has_key?("price")
-      return create_from_form
-    end
-
-    if !params.has_key?("value")
-      return render :json => "ERROR: no value"
-    end
-    
-    if !params.has_key?("item")
-      return render :json => "ERROR: no item"
-    end
-
     begin
       item = Item.find(params[:item])
     rescue
-      return render :json => "ERROR: no valid item type"
-    end
-    
-    if !params.has_key?("currency")
-      return render :json => "ERROR: no currency"
     end
     
     begin
       currency = Currency.find(params[:currency])
     rescue
-      return render :json => "ERROR: no valid currency type"
     end
     
     price = Price.new( :item => item, :price => params[:value], :currency => currency )
@@ -45,7 +27,7 @@ class PricesController < ApplicationController
     if price.save
       render :json => "OK"
     else
-      render :json => "ERROR: price wasn't saved"
+      render :json => { :errors => price.errors }
     end
   end
 end

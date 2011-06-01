@@ -2,6 +2,15 @@ require 'spec_helper'
 
 describe PricesController do
 
+  let(:expected) {
+    { "errors" => {
+      "item" => [ "can't be blank" ],
+      "currency" => [ "can't be blank" ],
+      "price" => [ "can't be blank" ]
+      }
+    }
+  }
+
   let(:product_type) { ProductType.create(:name => 'Squeezer') }
   let(:property) { Property.create(:name => 'watts', :product_type => product_type) }
   let(:property_value) { PropertyValue.create(:value => 1, :property => property) }
@@ -38,27 +47,33 @@ describe PricesController do
   describe "POST 'create'" do
     it "shouldn't work without value" do
       post :create
-      response.body.should == "ERROR: no value"
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
     
     it "shouldn't work without item" do
       post :create, :value => 99
-      response.body.should == "ERROR: no item"
+      expected["errors"].delete("price")
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
     
     it "shouldn't work with an invalid item" do
       post :create, :value => 99, :item => 99
-      response.body.should == "ERROR: no valid item type"
+      expected["errors"].delete("price")
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
     
     it "shouldn't work with no currency" do
       post :create, :value => 99, :item => item.id
-      response.body.should == "ERROR: no currency"
+      expected["errors"].delete("price")
+      expected["errors"].delete("item")
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
     
     it "shouldn't work with an invalid currency" do
       post :create, :value => 99, :item => item.id, :currency => 99
-      response.body.should == "ERROR: no valid currency type"
+      expected["errors"].delete("price")
+      expected["errors"].delete("item")
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
     
     it "should work with all required values" do

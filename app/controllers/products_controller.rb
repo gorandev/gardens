@@ -20,31 +20,21 @@ class ProductsController < ApplicationController
     if params.has_key?("product")
       return create_from_form
     end
-    
-    if !params.has_key?("product_type")
-      return render :json => "ERROR: no product type"
-    end
-    
+
     begin
       product_type = ProductType.find(params[:product_type])
     rescue
-      return render :json => "ERROR: no valid product type"
     end
-    
-    if !params.has_key?("property_values")
-      return render :json => "ERROR: no property values"
-    end
-    
+
     pvs = Array.new
-    params[:property_values].split(",").each do |pv|
-      begin
-        pvs.push(PropertyValue.find(pv))
-      rescue
+    begin
+      params[:property_values].split(",").each do |pv|
+        begin
+          pvs.push(PropertyValue.find(pv))
+        rescue
+        end
       end
-    end
-    
-    if pvs.empty?
-      return render :json => "ERROR: no valid property values"
+    rescue
     end
     
     product = Product.new( :product_type => product_type )
@@ -53,7 +43,7 @@ class ProductsController < ApplicationController
     if product.save
       render :json => "OK"
     else
-      render :json => "ERROR: product wasn't saved"
+      render :json => { :errors => product.errors }
     end
   end
   

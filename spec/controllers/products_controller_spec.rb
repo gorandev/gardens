@@ -2,6 +2,14 @@ require 'spec_helper'
 
 describe ProductsController do
 
+  let(:expected) {
+    { "errors" => {
+      "product_type" => [ "can't be blank" ],
+      "property_values" => [ "can't be blank" ]
+      }
+    }
+  }
+
   let(:product_type) { ProductType.create(:name => 'Squeezer') }
   let(:property) { Property.create(:name => 'watts', :product_type => product_type) }
   let(:property_value) { PropertyValue.create(:value => 1, :property => property) }
@@ -20,22 +28,24 @@ describe ProductsController do
   describe "POST 'create'" do
     it "shouldn't work without product type" do
       post :create
-      response.body.should == "ERROR: no product type"
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
 
     it "shouldn't work with an invalid product type" do
       post :create, :product_type => 99
-      response.body.should == "ERROR: no valid product type"
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
     
     it "shouldn't work without at least one property value" do
       post :create, :product_type => product_type.id
-      response.body.should == "ERROR: no property values"
+      expected["errors"].delete("product_type")
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
 
     it "shouldn't work with invalid property values" do
       post :create, :product_type => product_type.id, :property_values => "99"
-      response.body.should == "ERROR: no valid property values"
+      expected["errors"].delete("product_type")
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
     
     it "should work with all required values" do

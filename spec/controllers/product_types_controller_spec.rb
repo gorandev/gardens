@@ -2,6 +2,13 @@ require 'spec_helper'
 
 describe ProductTypesController do
 
+  let(:expected) {
+    { "errors" => {
+      "name" => [ "can't be blank" ]
+      }
+    }
+  }
+
   before(:each) do
     request.env['HTTP_ACCEPT'] = "application/json"
   end
@@ -16,7 +23,7 @@ describe ProductTypesController do
   describe "POST 'create'" do
     it "shouldn't work without name" do
       post :create
-      response.body.should == "ERROR: no name"
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
     
     it "should work with all required values" do

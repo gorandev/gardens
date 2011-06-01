@@ -2,6 +2,14 @@ require 'spec_helper'
 
 describe CurrenciesController do
 
+  let(:expected) {
+    { "errors" => {
+      "name" => [ "can't be blank" ],
+      "symbol" => [ "can't be blank" ]
+      }
+    }
+  }
+
   before(:each) do
     request.env['HTTP_ACCEPT'] = "application/json"
   end
@@ -16,12 +24,13 @@ describe CurrenciesController do
   describe "POST 'create'" do
     it "shouldn't work without name" do
       post :create
-      response.body.should == "ERROR: no name"
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
     
     it "shouldn't work without symbol" do
       post :create, :name => 'FLD'
-      response.body.should == "ERROR: no symbol"
+      expected["errors"].delete("name")
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
 
     it "should work with all required values" do

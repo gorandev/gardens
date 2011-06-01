@@ -12,20 +12,12 @@ class ProductTypesController < ApplicationController
   end
   
   def create
-    if params.has_key?("product_type")
-      return create_from_form
-    end
-   
-    if !params.has_key?("name")
-      return render :json => "ERROR: no name"
-    end
-   
     product_type = ProductType.new( :name => params[:name] )
     
     if product_type.save
       render :json => "OK"
     else
-      render :json => "ERROR: product type wasn't saved"
+      render :json => { :errors => product_type.errors }
     end
   end
 end

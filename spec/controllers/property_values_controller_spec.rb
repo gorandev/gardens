@@ -2,6 +2,14 @@ require 'spec_helper'
 
 describe PropertyValuesController do
 
+  let(:expected) {
+    { "errors" => {
+      "value" => [ "can't be blank" ],
+      "property" => [ "can't be blank" ]
+      }
+    }
+  }
+
   let(:product_type) { ProductType.create(:name => 'Squeezer') }
   let(:property) { Property.create(:name => 'watts', :product_type => product_type) }
 
@@ -19,17 +27,19 @@ describe PropertyValuesController do
   describe "POST 'create'" do
     it "shouldn't work without value" do
       post :create
-      response.body.should == "ERROR: no value"
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
 
     it "shouldn't work without a property" do
       post :create, :value => 9
-      response.body.should == "ERROR: no property"
+      expected["errors"].delete("value")
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
 
     it "shouldn't work without a valid property" do
       post :create, :value => 9, :property => 99
-      response.body.should == "ERROR: no valid property"
+      expected["errors"].delete("value")
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
     
     it "should work with all required values" do

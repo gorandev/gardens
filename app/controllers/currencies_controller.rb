@@ -12,18 +12,7 @@ class CurrenciesController < ApplicationController
   end
   
   def create
-    if params.has_key?("currency")
-      return create_from_form
-    end
-   
-    if !params.has_key?("name")
-      return render :json => "ERROR: no name"
-    end
 
-    if !params.has_key?("symbol")
-      return render :json => "ERROR: no symbol"
-    end
-        
     currency = Currency.new( 
       :name => params[:name], 
       :symbol => params[:symbol]
@@ -32,7 +21,7 @@ class CurrenciesController < ApplicationController
     if currency.save
       render :json => "OK"
     else
-      render :json => "ERROR: currency wasn't saved"
+      render :json => { :errors => currency.errors }
     end
   end
 end

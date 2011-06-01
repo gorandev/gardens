@@ -16,57 +16,22 @@ class ItemsController < ApplicationController
       return associate
     end
   end
-
-  def associate
-    begin
-      item = Item.find(params[:id])
-    rescue
-      return render :json => "ERROR: invalid item id"
-    end
-    
-    begin
-      product = Product.find(params[:product])
-    rescue
-      return render :json => "ERROR: invalid product id"
-    end
-    
-    item.product = product
-    if item.save
-      render :json => "OK"
-    else
-      render :json => "ERROR: couldn't save"
-    end
-  end
   
-  def create
-    if params.has_key?("item")
-      return create_from_form
-    end
-   
-    if !params.has_key?("retailer")
-      return render :json => "ERROR: no retailer"
-    end
-    
+  def create   
     begin
       retailer = Retailer.find(params[:retailer])
     rescue
-      return render :json => "ERROR: no valid retailer type"
     end
 
-    if !params.has_key?("property_values")
-      return render :json => "ERROR: no property values"
-    end
-    
     pvs = Array.new
-    params[:property_values].split(",").each do |pv|
-      begin
-        pvs.push(PropertyValue.find(pv))
-      rescue
+    begin
+      params[:property_values].split(",").each do |pv|
+        begin
+          pvs.push(PropertyValue.find(pv))
+        rescue
+        end
       end
-    end
-    
-    if pvs.empty?
-      return render :json => "ERROR: no valid property values"
+    rescue
     end
     
     begin
@@ -81,7 +46,7 @@ class ItemsController < ApplicationController
     if item.save
       render :json => "OK"
     else
-      render :json => "ERROR: item wasn't saved"
+      render :json => { :errors => item.errors }
     end
   end
   

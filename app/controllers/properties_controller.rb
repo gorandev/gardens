@@ -24,19 +24,10 @@ class PropertiesController < ApplicationController
     if params.has_key?("property")
       return create_from_form
     end
-   
-    if !params.has_key?("name")
-      return render :json => "ERROR: no name"
-    end
-   
-    if !params.has_key?("product_type")
-      return render :json => "ERROR: no product type"
-    end
-    
+
     begin
       product_type = ProductType.find(params[:product_type])
     rescue
-      return render :json => "ERROR: no valid product type"
     end
     
     property = Property.new( :name => params[:name], :product_type => product_type )
@@ -44,7 +35,7 @@ class PropertiesController < ApplicationController
     if property.save
       render :json => "OK"
     else
-      render :json => "ERROR: property wasn't saved"
+      render :json => { :errors => property.errors }
     end
   end
   

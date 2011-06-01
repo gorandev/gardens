@@ -2,6 +2,14 @@ require 'spec_helper'
 
 describe RetailersController do
 
+  let(:expected) {
+    { "errors" => {
+      "name" => [ "can't be blank" ],
+      "country" => [ "can't be blank" ]
+      }
+    }
+  }
+
   let (:currency) { Currency.create(:name => 'Felicidon', :symbol => 'F') }
   let (:country) { Country.create(
     :name => 'Felicidonia',
@@ -25,17 +33,19 @@ describe RetailersController do
   describe "POST 'create'" do
     it "shouldn't work without name" do
       post :create
-      response.body.should == "ERROR: no name"
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
 
     it "shouldn't work without country" do
       post :create, :name => 'Falarino'
-      response.body.should == "ERROR: no country"
+      expected["errors"].delete("name")
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
     
     it "shouldn't work without a valid country" do
       post :create, :name => 'Falarino', :country => 99
-      response.body.should == "ERROR: no valid country"
+      expected["errors"].delete("name")
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
     
     it "should work with all required values" do

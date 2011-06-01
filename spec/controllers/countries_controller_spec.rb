@@ -2,6 +2,17 @@ require 'spec_helper'
 
 describe CountriesController do
 
+  let(:expected) {
+    { "errors" => {
+      "name" => [ "can't be blank" ],
+      "iso_code" => [ "can't be blank" ],
+      "locale" => [ "can't be blank" ],
+      "time_zone" => [ "can't be blank" ],
+      "currency" => [ "can't be blank" ]
+      }
+    }
+  }
+
   before(:each) do
     request.env['HTTP_ACCEPT'] = "application/json"
   end
@@ -16,27 +27,37 @@ describe CountriesController do
   describe "POST 'create'" do
     it "shouldn't work without name" do
       post :create
-      response.body.should == "ERROR: no name"
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
     
     it "shouldn't work without iso code" do
       post :create, :name => 'Felicidonia'
-      response.body.should == "ERROR: no iso_code"
+      expected["errors"].delete("name")
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
     
     it "shouldn't work without locale" do
       post :create, :name => 'Felicidonia', :iso_code => 'FD'
-      response.body.should == "ERROR: no locale"
+      expected["errors"].delete("name")
+      expected["errors"].delete("iso_code")
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
     
     it "shouldn't work without time zone" do
       post :create, :name => 'Felicidonia', :iso_code => 'FD', :locale => 'es_FD'
-      response.body.should == "ERROR: no time_zone"
+      expected["errors"].delete("name")
+      expected["errors"].delete("iso_code")
+      expected["errors"].delete("locale")
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
     
     it "shouldn't work without currency" do
       post :create, :name => 'Felicidonia', :iso_code => 'FD', :locale => 'es_FD', :time_zone => 'GMT-03:00'
-      response.body.should == "ERROR: no currency"
+      expected["errors"].delete("name")
+      expected["errors"].delete("iso_code")
+      expected["errors"].delete("locale")
+      expected["errors"].delete("time_zone")
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
     
     it "should work with all required values" do

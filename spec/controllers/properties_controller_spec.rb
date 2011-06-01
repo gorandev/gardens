@@ -2,6 +2,14 @@ require 'spec_helper'
 
 describe PropertiesController do
 
+  let(:expected) {
+    { "errors" => {
+      "name" => [ "can't be blank" ],
+      "product_type" => [ "can't be blank" ]
+      }
+    }
+  }
+
   let(:product_type) { ProductType.create(:name => 'Squeezer') }
 
   before(:each) do
@@ -18,17 +26,19 @@ describe PropertiesController do
   describe "POST 'create'" do
     it "shouldn't work without name" do
       post :create
-      response.body.should == "ERROR: no name"
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
 
     it "shouldn't work without product type" do
       post :create, :name => 'Tonnage'
-      response.body.should == "ERROR: no product type"
+      expected["errors"].delete("name")
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
 
     it "shouldn't work without a valid product type" do
       post :create, :name => 'Tonnage', :product_type => 99
-      response.body.should == "ERROR: no valid product type"
+      expected["errors"].delete("name")
+      ActiveSupport::JSON.decode(response.body).should == expected
     end
     
     it "should work with all required values" do
