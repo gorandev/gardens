@@ -66,18 +66,60 @@ describe ItemsController do
       ActiveSupport::JSON.decode(response.body).should == expected
     end
     
-    it "should work without product" do
+    it "should work without product and a single property value" do
       lambda do
         post :create, :retailer => retailer.id, :property_values => property_value.id.to_s
         response.body.should == "OK"
       end.should change(Item, :count).by(1)
+      Item.last.retailer.should == retailer
+      Item.last.property_values.should == [ property_value ]
     end
     
-    it "should work with product too" do
+    it "should work without product and more than one property value via comma separated string" do
+      lambda do
+        post :create, :retailer => retailer.id, :property_values => property_value.id.to_s + ',' + another_property_value.id.to_s
+        response.body.should == "OK"
+      end.should change(Item, :count).by(1)
+      Item.last.retailer.should == retailer
+      Item.last.property_values.should == [ property_value, another_property_value ]
+    end    
+    
+    it "should work without product and more than one property value via array of ids" do
+      lambda do
+        post :create, :retailer => retailer.id, :property_values => [ property_value.id, another_property_value.id ]
+        response.body.should == "OK"
+      end.should change(Item, :count).by(1)
+      Item.last.retailer.should == retailer
+      Item.last.property_values.should == [ property_value, another_property_value ]
+    end
+    
+    it "should work with product and a single property value" do
       lambda do
         post :create, :retailer => retailer.id, :property_values => property_value.id.to_s, :product => product.id
         response.body.should == "OK"
+        Item.last.retailer.should == retailer
+        Item.last.product.should == product
       end.should change(Item, :count).by(1)
+    end
+
+    it "should work with product and more than one property value via comma separated string" do
+      lambda do
+        post :create, :retailer => retailer.id, :property_values => property_value.id.to_s + ',' + another_property_value.id.to_s, :product => product.id
+        response.body.should == "OK"
+      end.should change(Item, :count).by(1)
+      Item.last.retailer.should == retailer
+      Item.last.product.should == product
+      Item.last.property_values.should == [ property_value, another_property_value ]
+    end    
+    
+    it "should work with product and more than one property value via array of ids" do
+      lambda do
+        post :create, :retailer => retailer.id, :property_values => [ property_value.id, another_property_value.id ], :product => product.id
+        response.body.should == "OK"
+      end.should change(Item, :count).by(1)
+      Item.last.retailer.should == retailer
+      Item.last.product.should == product
+      Item.last.property_values.should == [ property_value, another_property_value ]
     end
     
     it "should work even with an invalid product (it's ignored)" do
@@ -85,6 +127,8 @@ describe ItemsController do
         post :create, :retailer => retailer.id, :property_values => property_value.id.to_s, :product => 99
         response.body.should == "OK"
       end.should change(Item, :count).by(1)
+      Item.last.retailer.should == retailer
+      Item.last.property_values.should == [ property_value ]
     end
   end
   
@@ -114,37 +158,7 @@ describe ItemsController do
   describe "PUT /:id" do      
     it "should not work with an invalid id" do
       put :update, :id => 99
-      response.body.should == "ERROR: no valid item id"
-    end
-    
-    it "should not work with just an id" do
-      put :update, :id => item.id
-      response.body.should == "ERROR: nothing to update"
-    end
-    
-    it "should not work with an invalid retailer id" do
-      put :update, :id => item.id, :retailer => 99
-      response.body.should == "ERROR: invalid retailer"
-    end
-    
-    it "should not work with an invalid product id" do
-      put :update, :id => item.id, :retailer => retailer.id, :product => 99
-      response.body.should == "ERROR: invalid product"
-    end
-    
-    it "should not work with the only property value being invalid" do
-      put :update, :id => item.id, :property_values => "99"
-      response.body.should == "ERROR: invalid property value"
-    end
-    
-    it "should not work with many invalid property values" do
-      put :update, :id => item.id, :property_values => "99,100,101"
-      response.body.should == "ERROR: invalid property value"
-    end
-    
-    it "should not work even if one property value is invalid" do
-      put :update, :id => item.id, :property_values => "99," + property_value.id.to_s + "," + another_property_value.id.to_s
-      response.body.should == "ERROR: invalid property value"
+      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "id" => "must be valid" } }
     end
     
     it "should work with a valid retailer" do

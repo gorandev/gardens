@@ -21,24 +21,8 @@ class ProductsController < ApplicationController
       return create_from_form
     end
 
-    begin
-      product_type = ProductType.find(params[:product_type])
-    rescue
-    end
-
-    pvs = Array.new
-    begin
-      params[:property_values].split(",").each do |pv|
-        begin
-          pvs.push(PropertyValue.find(pv))
-        rescue
-        end
-      end
-    rescue
-    end
-    
-    product = Product.new( :product_type => product_type )
-    product.property_values << pvs
+    product = Product.new( :product_type => ProductType.find_by_id(params[:product_type]) )
+    product.property_values << PropertyValue.find_all_by_id(params[:property_values])
     
     if product.save
       render :json => "OK"

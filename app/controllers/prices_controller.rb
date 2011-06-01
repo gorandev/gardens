@@ -12,17 +12,11 @@ class PricesController < ApplicationController
   end
   
   def create
-    begin
-      item = Item.find(params[:item])
-    rescue
-    end
-    
-    begin
-      currency = Currency.find(params[:currency])
-    rescue
-    end
-    
-    price = Price.new( :item => item, :price => params[:value], :currency => currency )
+    price = Price.new(
+      :price => params[:value],
+      :item => Item.find_by_id(params[:item]),
+      :currency => Currency.find_by_id(params[:currency])
+    )
     
     if price.save
       render :json => "OK"

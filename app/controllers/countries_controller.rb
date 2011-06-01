@@ -12,18 +12,12 @@ class CountriesController < ApplicationController
   end
   
   def create
-
-    begin
-      currency = Currency.find(params[:currency])
-    rescue
-    end
-  
     country = Country.new( 
       :name => params[:name], 
       :iso_code => params[:iso_code], 
       :locale => params[:locale], 
       :time_zone => params[:time_zone], 
-      :currency => currency
+      :currency => Currency.find_by_id(params[:currency])
     )
     
     if country.save

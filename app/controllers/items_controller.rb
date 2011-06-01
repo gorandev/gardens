@@ -11,37 +11,18 @@ class ItemsController < ApplicationController
     respond_with(@Item)
   end
 
-  def actions
-    if params.has_key?("product")
-      return associate
+  def create
+    if params[:property_values].is_a?String
+      property_values = PropertyValue.find_all_by_id(params[:property_values].split(','))
+    else
+      property_values = PropertyValue.find_all_by_id(params[:property_values])
     end
-  end
   
-  def create   
-    begin
-      retailer = Retailer.find(params[:retailer])
-    rescue
-    end
-
-    pvs = Array.new
-    begin
-      params[:property_values].split(",").each do |pv|
-        begin
-          pvs.push(PropertyValue.find(pv))
-        rescue
-        end
-      end
-    rescue
-    end
-    
-    begin
-      product = Product.find(params[:product])
-      item = Item.new( :product => product, :retailer => retailer )
-    rescue
-      item = Item.new( :retailer => retailer )
-    end
-   
-    item.property_values << pvs
+    item = Item.new(
+      :retailer => Retailer.find_by_id(params[:retailer]),
+      :product => Product.find_by_id(params[:product]),
+      :property_values => property_values
+    )
    
     if item.save
       render :json => "OK"
@@ -51,65 +32,32 @@ class ItemsController < ApplicationController
   end
   
   def update
-    begin
-      item = Item.find(params[:id])
-    rescue
-      return render :json => "ERROR: no valid item id"
+    unless item = Item.find_by_id(params[:id])
+      return render :json => { :errors => { :id => "must be valid" } }
     end
-    
-    unless params.has_key?("product") || params.has_key?("retailer") || params.has_key?("property_values")
-      return render :json => "ERROR: nothing to update"
-    end
-    
-    if params.has_key?("retailer")
-      begin
-        retailer = Retailer.find(params[:retailer])
-      rescue
-        return render :json => "ERROR: invalid retailer"
-      end
-      
+
+    if retailer = Retailer.find_by_id(params[:retailer])
       item.retailer = retailer
     end
-      
-    if params.has_key?("product")
-      begin
-        product = Product.find(params[:product])
-      rescue
-        return render :json => "ERROR: invalid product"
-      end
-      
+    
+    if product = Product.find_by_id(params[:product])
       item.product = product
     end
-    
-    if params.has_key?("property_values")
-      pvs = Array.new
-      pvs_params = Array.new
-    
-      if params[:property_values].is_a?Array
-        pvs_params = params[:property_values]
-      else
-        pvs_params = params[:property_values].split(",")
-      end
 
-      pvs_params.each do |pv|
-        begin
-          pvs.push(PropertyValue.find(pv))
-        rescue
-          return render :json => "ERROR: invalid property value"
-        end
-      end
-      
-      if pvs.empty?
-        return render :json => "ERROR: invalid property value"
-      end
-      
-      item.property_values = pvs
+    if params[:property_values].is_a?String
+      property_values = PropertyValue.find_all_by_id(params[:property_values].split(','))
+    else
+      property_values = PropertyValue.find_all_by_id(params[:property_values])
     end
     
+    if !property_values.empty?
+      item.property_values = property_values
+    end
+
     if item.save
       render :json => "OK"
     else
-      render :json => "ERROR: could not save"
+      render :json => { :errors => item.errors }
     end
   end
   

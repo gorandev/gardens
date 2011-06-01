@@ -18,6 +18,7 @@
 
 class Country < ActiveRecord::Base
   belongs_to :currency
+  
   has_many :retailers
   validates_presence_of :name, :iso_code, :locale, :time_zone, :currency
   

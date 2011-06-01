@@ -12,12 +12,7 @@ class PropertyValuesController < ApplicationController
   end
   
   def create
-    begin
-      property = Property.find(params[:property])
-    rescue
-    end
-    
-    property_value = PropertyValue.new( :value => params[:value], :property => property )
+    property_value = PropertyValue.new( :value => params[:value], :property => Property.find_by_id(params[:property]) )
     
     if property_value.save
       render :json => "OK"

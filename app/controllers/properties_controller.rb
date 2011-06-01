@@ -25,12 +25,7 @@ class PropertiesController < ApplicationController
       return create_from_form
     end
 
-    begin
-      product_type = ProductType.find(params[:product_type])
-    rescue
-    end
-    
-    property = Property.new( :name => params[:name], :product_type => product_type )
+    property = Property.new( :name => params[:name], :product_type => ProductType.find_by_id(params[:product_type]) )
     
     if property.save
       render :json => "OK"

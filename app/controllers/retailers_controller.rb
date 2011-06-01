@@ -12,12 +12,7 @@ class RetailersController < ApplicationController
   end
   
   def create    
-    begin
-      country = Country.find(params[:country])
-    rescue
-    end
-    
-    retailer = Retailer.new( :name => params[:name], :country => country )
+    retailer = Retailer.new( :name => params[:name], :country => Country.find_by_id(params[:country]) )
     
     if retailer.save
       render :json => "OK"
