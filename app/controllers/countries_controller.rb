@@ -23,7 +23,10 @@ class CountriesController < ApplicationController
     if country.save
       render :json => "OK"
     else
-      render :json => { :errors => country.errors }
+      if params.has_key?(:currency) && country.currency == nil
+        country.errors.add(:currency, "must be valid")
+      end
+      render :json => { :errors => country.errors }, :status => 400
     end
   end
 end

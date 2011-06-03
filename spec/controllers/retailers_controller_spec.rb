@@ -45,6 +45,7 @@ describe RetailersController do
     it "shouldn't work without a valid country" do
       post :create, :name => 'Falarino', :country => 99
       expected["errors"].delete("name")
+      expected["errors"]["country"].push("must be valid")
       ActiveSupport::JSON.decode(response.body).should == expected
     end
     

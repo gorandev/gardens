@@ -33,6 +33,7 @@ describe ProductsController do
 
     it "shouldn't work with an invalid product type" do
       post :create, :product_type => 99
+      expected["errors"]["product_type"].push("must be valid")
       ActiveSupport::JSON.decode(response.body).should == expected
     end
     
@@ -42,9 +43,10 @@ describe ProductsController do
       ActiveSupport::JSON.decode(response.body).should == expected
     end
 
-    it "shouldn't work with invalid property values" do
-      post :create, :product_type => product_type.id, :property_values => "99"
+    it "shouldn't work with any invalid property values" do
+      post :create, :product_type => product_type.id, :property_values => property_value.id.to_s + ",99"
       expected["errors"].delete("product_type")
+      expected["errors"]["property_values"].push("must be all valid")
       ActiveSupport::JSON.decode(response.body).should == expected
     end
     

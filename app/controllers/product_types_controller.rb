@@ -17,7 +17,7 @@ class ProductTypesController < ApplicationController
     if product_type.save
       render :json => "OK"
     else
-      render :json => { :errors => product_type.errors }
+      render :json => { :errors => product_type.errors }, :status => 400
     end
   end
 end

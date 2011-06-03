@@ -21,7 +21,13 @@ class PricesController < ApplicationController
     if price.save
       render :json => "OK"
     else
-      render :json => { :errors => price.errors }
+      if params.has_key?(:item) && price.item == nil
+        price.errors.add(:item, "must be valid")
+      end
+      if params.has_key?(:currency) && price.currency == nil
+        price.errors.add(:currency, "must be valid")
+      end
+      render :json => { :errors => price.errors }, :status => 400
     end
   end
 end

@@ -30,7 +30,10 @@ class PropertiesController < ApplicationController
     if property.save
       render :json => "OK"
     else
-      render :json => { :errors => property.errors }
+      if params.has_key?(:product_type)
+        property.errors.add(:product_type, "must be valid")
+      end
+      render :json => { :errors => property.errors }, :status => 400
     end
   end
   

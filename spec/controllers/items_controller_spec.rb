@@ -51,6 +51,7 @@ describe ItemsController do
     
     it "shouldn't work with an invalid retailer" do
       post :create, :retailer => 99
+      expected["errors"]["retailer"].push("must be valid")
       ActiveSupport::JSON.decode(response.body).should == expected
     end
     
@@ -60,9 +61,18 @@ describe ItemsController do
       ActiveSupport::JSON.decode(response.body).should == expected
     end
     
-    it "shouldn't work with invalid property values" do
-      post :create, :retailer => retailer.id, :property_values => "99,100,102"
+    it "shouldn't work with any invalid property values" do
+      post :create, :retailer => retailer.id, :property_values => property_value.id.to_s + ',' + another_property_value.id.to_s + ',100'
       expected["errors"].delete("retailer")
+      expected["errors"]["property_values"].push("must be all valid")
+      ActiveSupport::JSON.decode(response.body).should == expected
+    end
+    
+    it "shouldn't work with an invalid product" do
+      post :create, :retailer => retailer.id, :property_values => property_value.id.to_s, :product => 99
+      expected["errors"].delete("retailer")
+      expected["errors"].delete("property_values")
+      expected["errors"]["product"] = "must be valid"
       ActiveSupport::JSON.decode(response.body).should == expected
     end
     
@@ -121,15 +131,6 @@ describe ItemsController do
       Item.last.product.should == product
       Item.last.property_values.should == [ property_value, another_property_value ]
     end
-    
-    it "should work even with an invalid product (it's ignored)" do
-      lambda do
-        post :create, :retailer => retailer.id, :property_values => property_value.id.to_s, :product => 99
-        response.body.should == "OK"
-      end.should change(Item, :count).by(1)
-      Item.last.retailer.should == retailer
-      Item.last.property_values.should == [ property_value ]
-    end
   end
   
   describe "GET 'show'" do
@@ -167,10 +168,20 @@ describe ItemsController do
       Item.find(item.id).retailer.should == another_retailer
     end
 
+    it "shouldn't work with an invalid retailer" do
+      put :update, :id => item.id, :retailer => 99
+      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "retailer" => "must be valid" } }
+    end
+    
     it "should work with a valid product" do
       put :update, :id => item.id, :product => product.id
       response.body.should == "OK"
       Item.find(item.id).product.should == product
+    end
+
+    it "shouldn't work with an invalid product" do
+      put :update, :id => item.id, :product => 99
+      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "product" => "must be valid" } }
     end
     
     it "should work with a retailer *and* a product" do
@@ -181,27 +192,43 @@ describe ItemsController do
     end
 
     it "should work with a valid single property value" do
-      put :update, :id => item.id, :property_values => another_property_value.id.to_s
+      put :update, :id => item.id, :property_values => [ another_property_value.id ]
       response.body.should == "OK"
       Item.find(item.id).property_values.should == [ another_property_value ]
     end
+    
+    it "should *add* the property values if it's a comma separated string" do
+      put :update, :id => item.id, :property_values => another_property_value.id.to_s + "," + a_third_property_value.id.to_s
+      response.body.should == "OK"
+      Item.find(item.id).property_values.should == [ property_value, another_property_value, a_third_property_value ]
+    end
 
+    it "shouldn't work with an invalid single property value" do
+      put :update, :id => item.id, :property_values => 99
+      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "property_values" => "must be all valid" } }
+    end
+
+    it "shouldn't work even if only one property value is invalid" do
+      put :update, :id => item.id, :retailer => another_retailer.id, :property_values => another_property_value.id.to_s + "," + a_third_property_value.id.to_s + ",99"
+      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "property_values" => "must be all valid" } }
+    end
+    
     it "should work with a valid single property value and a retailer" do
-      put :update, :id => item.id, :retailer => another_retailer.id, :property_values => another_property_value.id.to_s
+      put :update, :id => item.id, :retailer => another_retailer.id, :property_values => [ another_property_value.id ]
       response.body.should == "OK"
       Item.find(item.id).retailer.should == another_retailer
       Item.find(item.id).property_values.should == [ another_property_value ]
     end
     
     it "should work with a valid single property value and a product" do
-      put :update, :id => item.id, :property_values => another_property_value.id.to_s, :product => product.id
+      put :update, :id => item.id, :property_values => [ another_property_value.id ], :product => product.id
       response.body.should == "OK"
       Item.find(item.id).product.should == product
       Item.find(item.id).property_values.should == [ another_property_value ]
     end
     
     it "should work with a valid single property value and a retailer *and* a product" do
-      put :update, :id => item.id, :property_values => another_property_value.id.to_s, :retailer => another_retailer.id, :product => product.id
+      put :update, :id => item.id, :property_values => [ another_property_value.id ], :retailer => another_retailer.id, :product => product.id
       response.body.should == "OK"
       Item.find(item.id).retailer.should == another_retailer
       Item.find(item.id).product.should == product
@@ -209,27 +236,27 @@ describe ItemsController do
     end
     
     it "should work with more than one valid property value" do
-      put :update, :id => item.id, :property_values => another_property_value.id.to_s + "," + a_third_property_value.id.to_s
+      put :update, :id => item.id, :property_values => [ another_property_value.id, a_third_property_value.id ]
       response.body.should == "OK"
       Item.find(item.id).property_values.should == [ another_property_value, a_third_property_value ]
     end
     
     it "should work with more than one valid property value and a retailer" do
-      put :update, :id => item.id, :property_values => another_property_value.id.to_s + "," + a_third_property_value.id.to_s, :retailer => another_retailer.id
+      put :update, :id => item.id, :property_values => [ another_property_value.id, a_third_property_value.id ], :retailer => another_retailer.id
       response.body.should == "OK"
       Item.find(item.id).retailer.should == another_retailer
       Item.find(item.id).property_values.should == [ another_property_value, a_third_property_value ]
     end
     
     it "should work with more than one valid property value and a product" do
-      put :update, :id => item.id, :property_values => another_property_value.id.to_s + "," + a_third_property_value.id.to_s, :product => product.id
+      put :update, :id => item.id, :property_values => [ another_property_value.id, a_third_property_value.id ], :product => product.id
       response.body.should == "OK"
       Item.find(item.id).product.should == product
       Item.find(item.id).property_values.should == [ another_property_value, a_third_property_value ]
     end
     
     it "should work with more than one valid property value and a retailer *and* a product" do
-      put :update, :id => item.id, :property_values => another_property_value.id.to_s + "," + a_third_property_value.id.to_s, :retailer => another_retailer.id, :product => product.id
+      put :update, :id => item.id, :property_values => [ another_property_value.id, a_third_property_value.id ], :retailer => another_retailer.id, :product => product.id
       response.body.should == "OK"
       Item.find(item.id).retailer.should == another_retailer
       Item.find(item.id).product.should == product

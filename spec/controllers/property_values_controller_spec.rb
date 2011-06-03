@@ -36,9 +36,10 @@ describe PropertyValuesController do
       ActiveSupport::JSON.decode(response.body).should == expected
     end
 
-    it "shouldn't work without a valid property" do
+    it "shouldn't work with an invalid property" do
       post :create, :value => 9, :property => 99
       expected["errors"].delete("value")
+      expected["errors"]["property"].push("must be valid")
       ActiveSupport::JSON.decode(response.body).should == expected
     end
     

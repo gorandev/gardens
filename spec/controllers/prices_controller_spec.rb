@@ -59,6 +59,7 @@ describe PricesController do
     it "shouldn't work with an invalid item" do
       post :create, :value => 99, :item => 99
       expected["errors"].delete("price")
+      expected["errors"]["item"].push("must be valid")
       ActiveSupport::JSON.decode(response.body).should == expected
     end
     
@@ -73,6 +74,7 @@ describe PricesController do
       post :create, :value => 99, :item => item.id, :currency => 99
       expected["errors"].delete("price")
       expected["errors"].delete("item")
+      expected["errors"]["currency"].push("must be valid")
       ActiveSupport::JSON.decode(response.body).should == expected
     end
     

@@ -21,13 +21,35 @@ class ProductsController < ApplicationController
       return create_from_form
     end
 
-    product = Product.new( :product_type => ProductType.find_by_id(params[:product_type]) )
-    product.property_values << PropertyValue.find_all_by_id(params[:property_values])
+    property_values = Array.new
+    if params.has_key?(:property_values)
+      if params[:property_values].is_a?String
+        property_values = PropertyValue.find_all_by_id(params[:property_values].split(','))
+        pv_param_size = params[:property_values].split(',').size
+      else
+        if params[:property_values].is_a?Array
+          pv_param_size = params[:property_values].size
+        end
+        property_values = PropertyValue.find_all_by_id(params[:property_values])
+      end
+      
+      if property_values.size != pv_param_size
+        property_values.clear
+      end
+    end
+    
+    product = Product.new( :product_type => ProductType.find_by_id(params[:product_type]), :property_values => property_values )
     
     if product.save
       render :json => "OK"
     else
-      render :json => { :errors => product.errors }
+      if params.has_key?(:product_type) && product.product_type == nil
+        product.errors.add(:product_type, "must be valid")
+      end
+      if params.has_key?(:property_values) && product.property_values.empty?
+        product.errors.add(:property_values, "must be all valid")
+      end
+      render :json => { :errors => product.errors }, :status => 400
     end
   end
   

@@ -17,7 +17,10 @@ class RetailersController < ApplicationController
     if retailer.save
       render :json => "OK"
     else
-      render :json => { :errors => retailer.errors }
+      if params.has_key?(:country)
+        retailer.errors.add(:country, "must be valid")
+      end
+      render :json => { :errors => retailer.errors }, :status => 400
     end
   end
 end

@@ -35,9 +35,10 @@ describe PropertiesController do
       ActiveSupport::JSON.decode(response.body).should == expected
     end
 
-    it "shouldn't work without a valid product type" do
+    it "shouldn't work with an invalid product type" do
       post :create, :name => 'Tonnage', :product_type => 99
       expected["errors"].delete("name")
+      expected["errors"]["product_type"].push("must be valid")
       ActiveSupport::JSON.decode(response.body).should == expected
     end
     

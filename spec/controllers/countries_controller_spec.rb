@@ -60,6 +60,16 @@ describe CountriesController do
       ActiveSupport::JSON.decode(response.body).should == expected
     end
     
+    it "shouldn't work with an invalid currency" do
+      post :create, :name => 'Felicidonia', :iso_code => 'FD', :locale => 'es_FD', :time_zone => 'GMT-03:00', :currency => 99
+      expected["errors"].delete("name")
+      expected["errors"].delete("iso_code")
+      expected["errors"].delete("locale")
+      expected["errors"].delete("time_zone")
+      expected["errors"]["currency"].push("must be valid")
+      ActiveSupport::JSON.decode(response.body).should == expected
+    end
+    
     it "should work with all required values" do
       lambda do
         Currency.create(:name => 'FLD', :symbol => 'F$')
