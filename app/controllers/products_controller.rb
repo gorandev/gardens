@@ -82,37 +82,88 @@ class ProductsController < ApplicationController
     end
   end
   
-  def search
-    valid_parameters = ['country', 'product_type', 'retailer']
-    search_parameters = Hash.new
-    valid_parameters.each do |p|
-      if params.has_key?(p.to_sym)
-        search_parameters[p] = params[p.to_sym]
+  def update
+    unless product = Product.find_by_id(params[:id])
+      return render :json => { :errors => { :product => "must be valid" } }, :status => 400
+    end
+
+    if params.has_key?(:product_type)
+      unless product_type = ProductType.find_by_id(params[:product_type])
+        return render :json => { :errors => { :product_type => "must be valid" } }, :status => 400
+      end
+      product.product_type = product_type
+    end
+
+    if params.has_key?(:property_values)
+      if params[:property_values].is_a?String
+        property_values = PropertyValue.find_all_by_id(params[:property_values].split(','))
+        pv_param_size = params[:property_values].split(',').size
+      else
+        if params[:property_values].is_a?Array
+          pv_param_size = params[:property_values].size
+        end
+        property_values = PropertyValue.find_all_by_id(params[:property_values])
+      end
+      
+      if property_values.empty? || property_values.size != pv_param_size
+        return render :json => { :errors => { :property_values => "must be all valid" } }, :status => 400
+      else
+        if params[:property_values].is_a?String
+          product.property_values << property_values
+        else
+          product.property_values = property_values
+        end
       end
     end
     
-    if search_parameters.empty?
-      return render :json => "ERROR -- no parameters"
+    if product.save
+      render :json => "OK"
+    else
+      render :json => { :errors => product.errors }, :status => 400
+    end
+  end
+  
+  def destroy
+    unless product = Product.find_by_id(params[:id])
+      return render :json => { :errors => { :product => "must be valid" } }
+    end
+    
+    product.destroy
+    render :json => "OK"
+  end
+  
+  def search    
+    if params.slice(:product_type, :property_values).empty?
+      return render :json => { :errors => { :product => "no search parameters" } }, :status => 400
+    end
+
+    if params.has_key?(:product_type)
+      if ProductType.find_by_id(params[:product_type])
+        params[:product_type_id] = params[:product_type]
+      else
+        return render :json => { :errors => { :product_type => "not found" } }, :status => 400
+      end
     end
     
     join = Array.new
-    where = Hash.new
-    
-    if search_parameters.has_key?('product_type')
-      where[:product_type_id] = search_parameters['product_type']
+    if params.has_key?(:property_values)
+      if params[:property_values].is_a?String
+        unless params[:property_values].split(',').size > 0 && PropertyValue.find_all_by_id(params[:property_values].split(',')).size == params[:property_values].split(',').size
+          return render :json => { :errors => { :property_values => "not found" } }, :status => 400
+        end
+        params[:property_values] = params[:property_values].split(',')
+      elsif params[:property_values].is_a?Array
+        unless params[:property_values].size > 0 && PropertyValue.find_all_by_id(params[:property_values]).size == params[:property_values].size
+          return render :json => { :errors => { :property_values => "not found" } }, :status => 400
+        end
+      else
+        return render :json => { :errors => { :property_values => "must be comma-separated string or JSON array" } }, :status => 400
+      end
+      
+      params[:property_values] = { :id => params[:property_values] }
+      join.push(:property_values)
     end
     
-    if search_parameters.has_key?('country')
-      join.push(:retailers)
-      where[:retailers] = { :country_id => search_parameters['country'] }
-    end
-    
-    if search_parameters.has_key?('retailer')
-      join.push(:items)
-      where[:items] = { :retailer_id => search_parameters['retailer'] }
-    end
-
-    @products = Product.joins(join).where(where)
-    respond_with(@products)
+    respond_with(Product.joins(join).where(params.slice(:product_type_id, :property_values)).group(:id))
   end
 end

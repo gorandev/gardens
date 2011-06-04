@@ -1,25 +1,32 @@
 Gardens::Application.routes.draw do
 
-  resources :property_values, :defaults => { :format => :json }
-  resources :product_types, :defaults => { :format => :json }
-  resources :countries, :defaults => { :format => :json }
-  resources :retailers, :defaults => { :format => :json }
+  match 'currencies/search' => 'currencies#search', :defaults => { :format => :json }
   resources :currencies, :defaults => { :format => :json }
+  
+  match 'countries/search' => 'countries#search', :defaults => { :format => :json }
+  resources :countries, :defaults => { :format => :json }
+  
+  match 'property_values/search' => 'property_values#search', :defaults => { :format => :json }
+  resources :property_values, :defaults => { :format => :json }
+  
+  match 'product_types/search' => 'product_types#search', :defaults => { :format => :json }
+  resources :product_types, :defaults => { :format => :json }
+  
+  match 'retailers/search' => 'retailers#search', :defaults => { :format => :json }
+  resources :retailers, :defaults => { :format => :json }
+  
+  match 'prices/search' => 'prices#search', :defaults => { :format => :json }
   resources :prices, :defaults => { :format => :json }
 
-  match 'items/:id' => 'items#actions', :via => :post, :defaults => { :format => :json }
+  match 'items/search' => 'items#search', :defaults => { :format => :json }
   resources :items, :defaults => { :format => :json }
   
   match 'products/search' => 'products#search', :defaults => { :format => :json }
-  match 'products/new' => 'products#new', :defaults => { :format => :html }
-  match 'products' => 'products#create', :via => :post, :defaults => { :format => :html }
   resources :products, :defaults => { :format => :json }
 
   match 'properties/product_type/:id' => 'properties#get_by_product_type', 
     :as => :get_properties_by_product_type, :defaults => { :format => :json }
-  
-  match 'properties/new' => 'properties#new', :defaults => { :format => :html }
-  match 'properties' => 'properties#create', :via => :post, :defaults => { :format => :html }
+  match 'properties/search' => 'properties#search', :defaults => { :format => :json }
   resources :properties, :defaults => { :format => :json }
   
   # The priority is based upon order of creation:

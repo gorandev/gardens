@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110518201304) do
+ActiveRecord::Schema.define(:version => 20110603204022) do
 
   create_table "countries", :force => true do |t|
     t.string   "iso_code"
@@ -40,6 +40,7 @@ ActiveRecord::Schema.define(:version => 20110518201304) do
     t.integer  "retailer_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "source"
   end
 
   add_index "items", ["product_id"], :name => "index_items_on_product_id"

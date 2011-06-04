@@ -11,8 +11,11 @@ describe ProductsController do
   }
 
   let(:product_type) { ProductType.create(:name => 'Squeezer') }
+  let(:another_product_type) { ProductType.create(:name => 'Choker') }
   let(:property) { Property.create(:name => 'watts', :product_type => product_type) }
   let(:property_value) { PropertyValue.create(:value => 1, :property => property) }
+  let(:another_property_value) { PropertyValue.create(:value => 2, :property => property) }
+  let(:a_third_property_value) { PropertyValue.create(:value => 2, :property => property) }
 
   before(:each) do
     request.env['HTTP_ACCEPT'] = "application/json"
@@ -66,4 +69,127 @@ describe ProductsController do
     end
   end
 
+  describe "PUT /:id" do
+  
+    let(:product) { Product.create( :product_type => product_type, :property_values => [ property_value ] ) }
+  
+    it "should not work with an invalid id" do
+      put :update, :id => 99
+      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "product" => "must be valid" } }
+    end
+
+    it "should work with a valid product_type" do
+      put :update, :id => product.id, :product_type => another_product_type.id
+      response.body.should == "OK"
+      Product.find(product.id).product_type.should == another_product_type
+    end
+
+    it "shouldn't work with an invalid product_type" do
+      put :update, :id => product.id, :product_type => 99
+      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "product_type" => "must be valid" } }
+    end
+
+    it "should work with a valid single property value" do
+      put :update, :id => product.id, :property_values => [ another_property_value.id ]
+      response.body.should == "OK"
+      Product.find(product.id).property_values.should == [ another_property_value ]
+    end
+    
+    it "should *add* the property values if it's a comma separated string" do
+      put :update, :id => product.id, :property_values => another_property_value.id.to_s + "," + a_third_property_value.id.to_s
+      response.body.should == "OK"
+      Product.find(product.id).property_values.should == [ property_value, another_property_value, a_third_property_value ]
+    end
+
+    it "shouldn't work with an invalid single property value" do
+      put :update, :id => product.id, :property_values => 99
+      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "property_values" => "must be all valid" } }
+    end
+
+    it "shouldn't work even if only one property value is invalid" do
+      put :update, :id => product.id, :property_values => another_property_value.id.to_s + "," + a_third_property_value.id.to_s + ",99"
+      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "property_values" => "must be all valid" } }
+    end
+    
+    it "should work with a valid single property value and a product type" do
+      put :update, :id => product.id, :property_values => [ another_property_value.id ], :product_type => product_type.id
+      response.body.should == "OK"
+      Product.find(product.id).product_type.should == product_type
+      Product.find(product.id).property_values.should == [ another_property_value ]
+    end
+        
+    it "should work with more than one valid property value" do
+      put :update, :id => product.id, :property_values => [ another_property_value.id, a_third_property_value.id ]
+      response.body.should == "OK"
+      Product.find(product.id).property_values.should == [ another_property_value, a_third_property_value ]
+    end
+    
+    it "should work with more than one valid property value and a product type" do
+      put :update, :id => product.id, :property_values => [ another_property_value.id, a_third_property_value.id ], :product_type => product_type.id
+      response.body.should == "OK"
+      Product.find(product.id).product_type.should == product_type
+      Product.find(product.id).property_values.should == [ another_property_value, a_third_property_value ]
+    end
+  end
+  
+  describe "DELETE /:id" do
+    it "shouldn't work with an invalid id" do
+      delete :destroy, :id => 99
+      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "product" => "must be valid" } }
+    end
+  
+    it "should work with a valid id" do
+      Product.create( :product_type => product_type, :property_values => [ property_value ] )
+      lambda do
+        delete :destroy, :id => 1
+        response.body.should == "OK"
+      end.should change(Product, :count).by(-1)
+    end
+  end
+  
+  describe "SEARCH" do
+    it "shouldn't work without parameters" do
+      get :search
+      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "product" => "no search parameters" } }
+    end
+    
+    it "should work even with no results" do
+      get :search, :product_type => another_product_type.id
+      ActiveSupport::JSON.decode(response.body).should == []
+    end
+    
+    it "shouldn't work with an invalid product type" do
+      get :search, :product_type => 99
+      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "product_type" => "not found" } }
+    end
+    
+    it "shouldn't work with invalid property values" do
+      get :search, :property_values => [99, 100]
+      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "property_values" => "not found" } }
+    end
+    
+    it "should work with just the product type" do
+      Product.create( :product_type => another_product_type, :property_values => [ property_value ] )
+      get :search, :product_type => another_product_type.id
+      ActiveSupport::JSON.decode(response.body).should == [{"property_values"=>[{"value_id"=>16, "name"=>"watts", "id"=>6, "value"=>"1"}], "product_type"=>"Choker", "id"=>3, "product_type_id"=>3, "active_in_countries"=>[]}]
+    end
+    
+    it "should work combining parameters" do
+      Product.create( :product_type => another_product_type, :property_values => [ property_value ] )
+      get :search, :product_type => another_product_type.id, :property_values => [ property_value.id ]
+      ActiveSupport::JSON.decode(response.body).should == [{"property_values"=>[{"value_id"=>16, "name"=>"watts", "id"=>6, "value"=>"1"}], "product_type"=>"Choker", "id"=>3, "product_type_id"=>3, "active_in_countries"=>[]}]
+    end
+    
+    it "should work with one property value" do
+      Product.create( :product_type => another_product_type, :property_values => [ property_value ] )
+      get :search, :property_values => property_value.id.to_s
+      ActiveSupport::JSON.decode(response.body).should == [{"property_values"=>[{"value_id"=>16, "name"=>"watts", "id"=>6, "value"=>"1"}], "product_type"=>"Choker", "id"=>3, "product_type_id"=>3, "active_in_countries"=>[]}]
+    end
+    
+    it "should work with more than one property value" do
+      Product.create( :product_type => another_product_type, :property_values => [ property_value, another_property_value ] )
+      get :search, :property_values => [ property_value, another_property_value ]
+      ActiveSupport::JSON.decode(response.body).should == [{"property_values"=>[{"value_id"=>16, "name"=>"watts", "id"=>6, "value"=>"1"}, {"value_id"=>17, "name"=>"watts", "id"=>6, "value"=>"2"}], "product_type"=>"Choker", "id"=>3, "product_type_id"=>3, "active_in_countries"=>[]}]
+    end    
+  end
 end

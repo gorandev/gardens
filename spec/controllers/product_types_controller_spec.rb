@@ -41,4 +41,40 @@ describe ProductTypesController do
       response.should be_ok
     end
   end
+  
+  describe "DELETE /:id" do
+    it "shouldn't work with a nonexistent item" do
+      delete :destroy, :id => 99
+      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "product_type" => "must be valid" } }
+    end
+  
+    it "should work with an existing id" do
+      p = ProductType.create(:name => 'Washing machine')
+      lambda do
+        delete :destroy, :id => p.id
+        response.body.should == "OK"
+      end.should change(ProductType, :count).by(-1)
+    end
+  end
+  
+  describe "SEARCH" do
+    before(:each) do
+      ProductType.create(:name => 'Washing Machine')
+    end
+    
+    it "shouldn't work without parameters" do
+      get :search
+      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "product_type" => "no search parameters" } }
+    end
+    
+    it "should work even with no results" do
+      get :search, :name => "XXX"
+      ActiveSupport::JSON.decode(response.body).should == []
+    end
+    
+    it "should work with the name parameter" do
+      get :search, :name => "Washing Machine"
+      ActiveSupport::JSON.decode(response.body).should == [{"name"=>"Washing Machine", "id"=>3, "properties"=>[]}]
+    end
+  end
 end

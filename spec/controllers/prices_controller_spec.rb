@@ -27,6 +27,7 @@ describe PricesController do
           :currency => Currency.create(:name => 'Felicidon', :symbol => 'F')
         )
       ),
+      :source => 'web',
       :property_values => [ property_value ]
     )
   }
@@ -93,5 +94,36 @@ describe PricesController do
       response.should be_ok
     end
   end
-  
+
+  describe "SEARCH" do
+    let(:expected) { [ { "name" => "Felicidonia", "id" => 3 } ] }
+
+    it "shouldn't work without parameters" do
+      get :search
+      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "price" => "no search parameters" } }
+    end
+    
+    it "should work even with no results" do
+      get :search, :currency => 1
+      ActiveSupport::JSON.decode(response.body).should == []
+    end
+    
+    it "shouldn't work with an invalid retailer" do
+
+    end
+
+    it "should work with any single parameter" do
+      Price.create(:item => item, :currency => currency, :price => 99, :price_date => Date.today)
+      { "item" => item.id, "currency" => currency.id, "price_date" => Date.today }.map { |a, v|
+        get :search, a.to_sym => v
+        ActiveSupport::JSON.decode(response.body).should == [{"price"=>99, "price_date"=>Date.today, "currency"=>"Felicidon", "item"=>1}]
+      }
+    end
+    
+    it "should work combining parameters" do
+      Price.create(:item => item, :currency => currency, :price => 99, :price_date => Date.today)
+      get :search, :item => item.id, :currency => currency.id
+      ActiveSupport::JSON.decode(response.body).should == [{"price"=>99, "price_date"=>Date.today, "currency"=>"Felicidon", "item"=>1}]
+    end
+  end  
 end

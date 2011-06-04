@@ -12,6 +12,7 @@ describe PropertyValuesController do
 
   let(:product_type) { ProductType.create(:name => 'Squeezer') }
   let(:property) { Property.create(:name => 'watts', :product_type => product_type) }
+  let(:another_property) { Property.create(:name => 'gigawatts', :product_type => product_type) }
 
   before(:each) do
     request.env['HTTP_ACCEPT'] = "application/json"
@@ -58,5 +59,87 @@ describe PropertyValuesController do
       response.should be_ok
     end
   end
+
+  describe "DELETE /:id" do
+    it "shouldn't work with an invalid id" do
+      delete :destroy, :id => 99
+      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "property_value" => "must be valid" } }
+    end
   
+    it "should work with a valid id" do
+      PropertyValue.create(:value => 9, :property => property)
+      lambda do
+        delete :destroy, :id => 1
+        response.body.should == "OK"
+      end.should change(PropertyValue, :count).by(-1)
+    end
+  end
+  
+  describe "PUT /:id" do  
+    let(:property_value) {
+      property_value = PropertyValue.create(:value => 42, :property => property)
+    }
+  
+    it "shouldn't work with an invalid id" do
+      put :update, :id => 99
+      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "property_value" => "must be valid" } }
+    end
+    
+    it "shouldn't work without nothing apart from the id" do
+      put :update, :id => property_value.id
+      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "property_value" => "nothing to update" } }
+    end
+    
+    it "shouldn't work with an invalid property" do
+      put :update, :id => property_value.id, :property => 99
+      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "property" => "must be valid" } }
+    end
+    
+    it "should work with an existing property" do
+      put :update, :id => property_value.id, :property => another_property.id
+      response.body.should == "OK"
+      PropertyValue.find(property_value.id).property.should == another_property
+    end
+    
+    it "should work with a value attribute" do
+      put :update, :id => property_value.id, :value => 28
+      response.body.should == "OK"
+      PropertyValue.find(property_value.id).value.should == "28"
+    end    
+    
+    it "should work with all attributes" do
+      put :update, :id => property_value.id, :value => 28, :property => another_property.id
+      response.body.should == "OK"
+      PropertyValue.find(property_value.id).value.should == "28"
+      PropertyValue.find(property_value.id).property.should == another_property
+    end
+  end
+  
+  describe "SEARCH" do
+    before(:each) {
+      PropertyValue.create(:value => 42, :property => property)
+    }
+
+    it "shouldn't work without parameters" do
+      get :search
+      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "property_value" => "no search parameters" } }
+    end
+    
+    it "should work even with no results" do
+      get :search, :value => "XXX"
+      ActiveSupport::JSON.decode(response.body).should == []
+    end
+    
+    it "should work with any single parameter" do
+      get :search, :value => 42
+      ActiveSupport::JSON.decode(response.body).should == [{"name"=>"watts", "value_id"=>16, "product_type"=>"Squeezer", "id"=>6, "value"=>"42"}]
+      get :search, :property => property.id
+      ActiveSupport::JSON.decode(response.body).should == [{"name"=>"watts", "value_id"=>16, "product_type"=>"Squeezer", "id"=>6, "value"=>"42"}]
+    end
+    
+    it "should work with more than one parameter" do
+      get :search, :value => 42, :property => property.id
+      ActiveSupport::JSON.decode(response.body).should == [{"name"=>"watts", "value_id"=>16, "product_type"=>"Squeezer", "id"=>6, "value"=>"42"}]
+    end
+  end
 end

@@ -32,6 +32,7 @@ class ItemsController < ApplicationController
     item = Item.new(
       :retailer => Retailer.find_by_id(params[:retailer]),
       :product => Product.find_by_id(params[:product]),
+      :source => params[:source],
       :property_values => property_values
     )
    
@@ -54,7 +55,7 @@ class ItemsController < ApplicationController
   
   def update
     unless item = Item.find_by_id(params[:id])
-      return render :json => { :errors => { :id => "must be valid" } }
+      return render :json => { :errors => { :id => "must be valid" } }, :status => 400
     end
 
     if params.has_key?(:retailer) 
@@ -71,6 +72,10 @@ class ItemsController < ApplicationController
       item.product = product
     end
 
+    if params.has_key?(:source)
+      item.source = params[:source]
+    end
+    
     if params.has_key?(:property_values)
       if params[:property_values].is_a?String
         property_values = PropertyValue.find_all_by_id(params[:property_values].split(','))
@@ -100,13 +105,53 @@ class ItemsController < ApplicationController
     end
   end
   
-  def destroy
-    begin
-      item = Item.find(params[:id])
-    rescue
-      return render :json => "ERROR: no valid item id"
+  def search    
+    if params.slice(:retailer, :product, :property_values, :source).empty?
+      return render :json => { :errors => { :item => "no search parameters" } }, :status => 400
+    end
+
+    if params.has_key?(:retailer)
+      if Retailer.find_by_id(params[:retailer])
+        params[:retailer_id] = params[:retailer]
+      else
+        return render :json => { :errors => { :retailer => "not found" } }, :status => 400
+      end
+    end
+
+    if params.has_key?(:product)
+      if Retailer.find_by_id(params[:product])
+        params[:product_id] = params[:product]
+      else
+        return render :json => { :errors => { :product => "not found" } }, :status => 400
+      end
     end
     
+    join = Array.new
+    if params.has_key?(:property_values)
+      if params[:property_values].is_a?String
+        unless params[:property_values].split(',').size > 0 && PropertyValue.find_all_by_id(params[:property_values].split(',')).size == params[:property_values].split(',').size
+          return render :json => { :errors => { :property_values => "not found" } }, :status => 400
+        end
+        params[:property_values] = params[:property_values].split(',')
+      elsif params[:property_values].is_a?Array
+        unless params[:property_values].size > 0 && PropertyValue.find_all_by_id(params[:property_values]).size == params[:property_values].size
+          return render :json => { :errors => { :property_values => "not found" } }, :status => 400
+        end
+      else
+        return render :json => { :errors => { :property_values => "must be comma-separated string or JSON array" } }, :status => 400
+      end
+      
+      params[:property_values] = { :id => params[:property_values] }
+      join.push(:property_values)
+    end
+    
+    respond_with(Item.joins(join).where(params.slice(:retailer_id, :product_id, :property_values, :source)).group(:id))
+  end
+  
+  def destroy
+    unless item = Item.find_by_id(params[:id])
+      return render :json => { :errors => { :item => "must be valid" } }, :status => 400
+    end
     item.destroy
     render :json => "OK"
   end

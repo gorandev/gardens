@@ -15,6 +15,7 @@ class PricesController < ApplicationController
     price = Price.new(
       :price => params[:value],
       :item => Item.find_by_id(params[:item]),
+      :price_date => params[:price_date],
       :currency => Currency.find_by_id(params[:currency])
     )
     
@@ -29,5 +30,29 @@ class PricesController < ApplicationController
       end
       render :json => { :errors => price.errors }, :status => 400
     end
+  end
+  
+  def search    
+    if params.slice(:item, :currency, :price_date).empty?
+      return render :json => { :errors => { :price => "no search parameters" } }, :status => 400
+    end
+
+    if params.has_key?(:item)
+      if Item.find_by_id(params[:item])
+        params[:item_id] = params[:item]
+      else
+        return render :json => { :errors => { :item => "not found" } }, :status => 400
+      end
+    end
+
+    if params.has_key?(:currency)
+      if Currency.find_by_id(params[:currency])
+        params[:currency_id] = params[:currency]
+      else
+        return render :json => { :errors => { :currency => "not found" } }, :status => 400
+      end
+    end
+    
+    respond_with(Price.where(params.slice(:item_id, :currency_id, :price_date)).group(:id))
   end
 end

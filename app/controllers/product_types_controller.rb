@@ -20,4 +20,39 @@ class ProductTypesController < ApplicationController
       render :json => { :errors => product_type.errors }, :status => 400
     end
   end
+  
+  def update
+    unless product_type = ProductType.find_by_id(params[:id])
+      return render :json => { :errors => { :id => "must be valid" } }, :status => 400
+    end
+        
+    if params.has_key?(:name)
+      product_type.name = params[:name]
+    end
+ 
+    if product_type.attributes == ProductType.find_by_id(params[:id]).attributes
+      return render :json => { :errors => { :product_type => "nothing to update" } }
+    end
+    
+    if product_type.save
+      render :json => "OK"
+    else
+      render :json => { :errors => product_type.errors }, :status => 400
+    end
+  end
+  
+  def destroy
+    unless product_type = ProductType.find_by_id(params[:id])
+      return render :json => { :errors => { :product_type => "must be valid" } }, :status => 400
+    end
+    product_type.destroy
+    render :json => "OK"
+  end
+  
+  def search    
+    unless params.has_key?(:name)
+      return render :json => { :errors => { :product_type => "no search parameters" } }, :status => 400
+    end
+    respond_with(ProductType.where(params.slice(:name)))
+  end
 end
