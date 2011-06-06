@@ -18,7 +18,7 @@ class CurrenciesController < ApplicationController
     )
     
     if currency.save
-      render :json => "OK"
+      render :json => { :id => currency.id }
     else
       render :json => { :errors => currency.errors }, :status => 400
     end

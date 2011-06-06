@@ -36,7 +36,9 @@ describe CurrenciesController do
     it "should work with all required values" do
       lambda do
         post :create, :name => 'FLD', :symbol => 'F$'
-        response.body.should == "OK"
+        response.should be_ok
+        ActiveSupport::JSON.decode(response.body)["id"].to_s.should match /^\d+$/
+        Currency.find(ActiveSupport::JSON.decode(response.body)["id"]).id.should == ActiveSupport::JSON.decode(response.body)["id"]
       end.should change(Currency, :count).by(1)
     end
   end
@@ -44,7 +46,7 @@ describe CurrenciesController do
   describe "GET 'show'" do
     it "should be successful" do
       Currency.create(:name => 'FLD', :symbol => 'F$')
-      get :show, :id => 1
+      get :show, :id => 3
       response.should be_ok
     end
   end
@@ -56,9 +58,9 @@ describe CurrenciesController do
     end
   
     it "should work" do
-      Currency.create(:name => 'FLD', :symbol => 'F$')
+      c = Currency.create(:name => 'FLD', :symbol => 'F$')
       lambda do
-        delete :destroy, :id => 1
+        delete :destroy, :id => c.id
         response.body.should == "OK"
       end.should change(Currency, :count).by(-1)
     end
