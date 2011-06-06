@@ -32,6 +32,7 @@ class ItemsController < ApplicationController
     item = Item.new(
       :retailer => Retailer.find_by_id(params[:retailer]),
       :product => Product.find_by_id(params[:product]),
+      :product_type => ProductType.find_by_id(params[:product_type]),
       :source => params[:source],
       :property_values => property_values
     )
@@ -39,7 +40,7 @@ class ItemsController < ApplicationController
     if params.has_key?(:product) && item.product == nil
       return render :json => { :errors => { :product => "must be valid" } }, :status => 400
     end
-   
+
     if item.save
       render :json => "OK"
     else
@@ -48,6 +49,9 @@ class ItemsController < ApplicationController
       end
       if params.has_key?(:property_values) && item.property_values.empty? && item.property_values.size != pv_param_size
         item.errors.add(:property_values, "must be all valid")
+      end
+      if params.has_key?(:product_type) && item.product_type == nil
+        item.errors.add(:errors, "must be valid")
       end
       render :json => { :errors => item.errors }, :status => 400
     end
@@ -63,6 +67,13 @@ class ItemsController < ApplicationController
         return render :json => { :errors => { :retailer => "must be valid" } }, :status => 400
       end
       item.retailer = retailer
+    end
+
+    if params.has_key?(:product_type) 
+      unless product_type = ProductType.find_by_id(params[:product_type])
+        return render :json => { :errors => { :product_type => "must be valid" } }, :status => 400
+      end
+      item.product_type = product_type
     end
     
     if params.has_key?(:product)

@@ -32,10 +32,18 @@ describe Item do
       item.should_not be_valid
     end
     
-    it "should be valid with a property value, a source and no product" do
+    it "shouldn't be valid without a product type" do
       item.retailer = retailer
       item.source = 'web'
       item.property_values << property_value
+      item.should_not be_valid
+    end
+    
+    it "should be valid with a property value, a source, a product type and no product" do
+      item.retailer = retailer
+      item.source = 'web'
+      item.property_values << property_value
+      item.product_type = product_type
       item.should be_valid
     end
 
@@ -51,6 +59,7 @@ describe Item do
       item.source = 'web'
       item.product = product
       item.property_values << property_value
+      item.product_type = product_type
       item.should be_valid
     end
     

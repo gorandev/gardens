@@ -27,6 +27,7 @@ describe PricesController do
           :currency => Currency.create(:name => 'Felicidon', :symbol => 'F')
         )
       ),
+      :product_type => product_type,
       :source => 'web',
       :property_values => [ property_value ]
     )
