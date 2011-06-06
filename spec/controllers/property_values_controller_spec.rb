@@ -47,7 +47,9 @@ describe PropertyValuesController do
     it "should work with all required values" do
       lambda do
         post :create, :value => 9, :property => property.id
-        response.body.should == "OK"
+        response.should be_ok
+        ActiveSupport::JSON.decode(response.body)["id"].to_s.should match /^\d+$/
+        PropertyValue.find(ActiveSupport::JSON.decode(response.body)["id"]).id.should == ActiveSupport::JSON.decode(response.body)["id"]
       end.should change(PropertyValue, :count).by(1)
     end
   end

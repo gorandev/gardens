@@ -42,7 +42,7 @@ class ItemsController < ApplicationController
     end
 
     if item.save
-      render :json => "OK"
+      render :json => { :id => item.id }
     else
       if params.has_key?(:retailer) && item.retailer == nil
         item.errors.add(:retailer, "must be valid")

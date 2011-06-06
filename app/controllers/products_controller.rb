@@ -41,7 +41,7 @@ class ProductsController < ApplicationController
     product = Product.new( :product_type => ProductType.find_by_id(params[:product_type]), :property_values => property_values )
     
     if product.save
-      render :json => "OK"
+      render :json => { :id => product.id }
     else
       if params.has_key?(:product_type) && product.product_type == nil
         product.errors.add(:product_type, "must be valid")

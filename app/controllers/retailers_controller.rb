@@ -15,7 +15,7 @@ class RetailersController < ApplicationController
     retailer = Retailer.new( :name => params[:name], :country => Country.find_by_id(params[:country]) )
     
     if retailer.save
-      render :json => "OK"
+      render :json => { :id => retailer.id }
     else
       if params.has_key?(:country)
         retailer.errors.add(:country, "must be valid")

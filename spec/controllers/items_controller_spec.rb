@@ -84,10 +84,12 @@ describe ItemsController do
     it "should work without product and a single property value and a source and a product type" do
       lambda do
         post :create, :retailer => retailer.id, :property_values => property_value.id.to_s, :source => 'web', :product_type => product_type.id
-        response.body.should == "OK"
+        response.should be_ok
+        ActiveSupport::JSON.decode(response.body)["id"].to_s.should match /^\d+$/
+        Item.find(ActiveSupport::JSON.decode(response.body)["id"]).id.should == ActiveSupport::JSON.decode(response.body)["id"]
+        Item.find(ActiveSupport::JSON.decode(response.body)["id"]).retailer.should == retailer
+        Item.find(ActiveSupport::JSON.decode(response.body)["id"]).property_values.should == [ property_value ]
       end.should change(Item, :count).by(1)
-      Item.last.retailer.should == retailer
-      Item.last.property_values.should == [ property_value ]
     end
 
     it "shouldn't work with an invalid source" do
@@ -101,48 +103,58 @@ describe ItemsController do
     it "should work without product and more than one property value via comma separated string" do
       lambda do
         post :create, :retailer => retailer.id, :property_values => property_value.id.to_s + ',' + another_property_value.id.to_s, :source => 'web', :product_type => product_type.id
-        response.body.should == "OK"
+        response.should be_ok
+        ActiveSupport::JSON.decode(response.body)["id"].to_s.should match /^\d+$/
+        Item.find(ActiveSupport::JSON.decode(response.body)["id"]).id.should == ActiveSupport::JSON.decode(response.body)["id"]
+        Item.find(ActiveSupport::JSON.decode(response.body)["id"]).retailer.should == retailer
+        Item.find(ActiveSupport::JSON.decode(response.body)["id"]).property_values.should == [ property_value, another_property_value ]
       end.should change(Item, :count).by(1)
-      Item.last.retailer.should == retailer
-      Item.last.property_values.should == [ property_value, another_property_value ]
     end    
     
     it "should work without product and more than one property value via array of ids" do
       lambda do
         post :create, :retailer => retailer.id, :property_values => [ property_value.id, another_property_value.id ], :source => 'web', :product_type => product_type.id
-        response.body.should == "OK"
+        response.should be_ok
+        ActiveSupport::JSON.decode(response.body)["id"].to_s.should match /^\d+$/
+        Item.find(ActiveSupport::JSON.decode(response.body)["id"]).id.should == ActiveSupport::JSON.decode(response.body)["id"]
+        Item.find(ActiveSupport::JSON.decode(response.body)["id"]).retailer.should == retailer
+        Item.find(ActiveSupport::JSON.decode(response.body)["id"]).property_values.should == [ property_value, another_property_value ]
       end.should change(Item, :count).by(1)
-      Item.last.retailer.should == retailer
-      Item.last.property_values.should == [ property_value, another_property_value ]
     end
     
     it "should work with product and a single property value" do
       lambda do
         post :create, :retailer => retailer.id, :property_values => property_value.id.to_s, :product => product.id, :source => 'web', :product_type => product_type.id
-        response.body.should == "OK"
-        Item.last.retailer.should == retailer
-        Item.last.product.should == product
+        response.should be_ok
+        ActiveSupport::JSON.decode(response.body)["id"].to_s.should match /^\d+$/
+        Item.find(ActiveSupport::JSON.decode(response.body)["id"]).id.should == ActiveSupport::JSON.decode(response.body)["id"]
+        Item.find(ActiveSupport::JSON.decode(response.body)["id"]).retailer.should == retailer
+        Item.find(ActiveSupport::JSON.decode(response.body)["id"]).product.should == product
       end.should change(Item, :count).by(1)
     end
 
     it "should work with product and more than one property value via comma separated string" do
       lambda do
         post :create, :retailer => retailer.id, :property_values => property_value.id.to_s + ',' + another_property_value.id.to_s, :product => product.id, :source => 'web', :product_type => product_type.id
-        response.body.should == "OK"
+        response.should be_ok
+        ActiveSupport::JSON.decode(response.body)["id"].to_s.should match /^\d+$/
+        Item.find(ActiveSupport::JSON.decode(response.body)["id"]).id.should == ActiveSupport::JSON.decode(response.body)["id"]
+        Item.find(ActiveSupport::JSON.decode(response.body)["id"]).retailer.should == retailer
+        Item.find(ActiveSupport::JSON.decode(response.body)["id"]).product.should == product
+        Item.find(ActiveSupport::JSON.decode(response.body)["id"]).property_values.should == [ property_value, another_property_value ]
       end.should change(Item, :count).by(1)
-      Item.last.retailer.should == retailer
-      Item.last.product.should == product
-      Item.last.property_values.should == [ property_value, another_property_value ]
     end    
     
     it "should work with product and more than one property value via array of ids" do
       lambda do
         post :create, :retailer => retailer.id, :property_values => [ property_value.id, another_property_value.id ], :product => product.id, :source => 'web', :product_type => product_type.id
-        response.body.should == "OK"
+        response.should be_ok
+        ActiveSupport::JSON.decode(response.body)["id"].to_s.should match /^\d+$/
+        Item.find(ActiveSupport::JSON.decode(response.body)["id"]).id.should == ActiveSupport::JSON.decode(response.body)["id"]
+        Item.find(ActiveSupport::JSON.decode(response.body)["id"]).retailer.should == retailer
+        Item.find(ActiveSupport::JSON.decode(response.body)["id"]).product.should == product
+        Item.find(ActiveSupport::JSON.decode(response.body)["id"]).property_values.should == [ property_value, another_property_value ]
       end.should change(Item, :count).by(1)
-      Item.last.retailer.should == retailer
-      Item.last.product.should == product
-      Item.last.property_values.should == [ property_value, another_property_value ]
     end
   end
   

@@ -15,7 +15,7 @@ class ProductTypesController < ApplicationController
     product_type = ProductType.new( :name => params[:name] )
     
     if product_type.save
-      render :json => "OK"
+      render :json => { :id => product_type.id }
     else
       render :json => { :errors => product_type.errors }, :status => 400
     end

@@ -15,7 +15,7 @@ class PropertyValuesController < ApplicationController
     property_value = PropertyValue.new( :value => params[:value], :property => Property.find_by_id(params[:property]) )
     
     if property_value.save
-      render :json => "OK"
+      render :json => { :id => property_value.id }
     else
       if params.has_key?(:property)
         property_value.errors.add(:property, "must be valid")

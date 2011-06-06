@@ -83,7 +83,9 @@ describe PricesController do
     it "should work with all required values" do
       lambda do
         post :create, :value => 99, :item => item.id, :currency => currency.id
-        response.body.should == "OK"
+        response.should be_ok
+        ActiveSupport::JSON.decode(response.body)["id"].to_s.should match /^\d+$/
+        Price.find(ActiveSupport::JSON.decode(response.body)["id"]).id.should == ActiveSupport::JSON.decode(response.body)["id"]
       end.should change(Price, :count).by(1)
     end
   end

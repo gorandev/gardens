@@ -28,7 +28,7 @@ class PropertiesController < ApplicationController
     property = Property.new( :name => params[:name], :product_type => ProductType.find_by_id(params[:product_type]) )
     
     if property.save
-      render :json => "OK"
+      render :json => { :id => property.id }
     else
       if params.has_key?(:product_type)
         property.errors.add(:product_type, "must be valid")
