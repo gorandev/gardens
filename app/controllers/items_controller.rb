@@ -117,7 +117,7 @@ class ItemsController < ApplicationController
   end
   
   def search    
-    if params.slice(:retailer, :product, :property_values, :source).empty?
+    if params.slice(:retailer, :product, :product_type, :property_values, :source).empty?
       return render :json => { :errors => { :item => "no search parameters" } }, :status => 400
     end
 
@@ -130,10 +130,18 @@ class ItemsController < ApplicationController
     end
 
     if params.has_key?(:product)
-      if Retailer.find_by_id(params[:product])
+      if Product.find_by_id(params[:product])
         params[:product_id] = params[:product]
       else
         return render :json => { :errors => { :product => "not found" } }, :status => 400
+      end
+    end
+
+    if params.has_key?(:product_type)
+      if ProductType.find_by_id(params[:product_type])
+        params[:product_type_id] = params[:product]
+      else
+        return render :json => { :errors => { :product_type => "not found" } }, :status => 400
       end
     end
     
@@ -156,7 +164,7 @@ class ItemsController < ApplicationController
       join.push(:property_values)
     end
     
-    respond_with(Item.joins(join).where(params.slice(:retailer_id, :product_id, :property_values, :source)).group(:id))
+    respond_with(Item.joins(join).where(params.slice(:retailer_id, :product_id, :product_type_id, :property_values, :source)).group(:id))
   end
   
   def destroy

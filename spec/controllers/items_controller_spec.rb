@@ -310,6 +310,11 @@ describe ItemsController do
       get :search, :product => 99
       ActiveSupport::JSON.decode(response.body).should == { "errors" => { "product" => "not found" } }
     end
+
+    it "shouldn't work with an invalid product type" do
+      get :search, :product_type => 99
+      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "product_type" => "not found" } }
+    end
     
     it "shouldn't work with invalid property values" do
       get :search, :property_values => nil
