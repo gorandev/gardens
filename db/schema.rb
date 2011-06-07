@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110606173428) do
+ActiveRecord::Schema.define(:version => 20110607211119) do
 
   create_table "countries", :force => true do |t|
     t.string   "iso_code"
@@ -55,7 +55,7 @@ ActiveRecord::Schema.define(:version => 20110606173428) do
 
   create_table "prices", :force => true do |t|
     t.integer  "item_id"
-    t.date     "price_date"
+    t.datetime "price_date"
     t.integer  "currency_id"
     t.integer  "price"
     t.datetime "created_at"
