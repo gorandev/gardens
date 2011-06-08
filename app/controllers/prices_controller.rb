@@ -53,6 +53,6 @@ class PricesController < ApplicationController
       end
     end
     
-    respond_with(Price.where(params.slice(:item_id, :currency_id, :price_date)).group(:id))
+    respond_with(Price.where(params.slice(:item_id, :currency_id, :price_date)))
   end
 end
