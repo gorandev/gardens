@@ -74,6 +74,6 @@ class PricesController < ApplicationController
     puts "join: " + join.join(',')
     puts "where: " + where.to_query
     
-    respond_with(Price.joins(join).where(where_sql, where)).limit(5)
+    respond_with(Price.joins(join).where(where_sql, where).limit(5))
   end
 end
