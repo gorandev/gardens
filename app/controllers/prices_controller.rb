@@ -71,8 +71,8 @@ class PricesController < ApplicationController
       where[:item] = { :product_id => params[:product] }
     end
     
-    put "join: " + join.join(',')
-    put "where: " + where[:item]
+    puts "join: " + join.join(',')
+    puts "where: " + where[:item]
     
     respond_with(Price.joins(join).where(where_sql, where)).limit(5)
   end
