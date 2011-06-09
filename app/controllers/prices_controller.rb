@@ -71,6 +71,6 @@ class PricesController < ApplicationController
       where[:items] = { :product_id => params[:product] }
     end
     
-    respond_with(Price.where(where_sql, where))
+    respond_with(Price.joins(join).where(where_sql, where))
   end
 end
