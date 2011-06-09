@@ -111,6 +111,10 @@ class PricesController < ApplicationController
     
     limit = params[:limit] || 10
     
+    puts "query " + where_sql
+    puts "join " + join.join(',')
+    puts "where params " + where.to_query
+    
     respond_with(Price.joins(join).where(where_sql, where).limit(limit))
   end
 end
