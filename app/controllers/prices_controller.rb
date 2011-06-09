@@ -72,7 +72,7 @@ class PricesController < ApplicationController
     end
     
     puts "join: " + join.join(',')
-    puts "where: " + where[:item]
+    puts "where: " + where.to_query
     
     respond_with(Price.joins(join).where(where_sql, where)).limit(5)
   end
