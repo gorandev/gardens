@@ -67,8 +67,8 @@ class PricesController < ApplicationController
       unless Product.exists?(params[:product])
         return render :json => { :errors => { :product => "not found" } }, :status => 400
       end
-      join.push(:items)
-      where[:items] = { :product_id => params[:product] }
+      join.push(:item)
+      where[:item] = { :product_id => params[:product] }
     end
     
     respond_with(Price.joins(join).where(where_sql, where))
