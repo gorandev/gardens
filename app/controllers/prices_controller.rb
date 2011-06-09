@@ -115,6 +115,6 @@ class PricesController < ApplicationController
     puts "join " + join.join(',')
     puts "where params " + where.to_query
     
-    respond_with(Price.joins(join).where(where_sql, where).limit(limit))
+    respond_with(Price.joins(join).where(where_sql, where).limit(limit).order("price_date DESC"))
   end
 end
