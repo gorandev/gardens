@@ -72,10 +72,10 @@ class PricesController < ApplicationController
         join.push(:item)
       end
       
-      if where[:item].is_a?Hash
-        where[:item][:product_id] = params[:product]
+      if where[:items].is_a?Hash
+        where[:items][:product_id] = params[:product]
       else
-        where[:item] = { :product_id => params[:product] }
+        where[:items] = { :product_id => params[:product] }
       end      
     end
 
@@ -88,10 +88,10 @@ class PricesController < ApplicationController
         join.push(:item)
       end
       
-      if where[:item].is_a?Hash
-        where[:item][:retailer_id] = params[:retailer]
+      if where[:items].is_a?Hash
+        where[:items][:retailer_id] = params[:retailer]
       else
-        where[:item] = { :retailer_id => params[:retailer] }
+        where[:items] = { :retailer_id => params[:retailer] }
       end
     end
     
