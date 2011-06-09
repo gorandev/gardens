@@ -33,26 +33,44 @@ class PricesController < ApplicationController
   end
   
   def search    
-    if params.slice(:item, :currency, :price_date).empty?
+    if params.slice(:product, :item, :retailer, :currency, :date_from, :date_to).empty?
       return render :json => { :errors => { :price => "no search parameters" } }, :status => 400
     end
 
+    where_sql = String.new
+    where = Hash.new
+    join = Array.new
+    
     if params.has_key?(:item)
-      if Item.find_by_id(params[:item])
-        params[:item_id] = params[:item]
-      else
+      unless Item.exists?(params[:item])
         return render :json => { :errors => { :item => "not found" } }, :status => 400
       end
+      where[:item_id] = params[:item]
+      unless where_sql.empty?
+        where_sql += " AND "
+      end
+      where_sql += "item_id = :item_id"
     end
 
     if params.has_key?(:currency)
-      if Currency.find_by_id(params[:currency])
-        params[:currency_id] = params[:currency]
-      else
+      unless Currency.exists?(params[:currency])
         return render :json => { :errors => { :currency => "not found" } }, :status => 400
       end
+      where[:currency_id] = params[:currency]
+      unless where_sql.empty?
+        where_sql += " AND "
+      end
+      where_sql += "currency_id = :currency_id"
     end
     
-    respond_with(Price.where(params.slice(:item_id, :currency_id, :price_date)))
+    if params.has_key?(:product)
+      unless Product.exists?(params[:product])
+        return render :json => { :errors => { :product => "not found" } }, :status => 400
+      end
+      join.push(:items)
+      where[:items] = { :product_id => params[:product] }
+    end
+    
+    respond_with(Price.where(where_sql, where))
   end
 end

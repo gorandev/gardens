@@ -117,7 +117,7 @@ describe PricesController do
 
     it "should work with any single parameter" do
       Price.create(:item => item, :currency => currency, :price => 99, :price_date => Date.today)
-      { "item" => item.id, "currency" => currency.id, "price_date" => Date.today }.map { |a, v|
+      { "item" => item.id, "currency" => currency.id }.map { |a, v|
         get :search, a.to_sym => v
         ActiveSupport::JSON.decode(response.body).should == [{"price"=>99, "price_date"=>Date.today, "currency"=>"Felicidon", "item"=>1}]
       }
