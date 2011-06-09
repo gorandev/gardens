@@ -37,7 +37,6 @@ class PricesController < ApplicationController
       return render :json => { :errors => { :price => "no search parameters" } }, :status => 400
     end
 
-    where_sql = String.new
     where = Hash.new
     join = Array.new
     
@@ -46,10 +45,6 @@ class PricesController < ApplicationController
         return render :json => { :errors => { :item => "not found" } }, :status => 400
       end
       where[:item_id] = params[:item]
-      unless where_sql.empty?
-        where_sql += " AND "
-      end
-      where_sql += "item_id = :item_id"
     end
 
     if params.has_key?(:currency)
@@ -57,10 +52,6 @@ class PricesController < ApplicationController
         return render :json => { :errors => { :currency => "not found" } }, :status => 400
       end
       where[:currency_id] = params[:currency]
-      unless where_sql.empty?
-        where_sql += " AND "
-      end
-      where_sql += "currency_id = :currency_id"
     end
     
     if params.has_key?(:product)
@@ -72,11 +63,11 @@ class PricesController < ApplicationController
         join.push(:item)
       end
       
-      if where[:items].is_a?Hash
+      if where.has_key?(:items)
         where[:items][:product_id] = params[:product]
       else
         where[:items] = { :product_id => params[:product] }
-      end      
+      end
     end
 
     if params.has_key?(:retailer)
@@ -84,39 +75,23 @@ class PricesController < ApplicationController
         return render :json => { :errors => { :retailer => "not found" } }, :status => 400
       end
       
-      if join.index(:item).nil?
-        join.push(:item)
+      if join.index(:items).nil?
+        join.push(:items)
       end
-      
-      if where[:items].is_a?Hash
+
+      if where.has_key?(:item)
         where[:items][:retailer_id] = params[:retailer]
       else
         where[:items] = { :retailer_id => params[:retailer] }
       end
     end
     
-    if params.has_key?(:date_from)
-      unless where_sql.empty?
-        where_sql += " AND "
-      end
-      where_sql += "price_date >= :date_from"
-      where[:date_from] = params[:date_from].to_date
-    end
-    
-    if params.has_key?(:date_to)
-      unless where_sql.empty?
-        where_sql += " AND "
-      end
-      where_sql += "price_date <= :date_to"
-      where[:date_to] = params[:date_to].to_date
-    end
-    
+    params[:date_to] ||= DateTime.now
+    params[:date_from] ||= "2000-01-01".to_datetime
+    where[:price_date] = (params[:date_from].to_datetime)..(params[:date_to].to_datetime + 1.day)
+        
     limit = params[:limit] || 10
     
-    puts "query " + where_sql
-    puts "join " + join.join(',')
-    puts "where params " + where.to_query
-    
-    respond_with(Price.joins(join).where(where_sql, where).limit(limit).order("price_date DESC"))
+    respond_with(Price.joins(join).where(where).limit(limit).order("price_date DESC"))
   end
 end
