@@ -109,7 +109,7 @@ class PricesController < ApplicationController
       where_sql + "price_date <= " + params[:date_to].to_date
     end
     
-    limit = 10 || params[:limit]
+    limit = params[:limit] || 10
     
     respond_with(Price.joins(join).where(where_sql, where).limit(limit))
   end
