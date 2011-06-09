@@ -67,13 +67,50 @@ class PricesController < ApplicationController
       unless Product.exists?(params[:product])
         return render :json => { :errors => { :product => "not found" } }, :status => 400
       end
-      join.push(:item)
-      where[:item] = { :product_id => params[:product] }
+      
+      if join.index(:item).nil?
+        join.push(:item)
+      end
+      
+      if where[:item].is_a?Hash
+        where[:item][:product_id] = params[:product]
+      else
+        where[:item] = { :product_id => params[:product] }
+      end      
+    end
+
+    if params.has_key?(:retailer)
+      unless Retailer.exists?(params[:retailer])
+        return render :json => { :errors => { :retailer => "not found" } }, :status => 400
+      end
+      
+      if join.index(:item).nil?
+        join.push(:item)
+      end
+      
+      if where[:item].is_a?Hash
+        where[:item][:retailer_id] = params[:retailer]
+      else
+        where[:item] = { :retailer_id => params[:retailer] }
+      end
     end
     
-    puts "join: " + join.join(',')
-    puts "where: " + where.to_query
+    if params.has_key?(:date_from)
+      unless where_sql.empty?
+        where_sql += " AND "
+      end
+      where_sql + "price_date >= " + params[:date_from].to_date
+    end
     
-    respond_with(Price.joins(join).where(where_sql, where).limit(5))
+    if params.has_key?(:date_to)
+      unless where_sql.empty?
+        where_sql += " AND "
+      end
+      where_sql + "price_date <= " + params[:date_to].to_date
+    end
+    
+    limit = 10 || params[:limit]
+    
+    respond_with(Price.joins(join).where(where_sql, where).limit(limit))
   end
 end
