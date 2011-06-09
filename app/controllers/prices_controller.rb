@@ -99,14 +99,16 @@ class PricesController < ApplicationController
       unless where_sql.empty?
         where_sql += " AND "
       end
-      where_sql += "price_date >= '" + params[:date_from] + "'"
+      where_sql += "price_date >= :date_from"
+      where[:date_from] = params[:date_from].to_date
     end
     
     if params.has_key?(:date_to)
       unless where_sql.empty?
         where_sql += " AND "
       end
-      where_sql += "price_date <= '" + params[:date_to] + "'"
+      where_sql += "price_date <= :date_to"
+      where[:date_to] = params[:date_to].to_date
     end
     
     limit = params[:limit] || 10
