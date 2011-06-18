@@ -38,7 +38,11 @@ class ProductsController < ApplicationController
       end
     end
     
-    product = Product.new( :product_type => ProductType.find_by_id(params[:product_type]), :property_values => property_values )
+    product = Product.new( 
+      :product_type => ProductType.find_by_id(params[:product_type]), 
+      :property_values => property_values,
+      :imagen_id => params[:imagen_id]
+    )
     
     if product.save
       render :json => { :id => product.id }

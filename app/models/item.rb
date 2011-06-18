@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20110606173428
+# Schema version: 20110618000754
 #
 # Table name: items
 #
@@ -10,6 +10,7 @@
 #  updated_at      :datetime
 #  source          :string(255)
 #  product_type_id :integer
+#  imagen_id       :integer
 #
 
 class Item < ActiveRecord::Base

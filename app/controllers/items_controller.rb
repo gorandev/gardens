@@ -34,7 +34,8 @@ class ItemsController < ApplicationController
       :product => Product.find_by_id(params[:product]),
       :product_type => ProductType.find_by_id(params[:product_type]),
       :source => params[:source],
-      :property_values => property_values
+      :property_values => property_values,
+      :imagen_id => params[:imagen_id]
     )
    
     if params.has_key?(:product) && item.product == nil

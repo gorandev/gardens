@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20110513001904
+# Schema version: 20110618000754
 #
 # Table name: products
 #
@@ -9,6 +9,7 @@
 #  show_on_search  :boolean
 #  created_at      :datetime
 #  updated_at      :datetime
+#  imagen_id       :integer
 #
 
 class Product < ActiveRecord::Base
