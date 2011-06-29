@@ -9,7 +9,7 @@ describe ProductType do
       product_type.should_not be_valid
     end
       
-    it "shouldn't be valid with only the property type" do
+    it "should be valid with only the name" do
       product_type.name = 'Squeezers'
       product_type.should be_valid
     end

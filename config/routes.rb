@@ -29,6 +29,12 @@ Gardens::Application.routes.draw do
   match 'properties/search' => 'properties#search', :defaults => { :format => :json }
   resources :properties, :defaults => { :format => :json }
   
+  match 'words/search' => 'words#search', :defaults => { :format => :json }
+  resources :words, :defaults => { :format => :json }
+  
+  match 'misspellings/search' => 'misspellings#search', :defaults => { :format => :json }
+  resources :misspellings, :defaults => { :format => :json }
+  
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

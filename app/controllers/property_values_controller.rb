@@ -53,18 +53,38 @@ class PropertyValuesController < ApplicationController
   end
   
   def search    
-    if params.slice(:value, :property).empty?
+    if params.slice(:value, :property, :product_type, :word).empty?
       return render :json => { :errors => { :property_value => "no search parameters" } }, :status => 400
     end
 
+    join = Array.new
     if params.has_key?(:property)
       unless Property.find_by_id(params[:property])
         return render :json => { :errors => { :property => "not found" } }, :status => 400
       end
-      params[:property_id] = params[:property]
+      params[:properties] = { :id => params[:property] }
+      join.push(:property)
     end
     
-    @property_values = PropertyValue.where(params.slice(:value, :property_id))
+    if params.has_key?(:product_type)
+      unless ProductType.find_by_id(params[:product_type])
+        return render :json => { :errors => { :product_type => "not found" } }, :status => 400
+      end
+      
+      if join.include?(:property)
+        params[:properties][:product_type_id] = params[:product_type]
+      else
+        join.push(:property)
+        params[:properties] = { :product_type_id => params[:product_type] }
+      end
+    end
+    
+    if params.has_key?(:word)
+      join.push(:word)
+      params[:words] = { :value => params[:word] }
+    end
+    
+    @property_values = PropertyValue.joins(join).where(params.slice(:value, :properties, :words))
     respond_with(@property_values)
   end
   

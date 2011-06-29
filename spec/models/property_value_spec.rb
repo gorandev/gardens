@@ -25,6 +25,7 @@ describe PropertyValue do
 
 end
 
+
 # == Schema Information
 #
 # Table name: property_values
@@ -34,5 +35,6 @@ end
 #  property_id :integer
 #  created_at  :datetime
 #  updated_at  :datetime
+#  word_id     :integer
 #
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110618000754) do
+ActiveRecord::Schema.define(:version => 20110629183840) do
 
   create_table "countries", :force => true do |t|
     t.string   "iso_code"
@@ -53,6 +53,15 @@ ActiveRecord::Schema.define(:version => 20110618000754) do
     t.integer "item_id"
     t.integer "property_value_id"
   end
+
+  create_table "misspellings", :force => true do |t|
+    t.string   "value"
+    t.string   "word_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "misspellings", ["word_id"], :name => "index_misspellings_on_word_id"
 
   create_table "prices", :force => true do |t|
     t.integer  "item_id"
@@ -102,9 +111,11 @@ ActiveRecord::Schema.define(:version => 20110618000754) do
     t.integer  "property_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "word_id"
   end
 
   add_index "property_values", ["property_id"], :name => "index_property_values_on_property_id"
+  add_index "property_values", ["word_id"], :name => "index_property_values_on_word_id"
 
   create_table "retailers", :force => true do |t|
     t.string   "name"
@@ -114,5 +125,11 @@ ActiveRecord::Schema.define(:version => 20110618000754) do
   end
 
   add_index "retailers", ["country_id"], :name => "index_retailers_on_country_id"
+
+  create_table "words", :force => true do |t|
+    t.string   "value"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
 end
