@@ -23,3 +23,15 @@ describe Property do
   end
 
 end
+
+# == Schema Information
+#
+# Table name: properties
+#
+#  id              :integer         not null, primary key
+#  name            :string(255)
+#  product_type_id :integer
+#  created_at      :datetime
+#  updated_at      :datetime
+#
+

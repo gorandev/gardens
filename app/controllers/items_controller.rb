@@ -7,8 +7,8 @@ class ItemsController < ApplicationController
   end
   
   def show
-    @Item = Item.find(params[:id])
-    respond_with(@Item)
+    @item = Item.find(params[:id])
+    respond_with(@item)
   end
 
   def create
@@ -164,8 +164,9 @@ class ItemsController < ApplicationController
       params[:property_values] = { :id => params[:property_values] }
       join.push(:property_values)
     end
-    
-    respond_with(Item.joins(join).where(params.slice(:retailer_id, :product_id, :product_type_id, :property_values, :source)).group(:id))
+
+    @items = Item.joins(join).where(params.slice(:retailer_id, :product_id, :product_type_id, :property_values, :source)).group(:id)
+    respond_with(@items)
   end
   
   def destroy

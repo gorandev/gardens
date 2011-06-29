@@ -53,6 +53,7 @@ class ProductTypesController < ApplicationController
     unless params.has_key?(:name)
       return render :json => { :errors => { :product_type => "no search parameters" } }, :status => 400
     end
-    respond_with(ProductType.where(params.slice(:name)))
+    @product_types = ProductType.where(params.slice(:name))
+    respond_with(@product_types)
   end
 end

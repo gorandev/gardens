@@ -2,13 +2,13 @@ class PropertyValuesController < ApplicationController
   respond_to :json
   
   def index
-    @pvalues = PropertyValue.all
-    respond_with(@pvalues)
+    @property_values = PropertyValue.all
+    respond_with(@property_values)
   end
   
   def show
-    @pvalue = PropertyValue.find(params[:id])
-    respond_with(@pvalue)
+    @property_value = PropertyValue.find(params[:id])
+    respond_with(@property_value)
   end
   
   def create
@@ -64,7 +64,8 @@ class PropertyValuesController < ApplicationController
       params[:property_id] = params[:property]
     end
     
-    respond_with(PropertyValue.where(params.slice(:value, :property_id)))
+    @property_values = PropertyValue.where(params.slice(:value, :property_id))
+    respond_with(@property_values)
   end
   
   def destroy

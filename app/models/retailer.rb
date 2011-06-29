@@ -15,14 +15,5 @@ class Retailer < ActiveRecord::Base
   has_many :items
   has_many :products, :through => :items
   
-  validates_presence_of :name, :country
-  
-  def as_json(options = {})
-    {
-      :id => self.id,
-      :name => self.name,
-      :country => self.country.name
-    }
-  end
-  
+  validates_presence_of :name, :country  
 end

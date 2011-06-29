@@ -7,8 +7,8 @@ class CurrenciesController < ApplicationController
   end
   
   def show
-    @Currency = Currency.find(params[:id])
-    respond_with(@Currency)
+    @currency = Currency.find(params[:id])
+    respond_with(@currency)
   end
   
   def create

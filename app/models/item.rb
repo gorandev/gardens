@@ -23,32 +23,4 @@ class Item < ActiveRecord::Base
   
   validates_presence_of :retailer, :product_type, :property_values, :source
   validates_inclusion_of :source, :in => %w(web papel)
-  
-  def as_json(options = {})
-    if self.product.nil?
-      {
-        :id => self.id,
-        :retailer => self.retailer.name,
-        :product_type => self.product_type.name,
-        :product_type_id => self.product_type.id,
-        :product => 0,
-        :source => self.source,
-        :property_values => self.property_values.all.collect{|pv| {
-        :id => pv.property.id,
-        :name => pv.property.name,
-        :value_id => pv.id,
-        :value => pv.value
-        }}
-      }
-    else
-      {
-        :id => self.id,
-        :retailer => self.retailer.name,
-        :product_type => self.product_type.name,
-        :product_type_id => self.product_type.id,
-        :product => self.product.id,
-        :source => self.source
-      }
-    end
-  end
 end

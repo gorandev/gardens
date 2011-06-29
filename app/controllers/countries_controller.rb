@@ -76,8 +76,9 @@ class CountriesController < ApplicationController
     if params.has_key?(:currency_id) && !Currency.find_by_id(params[:currency_id])
       return render :json => { :errors => { :currency => "not found" } }, :status => 400
     end
-    
-    respond_with(Country.where(params.slice(:name, :iso_code, :locale, :time_zone, :currency_id)))
+   
+    @countries = Country.where(params.slice(:name, :iso_code, :locale, :time_zone, :currency_id))
+    respond_with(@countries)
   end
 
   def destroy

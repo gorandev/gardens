@@ -30,3 +30,15 @@ describe Retailer do
   end
 
 end
+
+# == Schema Information
+#
+# Table name: retailers
+#
+#  id         :integer         not null, primary key
+#  name       :string(255)
+#  country_id :integer
+#  created_at :datetime
+#  updated_at :datetime
+#
+

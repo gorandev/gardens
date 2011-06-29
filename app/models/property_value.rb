@@ -15,15 +15,4 @@ class PropertyValue < ActiveRecord::Base
   has_and_belongs_to_many :products
   has_and_belongs_to_many :items
   validates_presence_of :value, :property
-  
-  def as_json(options = {})
-    {
-      :id => self.property.id,
-      :name => self.property.name,
-      :value_id => self.id,
-      :value => self.value,
-      :product_type => self.property.product_type.name
-    }
-  end
-  
 end

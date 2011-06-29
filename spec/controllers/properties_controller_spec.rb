@@ -127,14 +127,14 @@ describe PropertiesController do
     
     it "should work with any single parameter" do
       get :search, :name => 'Washing Tonnage'
-      ActiveSupport::JSON.decode(response.body).should == [{"name"=>"Washing Tonnage", "product_type"=>"Squeezer", "id"=>6, "possible_values"=>[]}]
+      ActiveSupport::JSON.decode(response.body).should == [{"id"=>6, "name"=>"Washing Tonnage", "possible_values"=>[], "product_type_id"=>3, "product_type_name"=>"Squeezer"}]
       get :search, :product_type => product_type.id
-      ActiveSupport::JSON.decode(response.body).should == [{"name"=>"Washing Tonnage", "product_type"=>"Squeezer", "id"=>6, "possible_values"=>[]}]
+      ActiveSupport::JSON.decode(response.body).should == [{"id"=>6, "name"=>"Washing Tonnage", "possible_values"=>[], "product_type_id"=>3, "product_type_name"=>"Squeezer"}]
     end
     
     it "should work with more than one parameter" do
       get :search, :name => 'Washing Tonnage', :product_type => product_type.id
-      ActiveSupport::JSON.decode(response.body).should == [{"name"=>"Washing Tonnage", "product_type"=>"Squeezer", "id"=>6, "possible_values"=>[]}]
+      ActiveSupport::JSON.decode(response.body).should == [{"id"=>6, "name"=>"Washing Tonnage", "possible_values"=>[], "product_type_id"=>3, "product_type_name"=>"Squeezer"}]
     end
   end
 end

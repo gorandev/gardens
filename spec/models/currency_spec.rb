@@ -24,3 +24,16 @@ describe Currency do
   end
   
 end
+
+# == Schema Information
+#
+# Table name: currencies
+#
+#  id             :integer         not null, primary key
+#  name           :string(255)
+#  symbol         :string(255)
+#  decimal_places :integer
+#  created_at     :datetime
+#  updated_at     :datetime
+#
+

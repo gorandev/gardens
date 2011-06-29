@@ -173,25 +173,25 @@ describe ProductsController do
     it "should work with just the product type" do
       Product.create( :product_type => another_product_type, :property_values => [ property_value ] )
       get :search, :product_type => another_product_type.id
-      ActiveSupport::JSON.decode(response.body).should == [{"property_values"=>[{"value_id"=>16, "name"=>"watts", "id"=>6, "value"=>"1"}], "product_type"=>"Choker", "id"=>3, "product_type_id"=>3, "active_in_countries"=>[]}]
+      ActiveSupport::JSON.decode(response.body).should == [{"id"=>3, "active_in_countries"=>[], "property_values"=>[{"id"=>16, "value"=>"1", "property_id"=>6, "property_name"=>"watts"}], "product_type_id"=>3, "product_type_name"=>"Choker"}]
     end
     
     it "should work combining parameters" do
       Product.create( :product_type => another_product_type, :property_values => [ property_value ] )
       get :search, :product_type => another_product_type.id, :property_values => [ property_value.id ]
-      ActiveSupport::JSON.decode(response.body).should == [{"property_values"=>[{"value_id"=>16, "name"=>"watts", "id"=>6, "value"=>"1"}], "product_type"=>"Choker", "id"=>3, "product_type_id"=>3, "active_in_countries"=>[]}]
+      ActiveSupport::JSON.decode(response.body).should == [{"id"=>3, "active_in_countries"=>[], "property_values"=>[{"id"=>16, "value"=>"1", "property_id"=>6, "property_name"=>"watts"}], "product_type_id"=>3, "product_type_name"=>"Choker"}]
     end
     
     it "should work with one property value" do
       Product.create( :product_type => another_product_type, :property_values => [ property_value ] )
       get :search, :property_values => property_value.id.to_s
-      ActiveSupport::JSON.decode(response.body).should == [{"property_values"=>[{"value_id"=>16, "name"=>"watts", "id"=>6, "value"=>"1"}], "product_type"=>"Choker", "id"=>3, "product_type_id"=>3, "active_in_countries"=>[]}]
+      ActiveSupport::JSON.decode(response.body).should == [{"id"=>3, "active_in_countries"=>[], "property_values"=>[{"id"=>16, "value"=>"1", "property_id"=>6, "property_name"=>"watts"}], "product_type_id"=>3, "product_type_name"=>"Choker"}]
     end
     
     it "should work with more than one property value" do
       Product.create( :product_type => another_product_type, :property_values => [ property_value, another_property_value ] )
       get :search, :property_values => [ property_value, another_property_value ]
-      ActiveSupport::JSON.decode(response.body).should == [{"property_values"=>[{"value_id"=>16, "name"=>"watts", "id"=>6, "value"=>"1"}, {"value_id"=>17, "name"=>"watts", "id"=>6, "value"=>"2"}], "product_type"=>"Choker", "id"=>3, "product_type_id"=>3, "active_in_countries"=>[]}]
+      ActiveSupport::JSON.decode(response.body).should == [{"id"=>3, "active_in_countries"=>[], "property_values"=>[{"id"=>16, "value"=>"1", "property_id"=>6, "property_name"=>"watts"}, {"id"=>17, "value"=>"2", "property_id"=>6, "property_name"=>"watts"}], "product_type_id"=>3, "product_type_name"=>"Choker"}]
     end    
   end
 end

@@ -78,7 +78,7 @@ class ProductsController < ApplicationController
       render :action => "new"
     else
       if @product.save
-        flash[:notice] = "Salvado con éxito"
+        flash[:notice] = "Salvado con exito"
         redirect_to :action => "new"
       else 
         render :action => "new"
@@ -167,7 +167,8 @@ class ProductsController < ApplicationController
       params[:property_values] = { :id => params[:property_values] }
       join.push(:property_values)
     end
-    
-    respond_with(Product.joins(join).where(params.slice(:product_type_id, :property_values)).group(:id))
+
+    @products = Product.joins(join).where(params.slice(:product_type_id, :property_values)).group(:id)
+    respond_with(@products)
   end
 end

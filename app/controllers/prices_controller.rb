@@ -7,8 +7,8 @@ class PricesController < ApplicationController
   end
   
   def show
-    @Price = Price.find(params[:id])
-    respond_with(@Price)
+    @price = Price.find(params[:id])
+    respond_with(@price)
   end
   
   def create
@@ -91,7 +91,8 @@ class PricesController < ApplicationController
     where[:price_date] = (params[:date_from].to_datetime)..(params[:date_to].to_datetime + 1.day)
         
     limit = params[:limit] || 10
-    
-    respond_with(Price.joins(join).where(where).limit(limit).order("price_date DESC"))
+
+    @prices = Price.joins(join).where(where).limit(limit).order("price_date DESC")
+    respond_with(@prices)
   end
 end

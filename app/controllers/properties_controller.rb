@@ -40,7 +40,7 @@ class PropertiesController < ApplicationController
   def create_from_form
     @property = Property.new(params[:property])
     if @property.save
-      flash[:notice] = 'Salvado con éxito'
+      flash[:notice] = 'Salvado con exito'
       redirect_to :action => "new"
     else 
       render :action => "new"
@@ -86,8 +86,9 @@ class PropertiesController < ApplicationController
       end
       params[:product_type_id] = params[:product_type]
     end
-    
-    respond_with(Property.where(params.slice(:name, :product_type_id)))
+
+    @properties = Property.where(params.slice(:name, :product_type_id)) 
+    respond_with(@properties)
   end
   
   def destroy

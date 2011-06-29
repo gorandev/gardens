@@ -7,8 +7,8 @@ class RetailersController < ApplicationController
   end
   
   def show
-    @Retailer = Retailer.find(params[:id])
-    respond_with(@Retailer)
+    @retailer = Retailer.find(params[:id])
+    respond_with(@retailer)
   end
   
   def create    
@@ -63,8 +63,9 @@ class RetailersController < ApplicationController
       end
       params[:country_id] = params[:country]
     end
-    
-    respond_with(Retailer.where(params.slice(:name, :country_id)))
+
+    @retailers = Retailer.where(params.slice(:name, :country_id))
+    respond_with(@retailers)
   end
   
   def destroy
