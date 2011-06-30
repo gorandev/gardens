@@ -12,7 +12,7 @@ class WordsController < ApplicationController
   end
   
   def create    
-    word = Word.new( :value => params[:value] )
+    word = Word.new( :value => params[:value].upcase )
     
     if word.save
       render :json => { :id => word.id }
@@ -27,7 +27,7 @@ class WordsController < ApplicationController
     end
     
     if params.has_key?(:value)
-      word.value = params[:value]
+      word.value = params[:value].upcase
     end
     
     if word.attributes == Word.find_by_id(params[:id]).attributes

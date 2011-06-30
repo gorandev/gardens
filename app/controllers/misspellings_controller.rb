@@ -12,7 +12,7 @@ class MisspellingsController < ApplicationController
   end
   
   def create
-    misspelling = Misspelling.new( :value => params[:value], :word => Word.find_by_id(params[:word]) )
+    misspelling = Misspelling.new( :value => params[:value].upcase, :word => Word.find_by_id(params[:word]) )
     
     if misspelling.save
       render :json => { :id => misspelling.id }
@@ -30,7 +30,7 @@ class MisspellingsController < ApplicationController
     end
     
     if params.has_key?(:value)
-      misspelling.value = params[:value]
+      misspelling.value = params[:value].upcase
     end
     
     if params.has_key?(:word)
@@ -60,7 +60,7 @@ class MisspellingsController < ApplicationController
     join = Array.new
     if params.has_key?(:word)
       join.push(:word)
-      params[:words] = { :value => params[:word] }
+      params[:words] = { :value => params[:word].upcase }
     end
     
     @misspellings = Misspelling.joins(join).where(params.slice(:value, :words))
