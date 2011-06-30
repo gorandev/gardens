@@ -56,7 +56,7 @@ ActiveRecord::Schema.define(:version => 20110630170503) do
 
   create_table "misspellings", :force => true do |t|
     t.string   "value"
-    t.integer  "word_id",    :limit => 255
+    t.integer  "word_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

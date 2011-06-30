@@ -1,6 +1,6 @@
 class FixWordIdOnMisspellings < ActiveRecord::Migration
   def self.up
-    change_column :misspellings, :word_id, :integer
+    change_column :misspellings, :word_id, :integer, :limit => nil
   end
 
   def self.down
