@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110629183840) do
+ActiveRecord::Schema.define(:version => 20110630170503) do
 
   create_table "countries", :force => true do |t|
     t.string   "iso_code"
@@ -56,7 +56,7 @@ ActiveRecord::Schema.define(:version => 20110629183840) do
 
   create_table "misspellings", :force => true do |t|
     t.string   "value"
-    t.string   "word_id"
+    t.integer  "word_id",    :limit => 255
     t.datetime "created_at"
     t.datetime "updated_at"
   end
