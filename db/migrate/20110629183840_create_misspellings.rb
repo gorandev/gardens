@@ -2,7 +2,7 @@ class CreateMisspellings < ActiveRecord::Migration
   def self.up
     create_table :misspellings do |t|
       t.string :value
-      t.string :word_id
+      t.integer :word_id
 
       t.timestamps
     end
