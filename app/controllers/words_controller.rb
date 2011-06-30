@@ -49,7 +49,7 @@ class WordsController < ApplicationController
     join = Array.new
     if params.has_key?(:misspelling)
       join.push(:misspellings)
-      params[:misspellings] = { :value => params[:misspelling] }
+      params[:misspellings] = { :value => params[:misspelling].upcase }
     end
 
     if params.has_key?(:word)
