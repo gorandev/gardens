@@ -41,8 +41,8 @@ class WordsController < ApplicationController
     end
   end
   
-  def search    
-    if params.slice(:value, :misspelling, :word).empty?
+  def search
+    if params.slice(:misspelling, :word).empty?
       return render :json => { :errors => { :word => "no search parameters" } }, :status => 400
     end
     
@@ -51,12 +51,12 @@ class WordsController < ApplicationController
       join.push(:misspellings)
       params[:misspellings] = { :value => params[:misspelling] }
     end
-    
+
     if params.has_key?(:word)
-      params[:value] = params[:word]
+      params[:value] = params[:word].upcase
     end
     
-    @words = Word.joins(join).where(params.slice(:value, :misspellings, :value))
+    @words = Word.joins(join).where(params.slice(:value, :misspellings))
     respond_with(@words)
   end
   
