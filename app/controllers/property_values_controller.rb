@@ -81,7 +81,7 @@ class PropertyValuesController < ApplicationController
     
     if params.has_key?(:word)
       join.push(:word)
-      params[:words] = { :value => params[:word] }
+      params[:words] = { :value => params[:word].upcase }
     end
     
     @property_values = PropertyValue.joins(join).where(params.slice(:value, :properties, :words))
