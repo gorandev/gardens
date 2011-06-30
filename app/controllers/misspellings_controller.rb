@@ -12,7 +12,9 @@ class MisspellingsController < ApplicationController
   end
   
   def create
-    misspelling = Misspelling.new( :value => params[:value].upcase, :word => Word.find_by_id(params[:word]) )
+    misspelling = Misspelling.new( :value => params[:value], :word => Word.find_by_id(params[:word]) )
+    
+    misspelling.value = misspelling.value.upcase unless misspelling.value.nil?
     
     if misspelling.save
       render :json => { :id => misspelling.id }

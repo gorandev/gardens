@@ -12,7 +12,9 @@ class WordsController < ApplicationController
   end
   
   def create    
-    word = Word.new( :value => params[:value].upcase )
+    word = Word.new( :value => params[:value] )
+    
+    word.value = word.value.upcase unless word.value.nil?
     
     if word.save
       render :json => { :id => word.id }

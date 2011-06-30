@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110629183840) do
+ActiveRecord::Schema.define(:version => 20110630195446) do
 
   create_table "countries", :force => true do |t|
     t.string   "iso_code"
@@ -56,12 +56,18 @@ ActiveRecord::Schema.define(:version => 20110629183840) do
 
   create_table "misspellings", :force => true do |t|
     t.string   "value"
-    t.integer  "word_id"
+    t.string   "word_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
   add_index "misspellings", ["word_id"], :name => "index_misspellings_on_word_id"
+
+  create_table "no_words", :force => true do |t|
+    t.string   "value"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "prices", :force => true do |t|
     t.integer  "item_id"

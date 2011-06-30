@@ -9,8 +9,8 @@ describe MisspellingsController do
     }
   }
 
-  let(:word) { Word.create(:value => 'Nirvana') }
-  let(:another_word) { Word.create(:value => 'Offspring') }
+  let(:word) { Word.create(:value => 'NIRVANA') }
+  let(:another_word) { Word.create(:value => 'OFFSPRING') }
 
   before(:each) do
     request.env['HTTP_ACCEPT'] = "application/json"
@@ -30,13 +30,13 @@ describe MisspellingsController do
     end
 
     it "shouldn't work without word" do
-      post :create, :value => 'Satori'
+      post :create, :value => 'SATORI'
       expected["errors"].delete("value")
       ActiveSupport::JSON.decode(response.body).should == expected
     end
 
     it "shouldn't work with an invalid word" do
-      post :create, :value => 'Satori', :word => 99
+      post :create, :value => 'SATORI', :word => 99
       expected["errors"].delete("value")
       expected["errors"]["word"].push("must be valid")
       ActiveSupport::JSON.decode(response.body).should == expected
@@ -44,7 +44,7 @@ describe MisspellingsController do
     
     it "should work with all required values" do
       lambda do
-        post :create, :value => 'Satori', :word => word.id
+        post :create, :value => 'SATORI', :word => word.id
         response.should be_ok
         ActiveSupport::JSON.decode(response.body)["id"].to_s.should match /^\d+$/
         Misspelling.find(ActiveSupport::JSON.decode(response.body)["id"]).id.should == ActiveSupport::JSON.decode(response.body)["id"]
@@ -55,7 +55,7 @@ describe MisspellingsController do
   
   describe "GET 'show'" do
     it "should be successful" do
-      Misspelling.create(:value => 'Satori', :word => word)
+      Misspelling.create(:value => 'SATORI', :word => word)
       get :show, :id => 1
       response.should be_ok
     end
@@ -68,7 +68,7 @@ describe MisspellingsController do
     end
   
     it "should work with a valid id" do
-      Misspelling.create(:value => 'Satori', :word => word)
+      Misspelling.create(:value => 'SATORI', :word => word)
       lambda do
         delete :destroy, :id => 1
         response.body.should == "OK"
@@ -78,7 +78,7 @@ describe MisspellingsController do
   
   describe "PUT /:id" do  
     let(:misspelling) {
-      misspelling = Misspelling.create(:value => 'Satori', :word => word)
+      misspelling = Misspelling.create(:value => 'SATORI', :word => word)
     }
   
     it "shouldn't work with an invalid id" do
@@ -92,9 +92,9 @@ describe MisspellingsController do
     end
     
     it "should work with any single attribute" do
-      put :update, :id => misspelling.id, :value => "Sufana"
+      put :update, :id => misspelling.id, :value => "SUFANA"
       response.body.should == "OK"
-      Misspelling.find(misspelling.id).value.should == "Sufana"
+      Misspelling.find(misspelling.id).value.should == "SUFANA"
       
       put :update, :id => misspelling.id, :word => another_word
       response.body.should == "OK"
@@ -102,16 +102,16 @@ describe MisspellingsController do
     end    
     
     it "should work with all attributes" do
-      put :update, :id => misspelling.id, :value => "Sufana", :word => another_word
+      put :update, :id => misspelling.id, :value => "SUFANA", :word => another_word
       response.body.should == "OK"
-      Misspelling.find(misspelling.id).value.should == "Sufana"
+      Misspelling.find(misspelling.id).value.should == "SUFANA"
       Misspelling.find(misspelling.id).word.should == another_word
     end
   end
   
   describe "SEARCH" do
     before(:each) do
-      Misspelling.create(:value => 'Satori', :word => word)
+      Misspelling.create(:value => 'SATORI', :word => word)
     end
 
     it "shouldn't work without parameters" do
@@ -125,15 +125,15 @@ describe MisspellingsController do
     end
     
     it "should work with any single parameter" do
-      get :search, :value => 'Satori'
-      ActiveSupport::JSON.decode(response.body).should == [{"id"=>1, "value"=>"Satori", "word_id"=>1, "word_value"=>"Nirvana"}]
-      get :search, :word => word.id
-      ActiveSupport::JSON.decode(response.body).should == [{"id"=>1, "value"=>"Satori", "word_id"=>1, "word_value"=>"Nirvana"}]
+      get :search, :value => 'SATORI'
+      ActiveSupport::JSON.decode(response.body).should == [{"id"=>1, "value"=>"SATORI", "word_id"=>1, "word_value"=>"NIRVANA"}]
+      get :search, :word => word.value
+      ActiveSupport::JSON.decode(response.body).should == [{"id"=>1, "value"=>"SATORI", "word_id"=>1, "word_value"=>"NIRVANA"}]
     end
     
     it "should work with more than one parameter" do
-      get :search, :value => 'Satori', :word => word.id
-      ActiveSupport::JSON.decode(response.body).should == [{"id"=>1, "value"=>"Satori", "word_id"=>1, "word_value"=>"Nirvana"}]
+      get :search, :value => 'SATORI', :word => word.value
+      ActiveSupport::JSON.decode(response.body).should == [{"id"=>1, "value"=>"SATORI", "word_id"=>1, "word_value"=>"NIRVANA"}]
     end
   end
 end

@@ -1,15 +1,14 @@
-class Misspelling < ActiveRecord::Base
-  belongs_to :word
-  validates_presence_of :value, :word
-end
 # == Schema Information
 #
-# Table name: misspellings
+# Table name: no_words
 #
 #  id         :integer         not null, primary key
 #  value      :string(255)
-#  word_id    :integer
 #  created_at :datetime
 #  updated_at :datetime
 #
 
+class NoWord < ActiveRecord::Base
+  validates_presence_of :value
+  validates_uniqueness_of :value, :case_sensitive => false
+end

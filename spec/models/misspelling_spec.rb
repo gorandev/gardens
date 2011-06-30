@@ -31,13 +31,14 @@ describe Misspelling do
 
 end
 
+
 # == Schema Information
 #
 # Table name: misspellings
 #
 #  id         :integer         not null, primary key
 #  value      :string(255)
-#  word_id    :string(255)
+#  word_id    :integer
 #  created_at :datetime
 #  updated_at :datetime
 #
