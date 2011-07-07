@@ -1,0 +1,79 @@
+<h1>New product</h1>
+<% if flash[:notice] %>
+	<p class="notice"><%= flash[:notice] %></p>
+<% end %>
+<%= semantic_form_for @product do |form| %>
+	<%= form.input :product_type, :input_html => { :onChange => 'update_properties();' } %> 
+	
+	<div id="property_values_select_fields">
+	</div>
+	<%= form.buttons %>
+<% end %>
+<script type="text/javascript">
+
+function update_properties() {
+
+	if (!$F('product_product_type_id')) {
+		return;
+	}
+
+	$$('.property_value_select').each(function(obj) {
+		Element.remove(obj);
+	});
+	
+	new Ajax.Request(
+		'/properties/product_type/'+$F('product_product_type_id'), 
+		{
+			method: 'get',
+			onSuccess: function(transport) {
+				populate_properties(transport.responseJSON);
+			}
+		}
+	);
+
+}
+
+function populate_properties(properties) {
+
+	var props = new Array;
+	
+	for (var i = 0; i < properties.length; i++) {
+	
+		var prop = new Element('select', {
+			'name': 'product[property_values][]',
+			'class': 'property_value_select'
+			}
+		);
+		
+		prop.appendChild(
+			new Element('option', {
+				'value': null
+				}
+			).update(
+				'--'
+			)
+		);
+		
+		for (var j = 0; j < properties[i]['possible_values'].length; j++) {
+			prop.appendChild(
+				new Element('option', {
+					'value': properties[i]['possible_values'][j]['id']
+					}
+				).update(
+					properties[i]['possible_values'][j]['value']
+				)
+			);
+		}
+		
+		var name = new Element('span', { 'class': 'property_value_select' });
+		name.update(properties[i]['name']);
+		
+		Element.insert('property_values_select_fields', name);
+		Element.insert('property_values_select_fields', prop);
+	}
+	
+}
+
+update_properties();
+
+</script>

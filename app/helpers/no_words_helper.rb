@@ -1,0 +1,2 @@
+module NoWordsHelper
+end
