@@ -1,5 +1,5 @@
 object @item
-attributes :id, :source
+attributes :id, :source, :url
 glue :product do
 	attributes :id => :product
 end

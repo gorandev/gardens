@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110630195446) do
+ActiveRecord::Schema.define(:version => 20110708163022) do
 
   create_table "countries", :force => true do |t|
     t.string   "iso_code"
@@ -43,6 +43,7 @@ ActiveRecord::Schema.define(:version => 20110630195446) do
     t.string   "source"
     t.integer  "product_type_id"
     t.integer  "imagen_id"
+    t.string   "url"
   end
 
   add_index "items", ["product_id"], :name => "index_items_on_product_id"
@@ -56,7 +57,7 @@ ActiveRecord::Schema.define(:version => 20110630195446) do
 
   create_table "misspellings", :force => true do |t|
     t.string   "value"
-    t.integer  "word_id"
+    t.string   "word_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

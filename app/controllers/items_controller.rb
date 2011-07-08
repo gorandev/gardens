@@ -34,6 +34,7 @@ class ItemsController < ApplicationController
       :product => Product.find_by_id(params[:product]),
       :product_type => ProductType.find_by_id(params[:product_type]),
       :source => params[:source],
+      :url => params[:url],
       :property_values => property_values,
       :imagen_id => params[:imagen_id]
     )
@@ -88,6 +89,10 @@ class ItemsController < ApplicationController
       item.source = params[:source]
     end
     
+    if params.has_key?(:url)
+      item.url = params[:url]
+    end
+    
     if params.has_key?(:property_values)
       if params[:property_values].is_a?String
         property_values = PropertyValue.find_all_by_id(params[:property_values].split(','))
@@ -118,7 +123,7 @@ class ItemsController < ApplicationController
   end
   
   def search    
-    if params.slice(:retailer, :product, :product_type, :property_values, :source).empty?
+    if params.slice(:retailer, :product, :product_type, :property_values, :source, :url).empty?
       return render :json => { :errors => { :item => "no search parameters" } }, :status => 400
     end
 
@@ -165,7 +170,7 @@ class ItemsController < ApplicationController
       join.push(:property_values)
     end
 
-    @items = Item.joins(join).where(params.slice(:retailer_id, :product_id, :product_type_id, :property_values, :source)).group(:id)
+    @items = Item.joins(join).where(params.slice(:retailer_id, :product_id, :product_type_id, :property_values, :source, :url)).group(:id)
     respond_with(@items)
   end
   

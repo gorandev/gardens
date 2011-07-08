@@ -33,7 +33,9 @@ describe ItemsController do
   let(:another_retailer) { Retailer.create(:name => 'La Povega', :country => country) }
   
   let(:product) { Product.create(:product_type => product_type, :property_values => [ property_value ]) }
-  let(:item) { Item.create(:retailer => retailer, :source => 'web', :property_values => [ property_value ], :product_type => product_type) }
+  let(:item) { Item.create(:retailer => retailer, :source => 'papel', :property_values => [ property_value ], :product_type => product_type) }
+
+  let(:url) { 'http://idashboard.com.ar' }
   
   before(:each) do
     request.env['HTTP_ACCEPT'] = "application/json"
@@ -72,7 +74,7 @@ describe ItemsController do
     end
     
     it "shouldn't work with an invalid product" do
-      post :create, :retailer => retailer.id, :property_values => property_value.id.to_s, :product => 99, :source => 'web'
+      post :create, :retailer => retailer.id, :property_values => property_value.id.to_s, :product => 99, :source => 'papel'
       expected["errors"].delete("retailer")
       expected["errors"].delete("property_values")
       expected["errors"].delete("product_type")
@@ -83,7 +85,7 @@ describe ItemsController do
     
     it "should work without product and a single property value and a source and a product type" do
       lambda do
-        post :create, :retailer => retailer.id, :property_values => property_value.id.to_s, :source => 'web', :product_type => product_type.id
+        post :create, :retailer => retailer.id, :property_values => property_value.id.to_s, :source => 'papel', :product_type => product_type.id
         response.should be_ok
         ActiveSupport::JSON.decode(response.body)["id"].to_s.should match /^\d+$/
         Item.find(ActiveSupport::JSON.decode(response.body)["id"]).id.should == ActiveSupport::JSON.decode(response.body)["id"]
@@ -92,6 +94,28 @@ describe ItemsController do
       end.should change(Item, :count).by(1)
     end
 
+    it "should work without product and a single property value and source set to web and an url and a product type" do
+      lambda do
+        post :create, :retailer => retailer.id, :property_values => property_value.id.to_s, :source => 'web', :url => url, :product_type => product_type.id
+        response.should be_ok
+        ActiveSupport::JSON.decode(response.body)["id"].to_s.should match /^\d+$/
+        Item.find(ActiveSupport::JSON.decode(response.body)["id"]).id.should == ActiveSupport::JSON.decode(response.body)["id"]
+        Item.find(ActiveSupport::JSON.decode(response.body)["id"]).retailer.should == retailer
+        Item.find(ActiveSupport::JSON.decode(response.body)["id"]).property_values.should == [ property_value ]
+        Item.find(ActiveSupport::JSON.decode(response.body)["id"]).url.should == url
+      end.should change(Item, :count).by(1)
+    end
+
+    it "shouldn't work without product and a single property value and source set to web and an invalid url and a product type" do
+      post :create, :retailer => retailer.id, :property_values => property_value.id.to_s, :source => 'web', :url => 'quack', :product_type => product_type.id
+      expected["errors"].delete("retailer")
+      expected["errors"].delete("property_values")
+      expected["errors"].delete("product_type")
+      expected["errors"].delete("source")
+      expected["errors"]["url"] = [ 'does not appear to be valid' ]
+      ActiveSupport::JSON.decode(response.body).should == expected
+    end
+    
     it "shouldn't work with an invalid source" do
       post :create, :retailer => retailer.id, :property_values => property_value.id.to_s, :source => 'blagh'
       expected["errors"].delete("retailer")
@@ -102,7 +126,7 @@ describe ItemsController do
     
     it "should work without product and more than one property value via comma separated string" do
       lambda do
-        post :create, :retailer => retailer.id, :property_values => property_value.id.to_s + ',' + another_property_value.id.to_s, :source => 'web', :product_type => product_type.id
+        post :create, :retailer => retailer.id, :property_values => property_value.id.to_s + ',' + another_property_value.id.to_s, :source => 'papel', :product_type => product_type.id
         response.should be_ok
         ActiveSupport::JSON.decode(response.body)["id"].to_s.should match /^\d+$/
         Item.find(ActiveSupport::JSON.decode(response.body)["id"]).id.should == ActiveSupport::JSON.decode(response.body)["id"]
@@ -113,7 +137,7 @@ describe ItemsController do
     
     it "should work without product and more than one property value via array of ids" do
       lambda do
-        post :create, :retailer => retailer.id, :property_values => [ property_value.id, another_property_value.id ], :source => 'web', :product_type => product_type.id
+        post :create, :retailer => retailer.id, :property_values => [ property_value.id, another_property_value.id ], :source => 'papel', :product_type => product_type.id
         response.should be_ok
         ActiveSupport::JSON.decode(response.body)["id"].to_s.should match /^\d+$/
         Item.find(ActiveSupport::JSON.decode(response.body)["id"]).id.should == ActiveSupport::JSON.decode(response.body)["id"]
@@ -124,7 +148,7 @@ describe ItemsController do
     
     it "should work with product and a single property value" do
       lambda do
-        post :create, :retailer => retailer.id, :property_values => property_value.id.to_s, :product => product.id, :source => 'web', :product_type => product_type.id
+        post :create, :retailer => retailer.id, :property_values => property_value.id.to_s, :product => product.id, :source => 'papel', :product_type => product_type.id
         response.should be_ok
         ActiveSupport::JSON.decode(response.body)["id"].to_s.should match /^\d+$/
         Item.find(ActiveSupport::JSON.decode(response.body)["id"]).id.should == ActiveSupport::JSON.decode(response.body)["id"]
@@ -135,7 +159,7 @@ describe ItemsController do
 
     it "should work with product and more than one property value via comma separated string" do
       lambda do
-        post :create, :retailer => retailer.id, :property_values => property_value.id.to_s + ',' + another_property_value.id.to_s, :product => product.id, :source => 'web', :product_type => product_type.id
+        post :create, :retailer => retailer.id, :property_values => property_value.id.to_s + ',' + another_property_value.id.to_s, :product => product.id, :source => 'papel', :product_type => product_type.id
         response.should be_ok
         ActiveSupport::JSON.decode(response.body)["id"].to_s.should match /^\d+$/
         Item.find(ActiveSupport::JSON.decode(response.body)["id"]).id.should == ActiveSupport::JSON.decode(response.body)["id"]
@@ -147,7 +171,7 @@ describe ItemsController do
     
     it "should work with product and more than one property value via array of ids" do
       lambda do
-        post :create, :retailer => retailer.id, :property_values => [ property_value.id, another_property_value.id ], :product => product.id, :source => 'web', :product_type => product_type.id
+        post :create, :retailer => retailer.id, :property_values => [ property_value.id, another_property_value.id ], :product => product.id, :source => 'papel', :product_type => product_type.id
         response.should be_ok
         ActiveSupport::JSON.decode(response.body)["id"].to_s.should match /^\d+$/
         Item.find(ActiveSupport::JSON.decode(response.body)["id"]).id.should == ActiveSupport::JSON.decode(response.body)["id"]
@@ -160,7 +184,7 @@ describe ItemsController do
   
   describe "GET 'show'" do
     it "should be successful" do
-      Item.create(:retailer => retailer, :product => product, :property_values => [ property_value ], :source => 'web', :product_type => product_type)
+      Item.create(:retailer => retailer, :product => product, :property_values => [ property_value ], :source => 'papel', :product_type => product_type)
       get :show, :id => 1
       response.should be_ok
     end
@@ -173,7 +197,7 @@ describe ItemsController do
     end
   
     it "should work" do
-      Item.create(:retailer => retailer, :product => product, :property_values => [ property_value ], :source => 'web', :product_type => product_type)
+      Item.create(:retailer => retailer, :product => product, :property_values => [ property_value ], :source => 'papel', :product_type => product_type)
       lambda do
         delete :destroy, :id => 1
         response.body.should == "OK"
@@ -185,6 +209,22 @@ describe ItemsController do
     it "should not work with an invalid id" do
       put :update, :id => 99
       ActiveSupport::JSON.decode(response.body).should == { "errors" => { "id" => "must be valid" } }
+    end
+    
+    it "should not work with an invalid url" do
+      put :update, :id => item.id, :url => 'blah'
+      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "url" => [ "does not appear to be valid" ] } }
+    end
+    
+    it "should not work with source set to web and no url" do
+      put :update, :id => item.id, :source => 'web'
+      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "url" => [ "does not appear to be valid" ] } }
+    end
+    
+    it "should work with source set to web and a valid url" do
+      put :update, :id => item.id, :source => 'web', :url => url
+      Item.find(item.id).source.should == 'web'
+      Item.find(item.id).url.should == url
     end
     
     it "should work with a valid retailer" do
@@ -340,31 +380,31 @@ describe ItemsController do
     it "should work with any single parameter" do
       put :update, :id => item.id, :product => product.id
       response.body.should == "OK"
-      { "retailer" => retailer.id, "product" => product.id, "source" => "web" }.map { |a, v|
+      { "retailer" => retailer.id, "product" => product.id, "source" => "papel" }.map { |a, v|
         get :search, a.to_sym => v
-        ActiveSupport::JSON.decode(response.body).should == [{"id"=>1, "source"=>"web", "property_values"=>[{"id"=>16, "value"=>"1", "property_id"=>6, "property_name"=>"watts"}], "product"=>3, "retailer"=>"Falarino", "product_type_id"=>3, "product_type_name"=>"Squeezer"}]
+        ActiveSupport::JSON.decode(response.body).should == [{"id"=>1, "source"=>"papel", "url"=>nil, "property_values"=>[{"id"=>16, "value"=>"1", "property_id"=>6, "property_name"=>"watts"}], "product"=>3, "retailer"=>"Falarino", "product_type_id"=>3, "product_type_name"=>"Squeezer"}]
       }
     end
     
     it "should work combining parameters" do
-      put :update, :id => item.id, :product => product.id, :source => "web"
+      put :update, :id => item.id, :product => product.id, :source => "papel"
       response.body.should == "OK"
       get :search, :retailer => retailer.id, :product => product.id
-      ActiveSupport::JSON.decode(response.body).should == [{"id"=>1, "source"=>"web", "property_values"=>[{"id"=>16, "value"=>"1", "property_id"=>6, "property_name"=>"watts"}], "product"=>3, "retailer"=>"Falarino", "product_type_id"=>3, "product_type_name"=>"Squeezer"}]
+      ActiveSupport::JSON.decode(response.body).should == [{"id"=>1, "source"=>"papel", "url"=>nil, "property_values"=>[{"id"=>16, "value"=>"1", "property_id"=>6, "property_name"=>"watts"}], "product"=>3, "retailer"=>"Falarino", "product_type_id"=>3, "product_type_name"=>"Squeezer"}]
     end
     
     it "should work with one property value" do
       put :update, :id => item.id, :property_values => [ property_value.id ]
       response.body.should == "OK"
       get :search, :property_values => property_value.id.to_s
-      ActiveSupport::JSON.decode(response.body).should == [{"id"=>1, "source"=>"web", "property_values"=>[{"id"=>16, "value"=>"1", "property_id"=>6, "property_name"=>"watts"}], "retailer"=>"Falarino", "product_type_id"=>3, "product_type_name"=>"Squeezer"}]
+      ActiveSupport::JSON.decode(response.body).should == [{"id"=>1, "source"=>"papel", "url"=>nil, "property_values"=>[{"id"=>16, "value"=>"1", "property_id"=>6, "property_name"=>"watts"}], "retailer"=>"Falarino", "product_type_id"=>3, "product_type_name"=>"Squeezer"}]
     end
     
     it "should work with more than one property value" do
       put :update, :id => item.id, :property_values => [ property_value.id, another_property_value.id ]
       response.body.should == "OK"
       get :search, :property_values => property_value.id.to_s + "," + another_property_value.id.to_s
-      ActiveSupport::JSON.decode(response.body).should == [{"id"=>1, "source"=>"web", "property_values"=>[{"id"=>16, "value"=>"1", "property_id"=>6, "property_name"=>"watts"}, {"id"=>17, "value"=>"2", "property_id"=>6, "property_name"=>"watts"}], "retailer"=>"Falarino", "product_type_id"=>3, "product_type_name"=>"Squeezer"}]
+      ActiveSupport::JSON.decode(response.body).should == [{"id"=>1, "source"=>"papel", "url"=>nil, "property_values"=>[{"id"=>16, "value"=>"1", "property_id"=>6, "property_name"=>"watts"}, {"id"=>17, "value"=>"2", "property_id"=>6, "property_name"=>"watts"}], "retailer"=>"Falarino", "product_type_id"=>3, "product_type_name"=>"Squeezer"}]
     end    
   end
 end
