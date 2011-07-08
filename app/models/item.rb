@@ -23,6 +23,5 @@ class Item < ActiveRecord::Base
   
   validates_presence_of :retailer, :product_type, :property_values, :source
   validates_inclusion_of :source, :in => %w(web papel)
-  validates_url_format_of :url, :if => "source == 'web'"
-  validates_url_format_of :url, :allow_nil => true, :if => "source == 'papel'"
+  validates_url_format_of :url, :allow_nil => true
 end

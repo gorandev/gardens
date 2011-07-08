@@ -34,6 +34,8 @@ describe PricesController do
   }
   
   let(:currency) { Currency.create(:name => 'Felicidon', :symbol => 'F') }
+  
+  let(:date) { Time.now.utc }
 
   before(:each) do
     request.env['HTTP_ACCEPT'] = "application/json"
@@ -99,7 +101,7 @@ describe PricesController do
   end
 
   describe "SEARCH" do
-    let(:expected) { [ { "name" => "Felicidonia", "id" => 3 } ] }
+    let(:expected) { [ { "name" => "Felicidonia", "id" => 1 } ] }
 
     it "shouldn't work without parameters" do
       get :search
@@ -107,22 +109,22 @@ describe PricesController do
     end
     
     it "should work even with no results" do
-      get :search, :currency => 1
+      get :search, :currency => currency.id
       ActiveSupport::JSON.decode(response.body).should == []
     end
 
     it "should work with any single parameter" do
-      Price.create(:item => item, :currency => currency, :price => 99, :price_date => Date.today)
+      Price.create(:item => item, :currency => currency, :price => 99, :price_date => date)
       { "item" => item.id, "currency" => currency.id }.map { |a, v|
         get :search, a.to_sym => v
-        ActiveSupport::JSON.decode(response.body).should == [{"price"=>99, "price_date"=> Date.today, "item"=>1, "currency"=>"Felicidon"}]
+        ActiveSupport::JSON.decode(response.body).should == [{"price"=>99, "price_date"=> date, "item"=>1, "currency"=>"Felicidon"}]
       }
     end
     
     it "should work combining parameters" do
-      Price.create(:item => item, :currency => currency, :price => 99, :price_date => Date.today)
+      Price.create(:item => item, :currency => currency, :price => 99, :price_date => date)
       get :search, :item => item.id, :currency => currency.id
-      ActiveSupport::JSON.decode(response.body).should == [{"price"=>99, "price_date"=> Date.today, "item"=>1, "currency"=>"Felicidon"}]
+      ActiveSupport::JSON.decode(response.body).should == [{"price"=>99, "price_date"=> date, "item"=>1, "currency"=>"Felicidon"}]
     end
   end  
 end

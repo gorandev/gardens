@@ -145,7 +145,7 @@ describe CountriesController do
   end
   
   describe "SEARCH" do
-    let(:expected) { [ { "name" => "Felicidonia", "id" => 3 } ] }
+    let(:expected) { [ { "name" => "Felicidonia", "id" => 1 } ] }
   
     before(:each) do
       Country.create(
@@ -173,7 +173,7 @@ describe CountriesController do
     end
     
     it "should work with currency id" do
-      get :search, :currency_id => 3
+      get :search, :currency_id => 1
       ActiveSupport::JSON.decode(response.body).should == expected
     end
     

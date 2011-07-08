@@ -216,11 +216,6 @@ describe ItemsController do
       ActiveSupport::JSON.decode(response.body).should == { "errors" => { "url" => [ "does not appear to be valid" ] } }
     end
     
-    it "should not work with source set to web and no url" do
-      put :update, :id => item.id, :source => 'web'
-      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "url" => [ "does not appear to be valid" ] } }
-    end
-    
     it "should work with source set to web and a valid url" do
       put :update, :id => item.id, :source => 'web', :url => url
       Item.find(item.id).source.should == 'web'
@@ -349,7 +344,7 @@ describe ItemsController do
     end
     
     it "should work even with no results" do
-      get :search, :retailer => 1
+      get :search, :retailer => retailer.id
       ActiveSupport::JSON.decode(response.body).should == []
     end
     
@@ -382,7 +377,7 @@ describe ItemsController do
       response.body.should == "OK"
       { "retailer" => retailer.id, "product" => product.id, "source" => "papel" }.map { |a, v|
         get :search, a.to_sym => v
-        ActiveSupport::JSON.decode(response.body).should == [{"id"=>1, "source"=>"papel", "url"=>nil, "property_values"=>[{"id"=>16, "value"=>"1", "property_id"=>6, "property_name"=>"watts"}], "product"=>3, "retailer"=>"Falarino", "product_type_id"=>3, "product_type_name"=>"Squeezer"}]
+        ActiveSupport::JSON.decode(response.body).should == [{"id"=>1, "source"=>"papel", "url"=>nil, "property_values"=>[{"id"=>1, "value"=>"1", "property_id"=>1, "property_name"=>"watts"}], "product"=>1, "retailer"=>"Falarino", "product_type_id"=>1, "product_type_name"=>"Squeezer"}]
       }
     end
     
@@ -390,21 +385,21 @@ describe ItemsController do
       put :update, :id => item.id, :product => product.id, :source => "papel"
       response.body.should == "OK"
       get :search, :retailer => retailer.id, :product => product.id
-      ActiveSupport::JSON.decode(response.body).should == [{"id"=>1, "source"=>"papel", "url"=>nil, "property_values"=>[{"id"=>16, "value"=>"1", "property_id"=>6, "property_name"=>"watts"}], "product"=>3, "retailer"=>"Falarino", "product_type_id"=>3, "product_type_name"=>"Squeezer"}]
+      ActiveSupport::JSON.decode(response.body).should == [{"id"=>1, "source"=>"papel", "url"=>nil, "property_values"=>[{"id"=>1, "value"=>"1", "property_id"=>1, "property_name"=>"watts"}], "product"=>1, "retailer"=>"Falarino", "product_type_id"=>1, "product_type_name"=>"Squeezer"}]
     end
     
     it "should work with one property value" do
       put :update, :id => item.id, :property_values => [ property_value.id ]
       response.body.should == "OK"
       get :search, :property_values => property_value.id.to_s
-      ActiveSupport::JSON.decode(response.body).should == [{"id"=>1, "source"=>"papel", "url"=>nil, "property_values"=>[{"id"=>16, "value"=>"1", "property_id"=>6, "property_name"=>"watts"}], "retailer"=>"Falarino", "product_type_id"=>3, "product_type_name"=>"Squeezer"}]
+      ActiveSupport::JSON.decode(response.body).should == [{"id"=>1, "source"=>"papel", "url"=>nil, "property_values"=>[{"id"=>1, "value"=>"1", "property_id"=>1, "property_name"=>"watts"}], "retailer"=>"Falarino", "product_type_id"=>1, "product_type_name"=>"Squeezer"}]
     end
     
     it "should work with more than one property value" do
       put :update, :id => item.id, :property_values => [ property_value.id, another_property_value.id ]
       response.body.should == "OK"
       get :search, :property_values => property_value.id.to_s + "," + another_property_value.id.to_s
-      ActiveSupport::JSON.decode(response.body).should == [{"id"=>1, "source"=>"papel", "url"=>nil, "property_values"=>[{"id"=>16, "value"=>"1", "property_id"=>6, "property_name"=>"watts"}, {"id"=>17, "value"=>"2", "property_id"=>6, "property_name"=>"watts"}], "retailer"=>"Falarino", "product_type_id"=>3, "product_type_name"=>"Squeezer"}]
+      ActiveSupport::JSON.decode(response.body).should == [{"id"=>1, "source"=>"papel", "url"=>nil, "property_values"=>[{"id"=>1, "value"=>"1", "property_id"=>1, "property_name"=>"watts"}, {"id"=>2, "value"=>"2", "property_id"=>1, "property_name"=>"watts"}], "retailer"=>"Falarino", "product_type_id"=>1, "product_type_name"=>"Squeezer"}]
     end    
   end
 end

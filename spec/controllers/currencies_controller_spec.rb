@@ -46,7 +46,7 @@ describe CurrenciesController do
   describe "GET 'show'" do
     it "should be successful" do
       Currency.create(:name => 'FLD', :symbol => 'F$')
-      get :show, :id => 3
+      get :show, :id => 1
       response.should be_ok
     end
   end
@@ -100,7 +100,7 @@ describe CurrenciesController do
       Currency.create(:name => 'FLD', :symbol => 'F$')
     end
     
-    let(:expected) { [ { "name" => "FLD", "symbol" => 'F$', "id" => 3 } ] }
+    let(:expected) { [ { "name" => "FLD", "symbol" => 'F$', "id" => 1 } ] }
     
     it "shouldn't work without parameters" do
       get :search

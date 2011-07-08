@@ -52,25 +52,10 @@ describe Item do
     item.property_values << property_value
     item.should_not be_valid
   end
-  
-  it "shouldn't be valid with source == 'web' and no url" do
-    item.retailer = retailer
-    item.source = 'web'
-    item.property_values << property_value
-    item.should_not be_valid
-  end
-  
+    
   it "shouldn't be valid with an invalid url" do
     item.retailer = retailer
     item.source = 'web'
-    item.property_values << property_value
-    item.url = 'blah'
-    item.should_not be_valid
-  end
-
-  it "shouldn't be valid with an invalid url even if source is set to 'papel'" do
-    item.retailer = retailer
-    item.source = 'papel'
     item.property_values << property_value
     item.url = 'blah'
     item.should_not be_valid
