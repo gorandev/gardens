@@ -35,6 +35,7 @@ class ItemsController < ApplicationController
       :product_type => ProductType.find_by_id(params[:product_type]),
       :source => params[:source],
       :url => params[:url],
+      :description => params[:description],
       :property_values => property_values,
       :imagen_id => params[:imagen_id]
     )
@@ -91,6 +92,10 @@ class ItemsController < ApplicationController
     
     if params.has_key?(:url)
       item.url = params[:url]
+    end
+    
+    if params.has_key?(:description)
+      item.description = params[:description]
     end
     
     if params.has_key?(:property_values)

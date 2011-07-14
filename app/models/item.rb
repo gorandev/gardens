@@ -11,6 +11,7 @@
 #  product_type_id :integer
 #  imagen_id       :integer
 #  url             :string(255)
+#  description     :string(255)
 #
 
 class Item < ActiveRecord::Base
@@ -24,4 +25,5 @@ class Item < ActiveRecord::Base
   validates_presence_of :retailer, :product_type, :property_values, :source
   validates_inclusion_of :source, :in => %w(web papel)
   validates_url_format_of :url, :allow_nil => true
+  validates_uniqueness_of :url, :allow_nil => true
 end
