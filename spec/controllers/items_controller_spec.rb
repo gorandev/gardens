@@ -5,7 +5,6 @@ describe ItemsController do
   let(:expected) {
     { "errors" => {
       "retailer" => [ "can't be blank" ],
-      "property_values" => [ "can't be blank" ],
       "product_type" => [ "can't be blank" ],
       "source" => [ "can't be blank", "is not included in the list" ]
       }
@@ -68,9 +67,7 @@ describe ItemsController do
     
     it "shouldn't work with any invalid property values" do
       post :create, :retailer => retailer.id, :property_values => property_value.id.to_s + ',' + another_property_value.id.to_s + ',100'
-      expected["errors"].delete("retailer")
-      expected["errors"]["property_values"].push("must be all valid")
-      ActiveSupport::JSON.decode(response.body).should == expected
+      ActiveSupport::JSON.decode(response.body).should == { "errors" => { "property_values" => "must be all valid" } }
     end
     
     it "shouldn't work with an invalid product" do
@@ -83,14 +80,13 @@ describe ItemsController do
       ActiveSupport::JSON.decode(response.body).should == expected
     end
     
-    it "should work without product and a single property value and a source and a product type" do
+    it "should work without product and no property values and a source and a product type" do
       lambda do
-        post :create, :retailer => retailer.id, :property_values => property_value.id.to_s, :source => 'papel', :product_type => product_type.id
+        post :create, :retailer => retailer.id, :source => 'papel', :product_type => product_type.id
         response.should be_ok
         ActiveSupport::JSON.decode(response.body)["id"].to_s.should match /^\d+$/
         Item.find(ActiveSupport::JSON.decode(response.body)["id"]).id.should == ActiveSupport::JSON.decode(response.body)["id"]
         Item.find(ActiveSupport::JSON.decode(response.body)["id"]).retailer.should == retailer
-        Item.find(ActiveSupport::JSON.decode(response.body)["id"]).property_values.should == [ property_value ]
       end.should change(Item, :count).by(1)
     end
 

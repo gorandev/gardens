@@ -1,3 +1,16 @@
+# == Schema Information
+#
+# Table name: prices
+#
+#  id          :integer         not null, primary key
+#  item_id     :integer
+#  price_date  :date
+#  currency_id :integer
+#  price       :integer
+#  created_at  :datetime
+#  updated_at  :datetime
+#
+
 require 'spec_helper'
 
 describe Price do
@@ -52,17 +65,3 @@ describe Price do
   end
   
 end
-
-# == Schema Information
-#
-# Table name: prices
-#
-#  id          :integer         not null, primary key
-#  item_id     :integer
-#  price_date  :datetime
-#  currency_id :integer
-#  price       :integer
-#  created_at  :datetime
-#  updated_at  :datetime
-#
-

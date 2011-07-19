@@ -25,7 +25,7 @@ class ItemsController < ApplicationController
       end
       
       if property_values.size != pv_param_size
-        property_values.clear
+        return render :json => { :errors => { :property_values => "must be all valid" } }, :status => 400
       end
     end
   
@@ -49,9 +49,6 @@ class ItemsController < ApplicationController
     else
       if params.has_key?(:retailer) && item.retailer == nil
         item.errors.add(:retailer, "must be valid")
-      end
-      if params.has_key?(:property_values) && item.property_values.empty? && item.property_values.size != pv_param_size
-        item.errors.add(:property_values, "must be all valid")
       end
       if params.has_key?(:product_type) && item.product_type == nil
         item.errors.add(:errors, "must be valid")

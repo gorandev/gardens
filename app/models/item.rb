@@ -22,7 +22,7 @@ class Item < ActiveRecord::Base
   has_and_belongs_to_many :property_values
   has_many :prices
   
-  validates_presence_of :retailer, :product_type, :property_values, :source
+  validates_presence_of :retailer, :product_type, :source
   validates_inclusion_of :source, :in => %w(web papel)
   validates_url_format_of :url, :allow_nil => true
   validates_uniqueness_of :url, :allow_nil => true
