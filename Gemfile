@@ -2,6 +2,7 @@ source "http://rubygems.org"
 
 gem 'rails', '3.0.7'
 gem 'sqlite3'
+gem 'pg'
 gem 'formtastic', '~> 1.2.3'
 gem 'rspec-http', '~> 0.0.1'
 gem 'rabl'
