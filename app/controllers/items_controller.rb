@@ -28,29 +28,31 @@ class ItemsController < ApplicationController
         return render :json => { :errors => { :property_values => "must be all valid" } }, :status => 400
       end
     end
-  
-    item = Item.new(
-      :retailer => Retailer.find_by_id(params[:retailer]),
-      :product => Product.find_by_id(params[:product]),
-      :product_type => ProductType.find_by_id(params[:product_type]),
-      :source => params[:source],
-      :url => params[:url],
-      :description => params[:description],
-      :property_values => property_values,
-      :imagen_id => params[:imagen_id]
-    )
-   
-    if params.has_key?(:product) && item.product == nil
+
+    if params.has_key?(:product) && Product.find_by_id(params[:product]).nil?
       return render :json => { :errors => { :product => "must be valid" } }, :status => 400
+    end
+    
+    item = Item.find_or_initialize_by_url(params[:url])
+    
+    item.retailer = Retailer.find_by_id(params[:retailer]) || item.retailer
+    item.product = Product.find_by_id(params[:product]) || item.product
+    item.product_type = ProductType.find_by_id(params[:product_type]) || item.product_type
+    item.source = params[:source] || item.source
+    item.description = params[:description] || item.description
+    item.imagen_id = params[:imagen_id] || item.imagen_id
+    
+    if property_values.size
+      item.property_values = property_values
     end
 
     if item.save
       render :json => { :id => item.id }
     else
-      if params.has_key?(:retailer) && item.retailer == nil
+      if params.has_key?(:retailer) && item.retailer.nil?
         item.errors.add(:retailer, "must be valid")
       end
-      if params.has_key?(:product_type) && item.product_type == nil
+      if params.has_key?(:product_type) && item.product_type.nil?
         item.errors.add(:errors, "must be valid")
       end
       render :json => { :errors => item.errors }, :status => 400
