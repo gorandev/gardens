@@ -11,7 +11,7 @@
 #  product_type_id :integer
 #  imagen_id       :integer
 #  url             :string(255)
-#  description     :string(255)
+#  description     :text(255)
 #
 
 class Item < ActiveRecord::Base

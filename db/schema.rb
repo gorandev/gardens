@@ -44,7 +44,7 @@ ActiveRecord::Schema.define(:version => 20110722135942) do
     t.integer  "product_type_id"
     t.integer  "imagen_id"
     t.string   "url"
-    t.text     "description"
+    t.text     "description",     :limit => 255
   end
 
   add_index "items", ["product_id"], :name => "index_items_on_product_id"

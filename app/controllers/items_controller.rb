@@ -12,49 +12,15 @@ class ItemsController < ApplicationController
   end
 
   def create
-    property_values = Array.new
-    if params.has_key?(:property_values)
-      if params[:property_values].is_a?String
-        property_values = PropertyValue.find_all_by_id(params[:property_values].split(','))
-        pv_param_size = params[:property_values].split(',').size
-      else
-        if params[:property_values].is_a?Array
-          pv_param_size = params[:property_values].size
-        end
-        property_values = PropertyValue.find_all_by_id(params[:property_values])
-      end
-      
-      if property_values.size != pv_param_size
-        return render :json => { :errors => { :property_values => "must be all valid" } }, :status => 400
-      end
-    end
-
-    if params.has_key?(:product) && Product.find_by_id(params[:product]).nil?
-      return render :json => { :errors => { :product => "must be valid" } }, :status => 400
+    item = create_item(params)
+    
+    unless item.is_a?Item
+      return item
     end
     
-    item = Item.find_or_initialize_by_url(params[:url])
-    
-    item.retailer = Retailer.find_by_id(params[:retailer]) || item.retailer
-    item.product = Product.find_by_id(params[:product]) || item.product
-    item.product_type = ProductType.find_by_id(params[:product_type]) || item.product_type
-    item.source = params[:source] || item.source
-    item.description = params[:description] || item.description
-    item.imagen_id = params[:imagen_id] || item.imagen_id
-    
-    if property_values.size
-      item.property_values = property_values
-    end
-
-    if item.save
+    if item.errors.empty?
       render :json => { :id => item.id }
     else
-      if params.has_key?(:retailer) && item.retailer.nil?
-        item.errors.add(:retailer, "must be valid")
-      end
-      if params.has_key?(:product_type) && item.product_type.nil?
-        item.errors.add(:errors, "must be valid")
-      end
       render :json => { :errors => item.errors }, :status => 400
     end
   end

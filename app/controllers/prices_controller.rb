@@ -12,6 +12,20 @@ class PricesController < ApplicationController
   end
   
   def create
+    if params.has_key?(:url)
+      item = create_item(params)
+
+      unless item.is_a?Item
+        return item
+      end
+      
+      unless item.errors.empty?
+        return render :json => { :errors => item.errors }, :status => 400
+      end
+      
+      params[:item] = item.id
+    end
+  
     price = Price.new(
       :price => params[:value],
       :item => Item.find_by_id(params[:item]),

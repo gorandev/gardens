@@ -7,5 +7,5 @@ glue :currency do
 	attributes :name => :currency
 end
 code :price_date do |p|
-	p.price_date || p.created_at
+	p.price_date || p.created_at.to_date
 end
