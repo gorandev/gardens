@@ -114,6 +114,9 @@ describe PricesController do
             response.should be_ok
             ActiveSupport::JSON.decode(response.body)["id"].to_s.should match /^\d+$/
             Price.find(ActiveSupport::JSON.decode(response.body)["id"]).id.should == ActiveSupport::JSON.decode(response.body)["id"]
+            
+            Event.where(:item_id => item.id).last.precio_viejo.should == 99
+            Event.where(:item_id => item.id).last.precio_nuevo.should == 101
           end.should change(Event, :count).by(1)
         end.should change(Price, :count).by(1)
       end.should change(Item, :count).by(1)
