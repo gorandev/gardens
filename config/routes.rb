@@ -1,5 +1,7 @@
 Gardens::Application.routes.draw do
 
+  resources :events, :defaults => { :format => :json }
+
   match 'currencies/search' => 'currencies#search', :defaults => { :format => :json }
   resources :currencies, :defaults => { :format => :json }
   
