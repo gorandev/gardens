@@ -32,7 +32,11 @@ class PricesController < ApplicationController
     
     ultimo_precio = Price.where(:item_id => params[:item]).order(:price_date).last
     unless (ultimo_precio.nil?)
-      ultimo_precio = ultimo_precio.price
+      if ultimo_precio.price_date <= params[:price_date]
+        ultimo_precio = ultimo_precio.price
+      else
+        ultimo_precio = nil
+      end
     end
     
     price = Price.find_or_initialize_by_item_id_and_price_date(params[:item], params[:price_date])
