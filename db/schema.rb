@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110722135942) do
+ActiveRecord::Schema.define(:version => 20110804163323) do
 
   create_table "countries", :force => true do |t|
     t.string   "iso_code"
@@ -34,6 +34,16 @@ ActiveRecord::Schema.define(:version => 20110722135942) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  create_table "events", :force => true do |t|
+    t.integer  "item_id"
+    t.integer  "precio_viejo"
+    t.integer  "precio_nuevo"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "events", ["item_id"], :name => "index_events_on_item_id"
 
   create_table "items", :force => true do |t|
     t.integer  "product_id"

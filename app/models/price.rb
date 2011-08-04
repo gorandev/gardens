@@ -15,5 +15,6 @@ class Price < ActiveRecord::Base
   belongs_to :item
   belongs_to :currency
   
-  validates_presence_of :item, :currency, :price  
+  validates_presence_of :item, :currency, :price, :price_date
+  validates_uniqueness_of :price_date, :scope => :item_id
 end

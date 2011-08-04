@@ -55,11 +55,35 @@ describe Price do
       price.should_not be_valid
     end
 
-    it "should be valid with item, currency and price" do
+    it "shouldn't be valid with everything except the date" do
       price.item = item
       price.currency = currency
       price.price = 1
+      price.should_not be_valid
+    end
+    
+    it "should be valid with item, currency, price and date" do
+      price.item = item
+      price.currency = currency
+      price.price = 1
+      price.price_date = Date.current
       price.should be_valid
+    end
+    
+    it "shouldn't be valid to create a price for an existing date for an item" do
+      price.item = item
+      price.currency = currency
+      price.price = 1
+      price.price_date = Date.current
+      price.save
+      
+      another_price = Price.new
+      another_price.item = item
+      another_price.currency = currency
+      another_price.price = 1
+      another_price.price_date = Date.current
+      
+      another_price.should_not be_valid
     end
     
   end

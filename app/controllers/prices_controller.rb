@@ -25,15 +25,25 @@ class PricesController < ApplicationController
       
       params[:item] = item.id
     end
-  
-    price = Price.new(
-      :price => params[:value],
-      :item => Item.find_by_id(params[:item]),
-      :price_date => params[:price_date],
-      :currency => Currency.find_by_id(params[:currency])
-    )
+
+    unless params.has_key?(:price_date)
+      params[:price_date] = Date.current
+    end
+    
+    ultimo_precio = Price.where(:item_id => params[:item]).order(:price_date).last
+    
+    price = Price.find_or_initialize_by_item_id_and_price_date(params[:item], params[:price_date])
+    price.price = params[:value]
+    price.currency = Currency.find_by_id(params[:currency])
     
     if price.save
+      if (params.has_key?(:scraped) && !ultimo_precio.nil? && price.price != ultimo_precio)
+        Event.create(
+          :item => price.item,
+          :precio_viejo => ultimo_precio,
+          :precio_nuevo => price.price
+        )
+      end
       render :json => { :id => price.id }
     else
       if params.has_key?(:item) && price.item == nil

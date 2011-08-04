@@ -101,26 +101,28 @@ describe PricesController do
       response.should_not be_ok
     end
     
-    it "should work with the item object" do
+    it "should work with the item object -- and two price inputs for the same item and date should generate 1 item, 1 price and 1 event" do
       lambda do
         lambda do
-          post :create, :value => 99, :currency => currency.id, :retailer => item.retailer.id, :product_type => product_type.id, :source => 'web', :url => 'http://www.falarino.com'
-          response.should be_ok
-          ActiveSupport::JSON.decode(response.body)["id"].to_s.should match /^\d+$/
-          Price.find(ActiveSupport::JSON.decode(response.body)["id"]).id.should == ActiveSupport::JSON.decode(response.body)["id"]
-          
-          post :create, :value => 101, :currency => currency.id, :retailer => item.retailer.id, :product_type => product_type.id, :source => 'web', :url => 'http://www.falarino.com'
-          response.should be_ok
-          ActiveSupport::JSON.decode(response.body)["id"].to_s.should match /^\d+$/
-          Price.find(ActiveSupport::JSON.decode(response.body)["id"]).id.should == ActiveSupport::JSON.decode(response.body)["id"]
-        end.should change(Price, :count).by(2)
+          lambda do
+            post :create, :value => 99, :currency => currency.id, :retailer => item.retailer.id, :product_type => product_type.id, :source => 'web', :url => 'http://www.falarino.com'
+            response.should be_ok
+            ActiveSupport::JSON.decode(response.body)["id"].to_s.should match /^\d+$/
+            Price.find(ActiveSupport::JSON.decode(response.body)["id"]).id.should == ActiveSupport::JSON.decode(response.body)["id"]
+            
+            post :create, :value => 101, :currency => currency.id, :retailer => item.retailer.id, :product_type => product_type.id, :source => 'web', :url => 'http://www.falarino.com', :scraped => 1
+            response.should be_ok
+            ActiveSupport::JSON.decode(response.body)["id"].to_s.should match /^\d+$/
+            Price.find(ActiveSupport::JSON.decode(response.body)["id"]).id.should == ActiveSupport::JSON.decode(response.body)["id"]
+          end.should change(Event, :count).by(1)
+        end.should change(Price, :count).by(1)
       end.should change(Item, :count).by(1)
     end
   end
   
   describe "GET 'show'" do
     it "should be successful" do
-      Price.create(:item => item, :currency => currency, :price => 99)
+      Price.create(:item => item, :currency => currency, :price => 101, :price_date => Date.current)
       get :show, :id => 1
       response.should be_ok
     end

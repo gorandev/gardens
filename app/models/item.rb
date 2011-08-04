@@ -21,6 +21,7 @@ class Item < ActiveRecord::Base
   
   has_and_belongs_to_many :property_values
   has_many :prices
+  has_many :events
   
   validates_presence_of :retailer, :product_type, :source
   validates_inclusion_of :source, :in => %w(web papel)
