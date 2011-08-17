@@ -13,7 +13,6 @@
 #  url             :string(255)
 #  description     :text(255)
 #
-
 class Item < ActiveRecord::Base
   belongs_to :product
   belongs_to :product_type

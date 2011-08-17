@@ -32,9 +32,7 @@ class PricesController < ApplicationController
     
     ultimo_precio = Price.where(:item_id => params[:item]).order(:price_date).last
     unless (ultimo_precio.nil?)
-      if ultimo_precio.price_date <= params[:price_date]
-        ultimo_precio = ultimo_precio.price
-      else
+      unless ultimo_precio.price_date <= params[:price_date]
         ultimo_precio = nil
       end
     end
@@ -44,10 +42,10 @@ class PricesController < ApplicationController
     price.currency = Currency.find_by_id(params[:currency])
     
     if price.save
-      if (params.has_key?(:scraped) && !ultimo_precio.nil? && price.price != ultimo_precio)
+      if (params.has_key?(:scraped) && !ultimo_precio.nil? && price.price != ultimo_precio.price)
         Event.create(
           :item => price.item,
-          :precio_viejo => ultimo_precio,
+          :precio_viejo => ultimo_precio.price,
           :precio_nuevo => price.price
         )
       end
