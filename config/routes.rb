@@ -23,6 +23,8 @@ Gardens::Application.routes.draw do
   match 'items/search' => 'items#search', :defaults => { :format => :json }
   resources :items, :defaults => { :format => :json }
   
+  get 'products/prices'
+  
   match 'products/search' => 'products#search', :defaults => { :format => :json }
   resources :products, :defaults => { :format => :json }
 

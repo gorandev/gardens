@@ -1,0 +1,21 @@
+<% content_for :titulo_pagina do %>Precios<% end %>
+<% content_for :javascript do %>
+<%= javascript_include_tag "https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js", :cache => true %>
+<script type="text/javascript">jQuery.noConflict();</script>
+<%= javascript_include_tag "highcharts", "modules/exporting", "chosen.jquery.min", "tooltipsy.min", :cache => true %>
+
+<script type="text/javascript">
+function agregar_tooltips() {
+	jQuery('div[id^="tooltipsy"]').remove()
+	jQuery('li.search-choice > span').each(function(i) {
+		jQuery(this).tooltipsy({
+			content: jQuery(this).parent().parent().parent().siblings().first().attr('title'),
+			alignTo: 'cursor',
+			offset: [10, 10]
+		});
+	});
+}
+</script>
+
+<%= javascript_include_tag "jquery-ui-1.8.14.custom.min", "jquery-ui-datepicker-es", :cache => true %>
+<% end %>

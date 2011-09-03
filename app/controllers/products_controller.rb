@@ -1,6 +1,6 @@
 class ProductsController < ApplicationController
   respond_to :json
-  
+
   def index
     @products = Product.all
     respond_with(@products)
@@ -170,5 +170,14 @@ class ProductsController < ApplicationController
 
     @products = Product.joins(join).where(params.slice(:product_type_id, :property_values)).group(:id)
     respond_with(@products)
+  end
+  
+  def prices 
+  end
+  
+  private
+  
+  def cargar_variables
+    @pagina = 'Precios'
   end
 end

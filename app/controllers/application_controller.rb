@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery
   rescue_from ActiveRecord::RecordNotFound, :with => :record_not_found
+  before_filter :cargar_variables
   
   def create_item(params)
     property_values = Array.new

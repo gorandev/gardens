@@ -1,14 +1,286 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="es">
 <head>
-  <title>Gardens</title>
-  <%= stylesheet_link_tag :all %>
-  <%= javascript_include_tag :defaults %>
-  <%= csrf_meta_tag %>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>iDashboard - <%= yield :titulo_pagina %></title>
+<meta name="description" content="Medir y entender sus mercados. Conocer y comprender a su competencia. Crecer sostenida y estratgicamente.">
+<meta name="keywords" content="medir,entender,conocer,comprender,crecer,mercado,competencia">
+
+<%= stylesheet_link_tag "estilos", "modalbox", "prototip", "lightbox", "chosen", "jquery-ui-1.8.14.custom","jquery-datepicker.css", :cache => true %>
+
+<%= javascript_include_tag "https://ajax.googleapis.com/ajax/libs/prototype/1.7.0.0/prototype.js", "https://ajax.googleapis.com/ajax/libs/scriptaculous/1.9.0/scriptaculous.js?load=effects,builder,dragdrop", "prototip", "lightbox", "modalbox", "idashboard", :cache => true %>
+
+<%= yield :javascript %>
+
+<% if defined?google_analytics_key %>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', '<%= google_analytics_key %>']);
+  _gaq.push(['_trackPageview']);
+  
+  _gaq.push(['_setCustomVar',
+	1,
+	'Usuario',
+	'<%= userid %>',
+	1
+  ]);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<% end %>
+
+<%= csrf_meta_tag %>
 </head>
 <body>
+<div id="wrapper">
+	<div id="contenedor">
+		<!--Encabezado-->
+		<div id="encabezado">
+			<!--Accesos directos para navegadores de voz -->
+			<div id="accesoDirecto">
+				<p><a href="#contenido">Ir directo al contenido</a></p>
+				<p><a href="#menu">Ir directo al menu</a></p>
+			</div>
+			<!--Marca-->
+			<div id="marca">
+				<h1>iDashboard: Estrategia + Gesti&oacute;n</h1>
+			</div>
+			<!--Login de usuarios-->
+			<div id="barraUsuario">
+				<div id="login">
+				<% if defined?@usuario %>
+					Hola, <%= @usuario %> 
+					&nbsp;&nbsp;
+				<% end %>	
+				<a href="/dashboard/logout">logout</a> | <a href="/dashboard/cambiar_password">cambiar password</a>
+				</div>
+				<!--Buscador-->
+				<div id="buscar">
+					<br/>
+				</div>
+			</div>
+			<!--Aclaracion de marca-->
+			<div id="aclaracionMarca">
+				
+			</div>
+		</div>
+		<!--Cuerpo=Menu + Contenido-->
+		<div id="cuerpo">
+			<div class="esteticaIzq">
+				<div class="techo">
+					<div class="esteticaSup">
+						<div class="esteticaSupIzq"></div>
+						<div class="esteticaSupDer"></div>
+					</div>
+				</div>
+				<!--Menu-->
+				<div id="menu"> <a name="menu"></a>
+					<h3>Men&uacute;</h3>
+					<ul>
+						
+						<li class="menuDReport">
+						<% if defined?@pagina and @pagina == 'Reportes' %>
+						<div class="esteticaMenu">
+						<div class="esteticaMenuSup">
+						<div class="esteticaMenuSupIzq"></div>
+						</div>
+						<% end %>
+						<a href="/dashboard/reportes" lang="en"><%= image_tag "menu_dreports.jpg", :alt =>"Dynamic Reports" %> Mis Reportes</a>
+						<% if defined?@pagina and @pagina == 'Reportes' %>
+						<div class="esteticaMenuInf">
+						<div class="esteticaMenuInfIzq"></div>
+						</div>
+						</div>
+						<% end %>
+						</li>
+						
+						<li class="menuPrices">
+						<% if defined?@pagina and @pagina == 'Precios' %>
+						<div class="esteticaMenu">
+						<div class="esteticaMenuSup">
+						<div class="esteticaMenuSupIzq"></div>
+						</div>
+						<% end %>
+						<a href="/dashboard/prices" lang="en"><%= image_tag "menu_prices.jpg", :alt => "Prices" %> Precios</a>
+						<% if defined?@pagina and @pagina == 'Precios' %>
+						<div class="esteticaMenuInf">
+						<div class="esteticaMenuInfIzq"></div>
+						</div>
+						</div>
+						<% end %>
+						</li>
 
+						<li class="menuPrices">
+						<% if defined?@pagina and @pagina == 'Categorias' %>
+						<div class="esteticaMenu">
+						<div class="esteticaMenuSup">
+						<div class="esteticaMenuSupIzq"></div>
+						</div>
+						<% end %>
+						<a href="/dashboard/categorias" lang="en"><%= image_tag "menu_prices.jpg", :alt => "Categorias" %> Categor&iacute;as</a>
+						<% if defined?@pagina and @pagina == 'Categorias' %>
+						<div class="esteticaMenuInf">
+						<div class="esteticaMenuInfIzq"></div>
+						</div>
+						</div>
+						<% end %>
+						</li>
+						
+						<% if defined?@usuario_tabs %>
+						<li class="menuProduct">
+						<% if defined?@pagina and @pagina == 'Vendors' %>
+						<div class="esteticaMenu">
+						<div class="esteticaMenuSup">
+						<div class="esteticaMenuSupIzq"></div>
+						</div>
+						<% end %>
+						<a href="/dashboard/vendors" lang="en"><%= image_tag "menu_prices.jpg", :alt => "Vendors" %> Vendors</a>
+						<% if defined?@pagina and @pagina == 'Vendors' %>
+						<div class="esteticaMenuInf">
+						<div class="esteticaMenuInfIzq"></div>
+						</div>
+						</div>
+						<% end %>
+						</li>
+
+						<li class="menuProduct">
+						<% if defined?@pagina and @pagina == 'Retailers' %>
+						<div class="esteticaMenu">
+						<div class="esteticaMenuSup">
+						<div class="esteticaMenuSupIzq"></div>
+						</div>
+						<% end %>
+						<a href="/dashboard/retailers" lang="en"><%= image_tag "menu_prices.jpg", :alt => "Retailers" %> Retailers</a>
+						<% if defined?@pagina and @pagina == 'Retailers' %>
+						<div class="esteticaMenuInf">
+						<div class="esteticaMenuInfIzq"></div>
+						</div>
+						</div>
+						<% end %>
+						</li>
+						<% end %>
+						
+						<li class="menuProduct">
+						<% if defined?@pagina and @pagina == 'Productos' %>
+						<div class="esteticaMenu">
+						<div class="esteticaMenuSup">
+						<div class="esteticaMenuSupIzq"></div>
+						</div>
+						<% end %>
+						<a href="/dashboard/pagina_producto" lang="en"><%= image_tag "menu_product.jpg", :alt => "Product" %> Productos</a>
+						<% if defined?@pagina and @pagina == 'Productos' %>
+						<div class="esteticaMenuInf">
+						<div class="esteticaMenuInfIzq"></div>
+						</div>
+						</div>
+						<% end %>
+						</li>
+						
+						<li class="menuProduct">
+						<% if defined?@pagina and @pagina == 'Publicaciones' %>
+						<div class="esteticaMenu">
+						<div class="esteticaMenuSup">
+						<div class="esteticaMenuSupIzq"></div>
+						</div>
+						<% end %>
+						<a href="/dashboard/publicaciones" lang="en"><%= image_tag "menu_publicaciones.jpg", :alt => "Publicaciones" %> Publicaciones</a>
+						<% if defined?@pagina and @pagina == 'Publicaciones' %>
+						<div class="esteticaMenuInf">
+						<div class="esteticaMenuInfIzq"></div>
+						</div>
+						</div>
+						<% end %>
+						</li>						
+						
+						<li class="menuAlert">
+						<% if defined?@pagina and @pagina == 'Alertas' %>
+						<div class="esteticaMenu">
+						<div class="esteticaMenuSup">
+						<div class="esteticaMenuSupIzq"></div>
+						</div>
+						<% end %>
+						<a href="/dashboard/alertas" lang="en"><%= image_tag "menu_alert.jpg", :alt => "Alert" %> Alertas</a>
+						<% if defined?@pagina and @pagina == 'Alertas' %>
+						<div class="esteticaMenuInf">
+						<div class="esteticaMenuInfIzq"></div>
+						</div>
+						</div>
+						<% end %>
+						</li>
+						
+						<% if defined?@usuario_admin %>
+						
+						<li class="menuAlert">
+						<% if defined?@pagina and @pagina == 'Productizador' %>
+						<div class="esteticaMenu">
+						<div class="esteticaMenuSup">
+						<div class="esteticaMenuSupIzq"></div>
+						</div>
+						<% end %>
+						<a href="/dashboard/productizador" lang="en"><%= image_tag "menu_alert.jpg", :alt => "Productizador" %>Productizador</a>
+						<% if defined?@pagina and @pagina == 'Productizador' %>
+						<div class="esteticaMenuInf">
+						<div class="esteticaMenuInfIzq"></div>
+						</div>
+						</div>
+						<% end %>
+						</li>
+						
+						<li class="menuAlert">
+						<% if defined?@pagina and @pagina == 'Revisar promociones' %>
+						<div class="esteticaMenu">
+						<div class="esteticaMenuSup">
+						<div class="esteticaMenuSupIzq"></div>
+						</div>
+						<% end %>
+						<a href="/dashboard/revisar_promociones" lang="en"><%= image_tag "menu_alert.jpg", :alt => "Revisar promociones" %>Revisar<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;publicaciones</a>
+						<% if defined?@pagina and @pagina == 'Revisar promociones' %>
+						<div class="esteticaMenuInf">
+						<div class="esteticaMenuInfIzq"></div>
+						</div>
+						</div>
+						<% end %>
+						</li>
+						
+						<li class="menuAlert">
+						<% if defined?@pagina and @pagina == 'Cargar promociones' %>
+						<div class="esteticaMenu">
+						<div class="esteticaMenuSup">
+						<div class="esteticaMenuSupIzq"></div>
+						</div>
+						<% end %>
+						<a href="/dashboard/cargar_promociones" lang="en"><%= image_tag "menu_alert.jpg", :alt => "Cargar promociones" %>Cargar<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;publicaciones</a>
+						<% if defined?@pagina and @pagina == 'Cargar promociones' %>
+						<div class="esteticaMenuInf">
+						<div class="esteticaMenuInfIzq"></div>
+						</div>
+						</div>
+						<% end %>
+						</li>
+						
+						<% end %>
+						
+					</ul>
+				</div>
+				<!--Contenido-->
+				<div id="contenido"> <a name="contenido"></a>
 <%= yield %>
-
+</div>
+			</div>
+		</div>
+		<div class="pie">
+			<div class="esteticaInf">
+				<div class="esteticaInfIzq"></div>
+				<div class="esteticaInfDer"></div>
+			</div>
+		</div>
+	</div>
+</div>
 </body>
 </html>
