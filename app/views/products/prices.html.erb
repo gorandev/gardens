@@ -1,8 +1,8 @@
 <% content_for :titulo_pagina do %>Precios<% end %>
 <% content_for :javascript do %>
-<%= javascript_include_tag "https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js", :cache => true %>
+<%= javascript_include_tag "https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js" %>
 <script type="text/javascript">jQuery.noConflict();</script>
-<%= javascript_include_tag "highcharts", "modules/exporting", "chosen.jquery.min", "tooltipsy.min", :cache => true %>
+<%= javascript_include_tag "highcharts", "modules/exporting", "chosen.jquery.min", "tooltipsy.min" %>
 
 <script type="text/javascript">
 function agregar_tooltips() {
@@ -17,5 +17,5 @@ function agregar_tooltips() {
 }
 </script>
 
-<%= javascript_include_tag "jquery-ui-1.8.14.custom.min", "jquery-ui-datepicker-es", :cache => true %>
+<%= javascript_include_tag "jquery-ui-1.8.14.custom.min", "jquery-ui-datepicker-es" %>
 <% end %>
