@@ -19,3 +19,88 @@ function agregar_tooltips() {
 
 <%= javascript_include_tag "jquery-ui-1.8.14.custom.min", "jquery-ui-datepicker-es" %>
 <% end %>
+
+<style type="text/css">
+
+.pulldown_selector {
+	font-size: 12px;
+	width: 240px;
+}
+
+span.error {
+	position: relative;
+	top: 180px;
+	left: 100px;
+	font-size: 16px;
+	font-weight: bold;
+}
+
+</style>
+
+<div style="height: 600px; width: 250px;">
+
+<form name="buscar_producto" id="buscar_producto">
+<input type="hidden" name="class" value="pulldown_selector chzn-select"/>
+<input type="hidden" name="data-placeholder" value="Producto"/>
+<input type="hidden" name="title" value="Producto"/>
+
+<span class="pulldown_span" id="span_categoria_pulldown">
+<select onChange="llenar_pulldowns('categoria');" name="categoria" id="categoria_pulldown" class="pulldown_selector chzn-select" size="4" multiple  title="Categor&iacute;a" data-placeholder="Categor&iacute;a">
+<%= render :partial => "shared/pulldown_options", :collection => @categorias, :as => :obj %>
+</select></span><span class="pulldown_span" id="span_retailer_pulldown"><select name="retailer" onChange="llenar_pulldowns('retailer');" size="4" title="Retailer" id="retailer_pulldown" class="pulldown_selector chzn-select" multiple  data-placeholder="Retailer">
+<%= render :partial => "shared/pulldown_options", :collection => @retailers, :as => :obj %>
+</select></span>
+
+<% for p in @properties %>
+<span class="pulldown_span" id="span_<%= p[:name] %>_pulldown">
+<select onChange="llenar_pulldowns('<%= p[:name] %>');" name="<%= p[:name] %>" id="<%= p[:name] %>_pulldown" class="pulldown_selector chzn-select" size="4" multiple  title="<%= p[:name] %>" data-placeholder="<%= p[:name] %>">
+<%= render :partial => "shared/pulldown_options_array", :collection => p[:props].sort { |a, b| a[:name] <=> b[:name] }, :as => :obj %>
+</select></span>
+<% end %>
+
+</form>
+
+<form name="parametros_grafico" id="parametros_grafico" method="post" action="/dashboard/hc_grafico_producto" target="_new">
+<input type="hidden" name="t" id="t">
+<input type="hidden" name="excel" id="excel">
+<input type="hidden" name="retailer" id="retailer">
+
+<span class="pulldown_span" id="span_productos_pulldown"><select style="display: none;" name="id_producto" id="productos_pulldown" class="pulldown_selector chzn-select" size="8" multiple="multiple" title="Producto" data-placeholder="Producto">
+<%= render :partial => "shared/pulldown_options_array", :collection => @products.sort { |a, b| a[:name] <=> b[:name] }, :as => :obj %>
+</select>
+</span>
+<br/>
+<br/>
+<%= render "shared/periodo_pulldown" %>
+<br/>
+<div class="date_div" style="display: inline; float: left">
+Desde:
+<input class="date_input" type="text" name="fecha_desde" id="fecha_desde" size="8" value="<%= (Date.current - 1.month).strftime("%d/%m/%Y") %>"/>
+</div>
+
+<div class="date_div">
+Hasta:
+<input class="date_input" type="text" name="fecha_hasta" id="fecha_hasta" size="8" value="<%= (Date.current).strftime("%d/%m/%Y") %>"/>
+</div>
+
+<input type="button" onClick="graficar();" id="boton_ver" value="Ver"/>
+<input type="button" onClick="graficar('excel');" id="boton_ver_excel" value="Ver Excel"/>
+</form>
+
+</div>
+
+<div style="position: relative; top: -600px; left: 250px; width: 550px; height: 500px;" id="chart">
+<div id="chart_producto" style="height: 500px; width: 550px;"></div>
+<div style="display: none; width: 550px;" id="history_buttons">
+<p style="text-align: center;">
+<input type="button" id="history_back" disabled value="&lt;--" onClick="showhistorychart(-1);">&nbsp;
+<input type="button" id="history_forward" disabled value="--&gt;" onClick="showhistorychart(1);">&nbsp;
+</p>
+</div>
+</div>
+
+<script type="text/javascript">
+jQuery(".chzn-select").chosen();
+jQuery("#fecha_desde").datepicker();
+jQuery("#fecha_hasta").datepicker();
+</script>

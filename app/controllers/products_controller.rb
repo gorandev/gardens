@@ -173,11 +173,33 @@ class ProductsController < ApplicationController
   end
   
   def prices 
-  end
-  
-  private
-  
-  def cargar_variables
     @pagina = 'Precios'
+    @categorias = ProductType.all
+    @retailers = Retailer.all
+    
+    @properties = Array.new
+    for p in Property.where( :name => [ "marca", "marca_procesador", "modelo_procesador", "memoria", "disco", "pantalla", "os", "touch" ] )
+      props = Array.new
+      for pp in p.property_values
+        props.push({
+          :id => pp.id,
+          :name => pp.value
+        })
+      end
+      @properties.push({ :name => p.name, :props => props })
+    end
+    
+    @products = Array.new
+    for p in Product.all
+      marca = p.property_values.index_by(&:property_id)[Property.find_by_name('marca').id].try(:value)
+      modelo = p.property_values.index_by(&:property_id)[Property.find_by_name('modelo').id].try(:value)
+      if marca.nil? || modelo.nil?
+        next
+      end
+      @products.push({ 
+        :id => p.id,
+        :name => marca << ' ' << modelo
+      })
+    end
   end
 end
