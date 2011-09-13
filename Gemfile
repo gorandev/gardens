@@ -6,6 +6,7 @@ gem 'pg'
 gem 'formtastic', '~> 1.2.3'
 gem 'rspec-http', '~> 0.0.1'
 gem 'rabl'
+gem 'settingslogic'
 
 group :development do
   gem 'rspec-rails', '2.5.0'

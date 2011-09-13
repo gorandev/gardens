@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="es">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -7,6 +7,7 @@
 <meta name="keywords" content="medir,entender,conocer,comprender,crecer,mercado,competencia">
 
 <%= stylesheet_link_tag "estilos", "modalbox", "prototip", "lightbox", "chosen", "jquery-ui-1.8.14.custom","jquery-datepicker.css" %>
+<%= yield :stylesheet %>
 
 <%= javascript_include_tag "https://ajax.googleapis.com/ajax/libs/prototype/1.7.0.0/prototype.js", "https://ajax.googleapis.com/ajax/libs/scriptaculous/1.9.0/scriptaculous.js?load=effects,builder,dragdrop", "prototip", "lightbox", "modalbox", "idashboard" %>
 
@@ -107,7 +108,7 @@
 						<div class="esteticaMenuSupIzq"></div>
 						</div>
 						<% end %>
-						<a href="/dashboard/prices" lang="en"><%= image_tag "menu_prices.jpg", :alt => "Prices" %> Precios</a>
+						<a href="/products/prices" lang="en"><%= image_tag "menu_prices.jpg", :alt => "Prices" %> Precios</a>
 						<% if defined?@pagina and @pagina == 'Precios' %>
 						<div class="esteticaMenuInf">
 						<div class="esteticaMenuInfIzq"></div>
@@ -269,9 +270,7 @@
 					</ul>
 				</div>
 				<!--Contenido-->
-				<div id="contenido"> <a name="contenido"></a>
-<%= yield %>
-</div>
+				<div id="contenido"><a name="contenido"></a><%= yield %></div>
 			</div>
 		</div>
 		<div class="pie">

@@ -16,6 +16,7 @@ class ProductsController < ApplicationController
     @product.property_values.build
   end
 
+  #noinspection RubyArgCount
   def create
     if params.has_key?("product")
       return create_from_form
@@ -32,13 +33,13 @@ class ProductsController < ApplicationController
         end
         property_values = PropertyValue.find_all_by_id(params[:property_values])
       end
-      
+
       if property_values.size != pv_param_size
         property_values.clear
       end
     end
     
-    product = Product.new( 
+    product = Product.new(
       :product_type => ProductType.find_by_id(params[:product_type]), 
       :property_values => property_values,
       :imagen_id => params[:imagen_id]
@@ -56,7 +57,8 @@ class ProductsController < ApplicationController
       render :json => { :errors => product.errors }, :status => 400
     end
   end
-  
+
+  #noinspection RubyArgCount
   def create_from_form
     pvs = Array.new
     begin
@@ -168,7 +170,7 @@ class ProductsController < ApplicationController
       join.push(:property_values)
     end
 
-    @products = Product.joins(join).where(params.slice(:product_type_id, :property_values)).group(:id)
+    @products = Product.joins(join).where(params.slice(:product_type_id, :property_values))
     respond_with(@products)
   end
   
@@ -178,28 +180,16 @@ class ProductsController < ApplicationController
     @retailers = Retailer.all
     
     @properties = Array.new
-    for p in Property.where( :name => [ "marca", "marca_procesador", "modelo_procesador", "memoria", "disco", "pantalla", "os", "touch" ] )
+    for p in Settings['computadoras']['precios']
       props = Array.new
-      for pp in p.property_values
+      property = Property.find_by_name(p["field"])
+      for pp in property.property_values
         props.push({
           :id => pp.id,
           :name => pp.value
         })
       end
-      @properties.push({ :name => p.name, :props => props })
-    end
-    
-    @products = Array.new
-    for p in Product.all
-      marca = p.property_values.index_by(&:property_id)[Property.find_by_name('marca').id].try(:value)
-      modelo = p.property_values.index_by(&:property_id)[Property.find_by_name('modelo').id].try(:value)
-      if marca.nil? || modelo.nil?
-        next
-      end
-      @products.push({ 
-        :id => p.id,
-        :name => marca << ' ' << modelo
-      })
+      @properties.push({ :name => p["name"], :field => p["field"], :id => property.id, :props => props })
     end
   end
 end

@@ -15,8 +15,166 @@ function agregar_tooltips() {
 		});
 	});
 }
-</script>
 
+var spinner = '<%= image_tag "ajax-bar-loader.gif", :size => "238x30" %>';
+var pulldowns_ok = [
+	{ 
+		name: "Categoria",
+		campo: "categoria"
+	},
+	{
+		name: "Retailer",
+		campo: "retailer" 	
+	}
+];
+<% for p in @properties %>
+pulldowns_ok.push({ name: '<%=p[:name]%>', campo: '<%=p[:field]%>', id: <%=p[:id]%> });
+<% end %>
+
+function find_prop(campo) {
+	var indice = -1;
+	jQuery.each(pulldowns_ok, function(i, v) {
+		if (v.campo == campo) {
+			indice = i;
+		}
+	})
+	return indice;
+}
+
+function cascada_de_pulldowns(obj) {
+	agregar_tooltips();
+
+	var indice = find_prop(obj.name);
+	if (indice < 0) {
+		return;
+	}
+
+	for (
+		var i = indice + 1;
+		i < pulldowns_ok.length;
+		i++
+	) {
+		dibujar_pulldown( i, pulldowns_ok[i].campo, pulldowns_ok[i].name );
+	}
+
+	dibujar_pulldown_productos();
+}
+
+function dibujar_pulldown_productos() {
+	jQuery('#span_producto_pulldown').html(spinner);
+
+	var campos = {};
+	for ( var i = 0; i < pulldowns_ok.length; i++ ) {
+		if (jQuery(pulldowns_ok[i].campo + '_pulldown').val()) {
+			campos[pulldowns_ok[i].campo] = jQuery(pulldowns_ok[i].campo + '_pulldown').val();
+		}
+	}
+
+	jQuery.ajax({
+		url: ( jQuery.param(campos) != '' ? "/products/search" : "/products" ),
+		data: campos,
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				llenar_pulldown(data, 'producto', 'Producto');
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
+}
+
+function dibujar_pulldown(indice, campo, nombre) {
+	jQuery('#span_' + campo + '_pulldown').html = spinner;
+
+	var campos = { property: pulldowns_ok[indice].id };
+
+	for (
+		var i = 0;
+		i < indice;
+		i++
+	) {
+		if (jQuery(pulldowns_ok[i].campo + '_pulldown').val()) {
+			campos[pulldowns_ok[i].campo] = jQuery(pulldowns_ok[i][campo] + '_pulldown').val();
+		}
+		
+	}
+
+	jQuery.ajax({
+		url: "/property_values/search",
+		data: campos,
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				llenar_pulldown(data, campo, nombre);
+			},
+			400: function(){
+				alert('Error 400!');
+			}
+		}
+	});
+}
+
+function llenar_pulldown(data, campo, name) {
+	var change = '';
+	if (campo != 'producto') {
+		change = 'onChange="cascada_de_pulldowns(this);" ';
+	}
+
+	var select = jQuery('<select ' + change + 'name="' + campo + '" id="' + campo + '_pulldown" class="pulldown_selector chzn-select" size="4" multiple  title="' + name + '" data-placeholder="' + name + '"></select>');
+		
+	if (campo == 'producto') {
+		var productos = [];
+		jQuery.each(data, function(i, v) {
+			var producto = '';
+
+			jQuery.each(v.property_values, function(j, prop) {
+				if (prop.property_name == 'marca') {
+					producto += prop.value;
+				}				
+			});
+			jQuery.each(v.property_values, function(j, prop) {
+				if (prop.property_name == 'modelo') {
+					producto += ' ' + prop.value;
+				}				
+			});
+
+			if (producto) {
+				productos.push( { id: v.id, value: producto })
+			}
+		});
+
+		var productos_ordered = productos.sort( function(a,b) {
+			return ( a.value < b.value ? -1 : (a.value > b.value ? 1 : 0 ) );
+		});
+
+		for (var i = 0; i < productos_ordered.length; i++) {
+			select.append('<option value="' + productos_ordered[i].id + '">' + productos_ordered[i].value + '</option>');
+		};
+	} else {
+		var props_ordered = data.sort(function(a, b) {
+			return ( a.value < b.value ? -1 : (a.value > b.value ? 1 : 0 ) );
+		});
+		
+		for (var i = 0; i < props_ordered.length; i++) {
+			select.append('<option value="' + props_ordered[i].id + '">' + props_ordered[i].value + '</option');
+		}
+	}
+
+	jQuery('#span_' + campo + '_pulldown').html(select);
+	jQuery('#' + campo + '_pulldown').chosen();
+	jQuery('#' + campo + '_pulldown').bind('change', agregar_tooltips);
+}
+
+jQuery(document).ready(function() {
+	jQuery(".chzn-select").chosen();
+	jQuery("#fecha_desde").datepicker();
+	jQuery("#fecha_hasta").datepicker();
+	//dibujar_pulldown_productos();
+});
+
+</script>
 <%= javascript_include_tag "jquery-ui-1.8.14.custom.min", "jquery-ui-datepicker-es" %>
 <% end %>
 
@@ -45,15 +203,15 @@ span.error {
 <input type="hidden" name="title" value="Producto"/>
 
 <span class="pulldown_span" id="span_categoria_pulldown">
-<select onChange="llenar_pulldowns('categoria');" name="categoria" id="categoria_pulldown" class="pulldown_selector chzn-select" size="4" multiple  title="Categor&iacute;a" data-placeholder="Categor&iacute;a">
+<select onChange="cascada_de_pulldowns(this);" name="categoria" id="categoria_pulldown" class="pulldown_selector chzn-select" size="4" multiple  title="Categor&iacute;a" data-placeholder="Categor&iacute;a">
 <%= render :partial => "shared/pulldown_options", :collection => @categorias, :as => :obj %>
-</select></span><span class="pulldown_span" id="span_retailer_pulldown"><select name="retailer" onChange="llenar_pulldowns('retailer');" size="4" title="Retailer" id="retailer_pulldown" class="pulldown_selector chzn-select" multiple  data-placeholder="Retailer">
+</select></span><span class="pulldown_span" id="span_retailer_pulldown"><select name="retailer" onChange="cascada_de_pulldowns(this);" size="4" title="Retailer" id="retailer_pulldown" class="pulldown_selector chzn-select" multiple  data-placeholder="Retailer">
 <%= render :partial => "shared/pulldown_options", :collection => @retailers, :as => :obj %>
 </select></span>
 
 <% for p in @properties %>
-<span class="pulldown_span" id="span_<%= p[:name] %>_pulldown">
-<select onChange="llenar_pulldowns('<%= p[:name] %>');" name="<%= p[:name] %>" id="<%= p[:name] %>_pulldown" class="pulldown_selector chzn-select" size="4" multiple  title="<%= p[:name] %>" data-placeholder="<%= p[:name] %>">
+<span class="pulldown_span" id="span_<%= p[:field] %>_pulldown">
+<select onChange="cascada_de_pulldowns(this);" name="<%= p[:field] %>" id="<%= p[:field] %>_pulldown" class="pulldown_selector chzn-select" size="4" multiple  title="<%= p[:name] %>" data-placeholder="<%= p[:name] %>">
 <%= render :partial => "shared/pulldown_options_array", :collection => p[:props].sort { |a, b| a[:name] <=> b[:name] }, :as => :obj %>
 </select></span>
 <% end %>
@@ -65,8 +223,7 @@ span.error {
 <input type="hidden" name="excel" id="excel">
 <input type="hidden" name="retailer" id="retailer">
 
-<span class="pulldown_span" id="span_productos_pulldown"><select style="display: none;" name="id_producto" id="productos_pulldown" class="pulldown_selector chzn-select" size="8" multiple="multiple" title="Producto" data-placeholder="Producto">
-<%= render :partial => "shared/pulldown_options_array", :collection => @products.sort { |a, b| a[:name] <=> b[:name] }, :as => :obj %>
+<span class="pulldown_span" id="span_producto_pulldown"><select name="producto" id="producto_pulldown" class="pulldown_selector chzn-select" size="8" multiple="multiple" title="Producto" data-placeholder="Producto">
 </select>
 </span>
 <br/>
@@ -100,7 +257,5 @@ Hasta:
 </div>
 
 <script type="text/javascript">
-jQuery(".chzn-select").chosen();
-jQuery("#fecha_desde").datepicker();
-jQuery("#fecha_hasta").datepicker();
+
 </script>
