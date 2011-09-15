@@ -41,42 +41,35 @@ function find_prop(campo) {
 	return indice;
 }
 
-function cascada_de_pulldowns(obj) {
-	agregar_tooltips();
-
+function dibujar_pulldown_productos(obj) {
 	var indice = find_prop(obj.name);
 	if (indice < 0) {
 		return;
 	}
 
-	for (
-		var i = indice + 1;
-		i < pulldowns_ok.length;
-		i++
-	) {
-		dibujar_pulldown( i, pulldowns_ok[i].campo, pulldowns_ok[i].name );
-	}
-
-	dibujar_pulldown_productos();
-}
-
-function dibujar_pulldown_productos() {
-	jQuery('#span_producto_pulldown').html(spinner);
-
-	var campos = {};
-	for ( var i = 0; i < pulldowns_ok.length; i++ ) {
-		if (jQuery(pulldowns_ok[i].campo + '_pulldown').val()) {
-			campos[pulldowns_ok[i].campo] = jQuery(pulldowns_ok[i].campo + '_pulldown').val();
+	var filtros = [];
+	for ( var i = 0; i <= indice; i++ ) {
+		if (jQuery('#' + pulldowns_ok[i].campo + '_pulldown').val()) {
+			filtros.push(jQuery('#' + pulldowns_ok[i].campo + '_pulldown').val());
 		}
 	}
 
+	for ( var i = indice+1; i < pulldowns_ok.length; i++ ) {
+		jQuery('#span_' + pulldowns_ok[i].campo + '_pulldown').html(spinner);
+	}
+	jQuery('#span_producto_pulldown').html(spinner);
+
+	if (filtros.length == 0) {
+		return restore_pulldowns();
+	}
+
 	jQuery.ajax({
-		url: ( jQuery.param(campos) != '' ? "/products/search" : "/products" ),
-		data: campos,
+		url: "/products/search",
+		data: ( 'property_values=' + filtros.join(',') ),
 		cache: false,
 		statusCode: {
 			200: function(data) {
-				llenar_pulldown(data, 'producto', 'Producto');
+				llenar_pulldowns(indice, data);
 			},
 			400: function() {
 				alert('Error 400!');
@@ -85,81 +78,62 @@ function dibujar_pulldown_productos() {
 	});
 }
 
-function dibujar_pulldown(indice, campo, nombre) {
-	jQuery('#span_' + campo + '_pulldown').html = spinner;
+function llenar_pulldowns(indice, data) {
+	for (var i = indice+1; i < pulldowns_ok.length; i++) {
+		var campo = pulldowns_ok[i].campo;
+		var name = pulldowns_ok[i].name;
 
-	var campos = { property: pulldowns_ok[indice].id };
+		var valores = {};
+		jQuery.each(data, function(i, v) {
+			jQuery.each(v.property_values, function (j, w) {
+				if (w.property_name == campo) {
+					valores[w.value] = w.id;
+				}
+			})
+		});
 
-	for (
-		var i = 0;
-		i < indice;
-		i++
-	) {
-		if (jQuery(pulldowns_ok[i].campo + '_pulldown').val()) {
-			campos[pulldowns_ok[i].campo] = jQuery(pulldowns_ok[i][campo] + '_pulldown').val();
-		}
-		
+		var val = [];
+		jQuery.each(valores, function(v, j) {
+			val.push({ id: j, value: v });
+		});
+
+		llenar_pulldown(val, campo, name);
 	}
-
-	jQuery.ajax({
-		url: "/property_values/search",
-		data: campos,
-		cache: false,
-		statusCode: {
-			200: function(data) {
-				llenar_pulldown(data, campo, nombre);
-			},
-			400: function(){
-				alert('Error 400!');
+	
+	var productos = [];
+	jQuery.each(data, function(i, v) {
+		var marca = '';
+		var modelo = '';
+		jQuery.each(v.property_values, function (j, w) {
+			if (w.property_name == 'marca') {
+				marca = w.value;
 			}
+			if (w.property_name == 'modelo') {
+				modelo = w.value;
+			}
+		});
+		if (marca != '' && modelo != '') {
+			productos.push({ id: v.id, value: marca + ' ' + modelo});
 		}
-	});
+	})
+
+	llenar_pulldown(productos, 'producto', 'Producto');
 }
 
 function llenar_pulldown(data, campo, name) {
 	var change = '';
 	if (campo != 'producto') {
-		change = 'onChange="cascada_de_pulldowns(this);" ';
+		change = 'onChange="dibujar_pulldown_productos(this);" ';
 	}
 
-	var select = jQuery('<select ' + change + 'name="' + campo + '" id="' + campo + '_pulldown" class="pulldown_selector chzn-select" size="4" multiple  title="' + name + '" data-placeholder="' + name + '"></select>');
-		
-	if (campo == 'producto') {
-		var productos = [];
-		jQuery.each(data, function(i, v) {
-			var producto = '';
+	var select = generate_select(campo, name, change);
 
-			jQuery.each(v.property_values, function(j, prop) {
-				if (prop.property_name == 'marca') {
-					producto += prop.value;
-				}				
-			});
-			jQuery.each(v.property_values, function(j, prop) {
-				if (prop.property_name == 'modelo') {
-					producto += ' ' + prop.value;
-				}				
-			});
-
-			if (producto) {
-				productos.push( { id: v.id, value: producto })
-			}
-		});
-
-		var productos_ordered = productos.sort( function(a,b) {
-			return ( a.value < b.value ? -1 : (a.value > b.value ? 1 : 0 ) );
-		});
-
-		for (var i = 0; i < productos_ordered.length; i++) {
-			select.append('<option value="' + productos_ordered[i].id + '">' + productos_ordered[i].value + '</option>');
-		};
-	} else {
-		var props_ordered = data.sort(function(a, b) {
-			return ( a.value < b.value ? -1 : (a.value > b.value ? 1 : 0 ) );
-		});
-		
-		for (var i = 0; i < props_ordered.length; i++) {
-			select.append('<option value="' + props_ordered[i].id + '">' + props_ordered[i].value + '</option');
-		}
+	var props_ordered = data.sort(function(a, b) {
+		return ( a.value < b.value ? -1 : (a.value > b.value ? 1 : 0 ) );
+	});
+	
+	for (var i = 0; i < props_ordered.length; i++) {
+		select.append('<option value="' + props_ordered[i].id + '">' + props_ordered[i].value + '</option');
 	}
 
 	jQuery('#span_' + campo + '_pulldown').html(select);
@@ -167,11 +141,27 @@ function llenar_pulldown(data, campo, name) {
 	jQuery('#' + campo + '_pulldown').bind('change', agregar_tooltips);
 }
 
+function generate_select(campo, name, change) {
+	return jQuery('<select ' + change + 'name="' + campo + '" id="' + campo + '_pulldown" class="pulldown_selector chzn-select" size="4" multiple  title="' + name + '" data-placeholder="' + name + '"></select>');
+}
+
+function restore_pulldowns() {
+	for (var i = 0; i < pulldowns_ok.length; i++) {
+		jQuery('#span_' + pulldowns_ok[i].campo + '_pulldown').html(pulldowns_stored[i]);
+	}
+	jQuery('#span_producto_pulldown').html('<select name="producto" id="producto_pulldown" class="pulldown_selector chzn-select" size="8" multiple="multiple" title="Producto" data-placeholder="Producto"></select>');
+	jQuery(".chzn-select").chosen();
+}
+
+var pulldowns_stored = [];
+
 jQuery(document).ready(function() {
+	for (var i = 0; i < pulldowns_ok.length; i++){
+		pulldowns_stored[i] = jQuery('#span_' + pulldowns_ok[i].campo + '_pulldown').html();
+	}
 	jQuery(".chzn-select").chosen();
 	jQuery("#fecha_desde").datepicker();
 	jQuery("#fecha_hasta").datepicker();
-	//dibujar_pulldown_productos();
 });
 
 </script>
@@ -203,15 +193,15 @@ span.error {
 <input type="hidden" name="title" value="Producto"/>
 
 <span class="pulldown_span" id="span_categoria_pulldown">
-<select onChange="cascada_de_pulldowns(this);" name="categoria" id="categoria_pulldown" class="pulldown_selector chzn-select" size="4" multiple  title="Categor&iacute;a" data-placeholder="Categor&iacute;a">
+<select onChange="dibujar_pulldown_productos(this);" name="categoria" id="categoria_pulldown" class="pulldown_selector chzn-select" size="4" multiple  title="Categor&iacute;a" data-placeholder="Categor&iacute;a">
 <%= render :partial => "shared/pulldown_options", :collection => @categorias, :as => :obj %>
-</select></span><span class="pulldown_span" id="span_retailer_pulldown"><select name="retailer" onChange="cascada_de_pulldowns(this);" size="4" title="Retailer" id="retailer_pulldown" class="pulldown_selector chzn-select" multiple  data-placeholder="Retailer">
+</select></span><span class="pulldown_span" id="span_retailer_pulldown"><select name="retailer" onChange="dibujar_pulldown_productos(this);" size="4" title="Retailer" id="retailer_pulldown" class="pulldown_selector chzn-select" multiple  data-placeholder="Retailer">
 <%= render :partial => "shared/pulldown_options", :collection => @retailers, :as => :obj %>
 </select></span>
 
 <% for p in @properties %>
 <span class="pulldown_span" id="span_<%= p[:field] %>_pulldown">
-<select onChange="cascada_de_pulldowns(this);" name="<%= p[:field] %>" id="<%= p[:field] %>_pulldown" class="pulldown_selector chzn-select" size="4" multiple  title="<%= p[:name] %>" data-placeholder="<%= p[:name] %>">
+<select onChange="dibujar_pulldown_productos(this);" name="<%= p[:field] %>" id="<%= p[:field] %>_pulldown" class="pulldown_selector chzn-select" size="4" multiple  title="<%= p[:name] %>" data-placeholder="<%= p[:name] %>">
 <%= render :partial => "shared/pulldown_options_array", :collection => p[:props].sort { |a, b| a[:name] <=> b[:name] }, :as => :obj %>
 </select></span>
 <% end %>

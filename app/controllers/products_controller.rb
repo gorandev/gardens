@@ -2,13 +2,17 @@ class ProductsController < ApplicationController
   respond_to :json
 
   def index
-    @products = Product.all
-    respond_with(@products)
+    @products = Product.all(
+      :include => [
+        :product_type,
+        { :items => { :retailer => :country } },
+        { :property_values => :property }
+      ]
+    )
   end
   
   def show
     @product = Product.find(params[:id])
-    respond_with(@product)
   end
   
   def new
@@ -16,7 +20,6 @@ class ProductsController < ApplicationController
     @product.property_values.build
   end
 
-  #noinspection RubyArgCount
   def create
     if params.has_key?("product")
       return create_from_form
@@ -58,7 +61,6 @@ class ProductsController < ApplicationController
     end
   end
 
-  #noinspection RubyArgCount
   def create_from_form
     pvs = Array.new
     begin
@@ -151,7 +153,6 @@ class ProductsController < ApplicationController
       end
     end
     
-    join = Array.new
     if params.has_key?(:property_values)
       if params[:property_values].is_a?String
         unless params[:property_values].split(',').size > 0 && PropertyValue.find_all_by_id(params[:property_values].split(',')).size == params[:property_values].split(',').size
@@ -165,13 +166,51 @@ class ProductsController < ApplicationController
       else
         return render :json => { :errors => { :property_values => "must be comma-separated string or JSON array" } }, :status => 400
       end
-      
-      params[:property_values] = { :id => params[:property_values] }
-      join.push(:property_values)
-    end
 
-    @products = Product.joins(join).where(params.slice(:product_type_id, :property_values))
-    respond_with(@products)
+      pv_por_prop = Hash.new
+      params[:property_values].each do |v|
+        prop = PropertyValue.find(v).property.id
+        unless pv_por_prop[prop].is_a?Array
+          pv_por_prop[prop] = [ v ]
+        else
+          pv_por_prop[prop].push(v)
+        end
+      end
+
+      condition_query = String.new
+      condition_params = Array.new
+      primera_vuelta = 1
+      pv_por_prop.keys.each do |k|
+        if pv_por_prop[k].is_a?Array
+          if primera_vuelta == 1
+            primera_vuelta = 0
+          else
+            condition_query += ' AND '
+          end
+          condition_query += ' products.id in ( select products.id from products join products_property_values on products.id = products_property_values.product_id
+where products_property_values.property_value_id = ? '
+          primera_condicion = 1
+          pv_por_prop[k].each do |j|
+            if primera_condicion == 1
+              primera_condicion = 0
+            else
+              condition_query += ' OR products_property_values.property_value_id = ? '
+            end
+            condition_params.push(j)
+          end
+          condition_query += ' ) '
+        end
+      end
+
+      condition = [ condition_query ]
+      condition_params.each do |i|
+        condition.push(i)
+      end
+
+      @products = Product.find(:all, :conditions => condition)
+    else
+      @products = Product.where(params[:product_type_id])
+    end
   end
   
   def prices 
