@@ -47,6 +47,8 @@ function dibujar_pulldown_productos(obj) {
 		return;
 	}
 
+	agregar_tooltips();
+
 	var filtros = [];
 	for ( var i = 0; i <= indice; i++ ) {
 		if (jQuery('#' + pulldowns_ok[i].campo + '_pulldown').val()) {
