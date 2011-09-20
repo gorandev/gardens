@@ -19,4 +19,16 @@ class Product < ActiveRecord::Base
   has_many :retailers, :through => :items
   
   validates_presence_of :product_type, :property_values
+
+  def active_in_countries
+  	countries_ids = Hash.new
+  	self.items.each do |i|
+  		countries_ids[i.retailer.country.id] = 1
+	end
+	countries = Array.new
+	countries_ids.keys.each do |c|
+		countries.push(Country.find(c))
+	end
+	return countries
+  end
 end
