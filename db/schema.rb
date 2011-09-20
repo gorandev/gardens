@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110804163323) do
+ActiveRecord::Schema.define(:version => 20110919184947) do
 
   create_table "countries", :force => true do |t|
     t.string   "iso_code"
@@ -140,6 +140,7 @@ ActiveRecord::Schema.define(:version => 20110804163323) do
     t.integer  "country_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "color"
   end
 
   add_index "retailers", ["country_id"], :name => "index_retailers_on_country_id"

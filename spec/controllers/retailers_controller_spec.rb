@@ -5,7 +5,8 @@ describe RetailersController do
   let(:expected) {
     { "errors" => {
       "name" => [ "can't be blank" ],
-      "country" => [ "can't be blank" ]
+      "country" => [ "can't be blank" ],
+      "color" => [ "can't be blank"]
       }
     }
   }
@@ -44,21 +45,30 @@ describe RetailersController do
     end
 
     it "shouldn't work without country" do
-      post :create, :name => 'Falarino'
+      post :create, :name => 'Falarino', :color => '#FFFFFF'
       expected["errors"].delete("name")
+      expected["errors"].delete("color")
       ActiveSupport::JSON.decode(response.body).should == expected
     end
     
     it "shouldn't work without a valid country" do
-      post :create, :name => 'Falarino', :country => 99
+      post :create, :name => 'Falarino', :country => 99, :color => '#FFFFFF'
       expected["errors"].delete("name")
+      expected["errors"].delete("color")
       expected["errors"]["country"].push("must be valid")
       ActiveSupport::JSON.decode(response.body).should == expected
     end
     
+    it "shouldn't work without color" do
+      post :create, :name => 'Falarino', :country => country.id
+      expected["errors"].delete("name")
+      expected["errors"].delete("country")
+      ActiveSupport::JSON.decode(response.body).should == expected
+    end
+
     it "should work with all required values" do
       lambda do
-        post :create, :name => 'Falarino', :country => country.id
+        post :create, :name => 'Falarino', :country => country.id, :color => '#FFFFFF'
         response.should be_ok
         ActiveSupport::JSON.decode(response.body)["id"].to_s.should match /^\d+$/
         Retailer.find(ActiveSupport::JSON.decode(response.body)["id"]).id.should == ActiveSupport::JSON.decode(response.body)["id"]
@@ -68,7 +78,7 @@ describe RetailersController do
   
   describe "GET 'show'" do
     it "should be successful" do
-      Retailer.create(:name => 'Falarino', :country => country)
+      Retailer.create(:name => 'Falarino', :country => country, :color => '#FFFFFF')
       get :show, :id => 1
       response.should be_ok
     end
@@ -81,7 +91,7 @@ describe RetailersController do
     end
   
     it "should work with a valid id" do
-      Retailer.create(:name => 'Falarino', :country => country)
+      Retailer.create(:name => 'Falarino', :country => country, :color => '#FFFFFF')
       lambda do
         delete :destroy, :id => 1
         response.body.should == "OK"
@@ -91,7 +101,7 @@ describe RetailersController do
   
   describe "PUT /:id" do  
     let(:retailer) {
-      retailer = Retailer.create(:name => 'Falarino', :country => country)
+      retailer = Retailer.create(:name => 'Falarino', :country => country, :color => '#FFFFFF')
     }
   
     it "shouldn't work with an invalid id" do
@@ -136,7 +146,7 @@ describe RetailersController do
   
   describe "SEARCH" do
     before(:each) do
-      Retailer.create(:name => 'Falarino', :country => country)
+      Retailer.create(:name => 'Falarino', :country => country, :color => '#FFFFFF')
     end
 
     it "shouldn't work without parameters" do

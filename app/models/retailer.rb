@@ -1,5 +1,4 @@
 # == Schema Information
-# Schema version: 20110518192154
 #
 # Table name: retailers
 #
@@ -8,12 +7,12 @@
 #  country_id :integer
 #  created_at :datetime
 #  updated_at :datetime
+#  color      :string(255)
 #
-
 class Retailer < ActiveRecord::Base
   belongs_to :country
   has_many :items
   has_many :products, :through => :items
   
-  validates_presence_of :name, :country  
+  validates_presence_of :name, :country, :color
 end

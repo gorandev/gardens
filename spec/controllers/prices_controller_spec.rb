@@ -25,7 +25,8 @@ describe PricesController do
           :locale => 'es_FD',
           :time_zone => 'GMT-03:00',
           :currency => Currency.create(:name => 'Felicidon', :symbol => 'F')
-        )
+        ),
+        :color => '#FFFFFF'
       ),
       :product_type => product_type,
       :source => 'web',

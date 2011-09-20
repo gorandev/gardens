@@ -28,8 +28,8 @@ describe ItemsController do
     :currency => currency
   )}
     
-  let(:retailer) { Retailer.create( :name => 'Falarino', :country => country ) }
-  let(:another_retailer) { Retailer.create(:name => 'La Povega', :country => country) }
+  let(:retailer) { Retailer.create( :name => 'Falarino', :country => country, :color => '#FFFFFF' ) }
+  let(:another_retailer) { Retailer.create(:name => 'La Povega', :country => country, :color => '#FFFFFF' ) }
   
   let(:product) { Product.create(:product_type => product_type, :property_values => [ property_value ]) }
   let(:item) { Item.create(:retailer => retailer, :source => 'papel', :property_values => [ property_value ], :product_type => product_type) }

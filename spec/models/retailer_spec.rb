@@ -1,3 +1,14 @@
+# == Schema Information
+#
+# Table name: retailers
+#
+#  id         :integer         not null, primary key
+#  name       :string(255)
+#  country_id :integer
+#  created_at :datetime
+#  updated_at :datetime
+#  color      :string(255)
+#
 require 'spec_helper'
 
 describe Retailer do
@@ -14,8 +25,9 @@ describe Retailer do
       retailer.should_not be_valid
     end
     
-    it "should be valid with name and country" do
+    it "should be valid with name, color and country" do
       retailer.name = 'Falarino'
+      retailer.color = '#FFFFFF'
       
       country = Country.new
       country.name = 'Felicidonia'
@@ -30,15 +42,3 @@ describe Retailer do
   end
 
 end
-
-# == Schema Information
-#
-# Table name: retailers
-#
-#  id         :integer         not null, primary key
-#  name       :string(255)
-#  country_id :integer
-#  created_at :datetime
-#  updated_at :datetime
-#
-
