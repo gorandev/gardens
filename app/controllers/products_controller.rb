@@ -141,7 +141,7 @@ class ProductsController < ApplicationController
   end
   
   def search    
-    if params.slice(:product_type, :property_values).empty?
+    if params.slice(:product_type, :property_values, :retailers, :country).empty?
       return render :json => { :errors => { :product => "no search parameters" } }, :status => 400
     end
 
@@ -153,6 +153,59 @@ class ProductsController < ApplicationController
       end
     end
     
+    condition = Array.new
+    condition_query = String.new
+    condition_params = Array.new
+
+    if params.has_key?(:country)
+      unless Country.find_by_id(params[:country])
+        return render :json => { :errors => { :country => "not found" } }, :status => 400
+      end
+
+      unless condition_query.empty?
+        condition_query += ' AND '
+      end
+
+      condition_query += ' products.id in ( '
+      condition_query += ' select items.product_id from items join retailers on items.retailer_id = retailers.id '
+      condition_query += ' where retailers.country_id = ? ) '
+
+      condition_params.push(params[:country])
+    end
+
+    if params.has_key?(:retailers)
+      if params[:retailers].is_a?String
+        unless params[:retailers].split(',').size > 0 && Retailer.find_all_by_id(params[:retailers].split(',')).size == params[:retailers].split(',').size
+          return render :json => { :errors => { :retailers => "not found" } }, :status => 400
+        end
+        params[:retailers] = params[:retailers].split(',')
+      elsif params[:retailers].is_a?Array
+        unless params[:retailers].size > 0 && Retailer.find_all_by_id(params[:retailers]).size == params[:retailers].size
+          return render :json => { :errors => { :retailers => "not found" } }, :status => 400
+        end
+      else
+        return render :json => { :errors => { :property_values => "must be comma-separated string or JSON array" } }, :status => 400
+      end
+
+      unless condition_query.empty?
+        condition_query += ' AND '
+      end
+      condition_query += ' products.id in ( select items.product_id from items where items.retailer_id = ? '
+
+      primera_vuelta = 1
+      params[:retailers].each do |r|
+        if primera_vuelta == 1
+          primera_vuelta = 0
+        else
+          condition_query += ' OR items.retailer_id = ? '
+        end
+        condition_params.push(r)
+      end
+
+      condition_query += ' ) '
+
+    end
+
     if params.has_key?(:property_values)
       if params[:property_values].is_a?String
         unless params[:property_values].split(',').size > 0 && PropertyValue.find_all_by_id(params[:property_values].split(',')).size == params[:property_values].split(',').size
@@ -176,13 +229,14 @@ class ProductsController < ApplicationController
           pv_por_prop[prop].push(v)
         end
       end
-
-      condition_query = String.new
-      condition_params = Array.new
+  
       primera_vuelta = 1
       pv_por_prop.keys.each do |k|
         if pv_por_prop[k].is_a?Array
           if primera_vuelta == 1
+            unless condition_query.empty?
+              condition_query += ' AND '
+            end
             primera_vuelta = 0
           else
             condition_query += ' AND '
@@ -201,22 +255,36 @@ where products_property_values.property_value_id = ? '
           condition_query += ' ) '
         end
       end
-
-      condition = [ condition_query ]
-      condition_params.each do |i|
-        condition.push(i)
-      end
-
-      @products = Product.find(:all, :conditions => condition)
-    else
-      @products = Product.where(params[:product_type_id])
     end
+
+    condition = [ condition_query ]
+    condition_params.each do |i|
+      condition.push(i)
+    end
+
+    @products = Product.find(:all, :conditions => condition)
   end
   
   def prices 
+    # TODO: este bloque habría que hacerlo siempre (en todas las acciones que muestran una página) #
+    @countries = Country.all
+    if params.has_key?(:country_id) && Country.find_by_id(session[:country_id])
+      @country_id = session[:country_id] = params[:country_id]
+    elsif session.has_key?(:country_id) && Country.find_by_id(session[:country_id])
+      @country_id = session[:country_id]
+    else
+      @country_id = session[:country_id] = 2 # TODO: esto debería inicializarse al login
+    end
+
     @pagina = 'Precios'
-    @categorias = ProductType.all
-    @retailers = Retailer.all
+    @categorias = Array.new
+    Property.find_by_name('categoria').property_values.each do |c|
+      @categorias.push({
+        :id => c.id,
+        :name => c.value
+      })
+    end
+    @retailers = Retailer.where(:country_id => session[:country_id])
     
     @properties = Array.new
     for p in Settings['computadoras']['precios']

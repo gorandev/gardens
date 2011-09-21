@@ -1,1 +1,1 @@
-<option value="<%= obj.id %>" class="pulldown_selector chzn-select"><%= obj.name %></option>
+<% if defined?selected %><option value="<%= obj.id %>"<%= (obj.id == selected) ? ' selected' : '' %>><% else %><option value="<%= obj.id %>"><% end %><%= obj.name %></option>

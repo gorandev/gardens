@@ -25,10 +25,14 @@ class Product < ActiveRecord::Base
   	self.items.each do |i|
   		countries_ids[i.retailer.country.id] = 1
 	end
-	countries = Array.new
-	countries_ids.keys.each do |c|
-		countries.push(Country.find(c))
-	end
-	return countries
+  return Country.find_all_by_id(countries_ids.keys)
+  end
+
+  def active_in_retailers
+    retailers_ids = Hash.new
+    self.items.each do |i|
+      retailers_ids[i.retailer.id] = 1
+    end
+    return Retailer.find_all_by_id(retailers_ids.keys)
   end
 end

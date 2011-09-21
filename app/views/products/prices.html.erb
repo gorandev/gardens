@@ -49,10 +49,17 @@ function dibujar_pulldown_productos(obj) {
 
 	agregar_tooltips();
 
+	var data = '';
+
 	var filtros = [];
 	for ( var i = 0; i <= indice; i++ ) {
 		if (jQuery('#' + pulldowns_ok[i].campo + '_pulldown').val()) {
-			filtros.push(jQuery('#' + pulldowns_ok[i].campo + '_pulldown').val());
+			if (pulldowns_ok[i].campo == 'retailer') {
+				data += 'retailers=' + jQuery('#' + pulldowns_ok[i].campo + '_pulldown').val().join(',');
+				data += '&';
+			} else {
+				filtros.push(jQuery('#' + pulldowns_ok[i].campo + '_pulldown').val());	
+			}
 		}
 	}
 
@@ -61,13 +68,19 @@ function dibujar_pulldown_productos(obj) {
 	}
 	jQuery('#span_producto_pulldown').html(spinner);
 
-	if (filtros.length == 0) {
+	if (filtros.length == 0 && data == '') {
 		return restore_pulldowns();
 	}
 
+	if (filtros.length > 0) {
+		data += 'property_values=' + filtros.join(',');	
+	}
+	
+	data += '&country=<%= @country_id %>';
+
 	jQuery.ajax({
 		url: "/products/search",
-		data: ( 'property_values=' + filtros.join(',') ),
+		data: data,
 		cache: false,
 		statusCode: {
 			200: function(data) {
@@ -86,13 +99,24 @@ function llenar_pulldowns(indice, data) {
 		var name = pulldowns_ok[i].name;
 
 		var valores = {};
-		jQuery.each(data, function(i, v) {
-			jQuery.each(v.property_values, function (j, w) {
-				if (w.property_name == campo) {
-					valores[w.value] = w.id;
-				}
+
+		if (pulldowns_ok[i].campo == 'retailer') {
+			jQuery.each(data, function(i,v ) {
+				jQuery.each(v.active_in_retailers, function(j, w) {
+					if (w.country_id == <%= @country_id %>) {
+						valores[w.retailer_name] = w.retailer_id;	
+					}
+				})
 			})
-		});
+		} else {
+			jQuery.each(data, function(i, v) {
+				jQuery.each(v.property_values, function (j, w) {
+					if (w.property_name == campo) {
+						valores[w.value] = w.id;
+					}
+				})
+			});
+		}
 
 		var val = [];
 		jQuery.each(valores, function(v, j) {
@@ -196,14 +220,14 @@ span.error {
 
 <span class="pulldown_span" id="span_categoria_pulldown">
 <select onChange="dibujar_pulldown_productos(this);" name="categoria" id="categoria_pulldown" class="pulldown_selector chzn-select" size="4" multiple  title="Categor&iacute;a" data-placeholder="Categor&iacute;a">
-<%= render :partial => "shared/pulldown_options", :collection => @categorias, :as => :obj %>
+<%= render :partial => "shared/pulldown_options_array", :collection => @categorias.sort { |a, b| a[:name] <=> b[:name] }, :as => :obj %>
 </select></span><span class="pulldown_span" id="span_retailer_pulldown"><select name="retailer" onChange="dibujar_pulldown_productos(this);" size="4" title="Retailer" id="retailer_pulldown" class="pulldown_selector chzn-select" multiple  data-placeholder="Retailer">
-<%= render :partial => "shared/pulldown_options", :collection => @retailers, :as => :obj %>
+<%= render :partial => "shared/pulldown_options", :collection => @retailers.sort { |a, b| a.name <=> b.name }, :as => :obj %>
 </select></span>
 
 <% for p in @properties %>
 <span class="pulldown_span" id="span_<%= p[:field] %>_pulldown">
-<select onChange="dibujar_pulldown_productos(this);" name="<%= p[:field] %>" id="<%= p[:field] %>_pulldown" class="pulldown_selector chzn-select" size="4" multiple  title="<%= p[:name] %>" data-placeholder="<%= p[:name] %>">
+<select onChange="dibujar_pulldown_productos(this);" name="<%= p[:field] %>" id="<%= p[:field] %>_pulldown" class="pulldown_selector chzn-select" size="4" multiple title="<%= p[:name] %>" data-placeholder="<%= p[:name] %>">
 <%= render :partial => "shared/pulldown_options_array", :collection => p[:props].sort { |a, b| a[:name] <=> b[:name] }, :as => :obj %>
 </select></span>
 <% end %>
@@ -215,7 +239,7 @@ span.error {
 <input type="hidden" name="excel" id="excel">
 <input type="hidden" name="retailer" id="retailer">
 
-<span class="pulldown_span" id="span_producto_pulldown"><select name="producto" id="producto_pulldown" class="pulldown_selector chzn-select" size="8" multiple="multiple" title="Producto" data-placeholder="Producto">
+<span class="pulldown_span" id="span_producto_pulldown"><select name="producto" id="producto_pulldown" class="pulldown_selector chzn-select" size="8" multiple title="Producto" data-placeholder="Producto">
 </select>
 </span>
 <br/>
