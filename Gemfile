@@ -8,6 +8,7 @@ gem 'rspec-http', '~> 0.0.1'
 gem 'rabl'
 gem 'settingslogic'
 gem 'thin'
+gem 'dalli'
 
 group :development do
   gem 'rspec-rails', '2.5.0'
