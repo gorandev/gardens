@@ -1,1 +1,1 @@
-<% if defined?selected %><option value="<%= obj.id %>"<%= (obj.id == selected) ? ' selected' : '' %>><% else %><option value="<%= obj.id %>"><% end %><%= obj.name %></option>
+<% if defined?selected %><option value="<%= obj.id %>"<%= (obj.id.to_f == selected.to_f) ? ' selected' : '' %>><% else %><option value="<%= obj.id %>"><% end %><%= obj.name %></option>
