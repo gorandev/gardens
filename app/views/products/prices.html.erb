@@ -42,9 +42,14 @@ function find_prop(campo) {
 }
 
 function dibujar_pulldown_productos(obj) {
-	var indice = find_prop(obj.name);
-	if (indice < 0) {
-		return;
+	var indice;
+	if (obj == 'start_up') {
+		indice = -1;
+	} else {
+		indice = find_prop(obj.name);
+		if (indice < 0) {
+			return;
+		}
 	}
 
 	agregar_tooltips();
@@ -67,10 +72,6 @@ function dibujar_pulldown_productos(obj) {
 		jQuery('#span_' + pulldowns_ok[i].campo + '_pulldown').html(spinner);
 	}
 	jQuery('#span_producto_pulldown').html(spinner);
-
-	if (filtros.length == 0 && data == '') {
-		return restore_pulldowns();
-	}
 
 	if (filtros.length > 0) {
 		data += 'property_values=' + filtros.join(',');	
@@ -179,13 +180,9 @@ function restore_pulldowns() {
 	jQuery(".chzn-select").chosen();
 }
 
-var pulldowns_stored = [];
-
 jQuery(document).ready(function() {
-	for (var i = 0; i < pulldowns_ok.length; i++){
-		pulldowns_stored[i] = jQuery('#span_' + pulldowns_ok[i].campo + '_pulldown').html();
-	}
 	jQuery(".chzn-select").chosen();
+	dibujar_pulldown_productos('start_up');
 	jQuery("#fecha_desde").datepicker();
 	jQuery("#fecha_hasta").datepicker();
 });
@@ -219,17 +216,11 @@ span.error {
 <input type="hidden" name="title" value="Producto"/>
 
 <span class="pulldown_span" id="span_categoria_pulldown">
-<select onChange="dibujar_pulldown_productos(this);" name="categoria" id="categoria_pulldown" class="pulldown_selector chzn-select" size="4" multiple  title="Categor&iacute;a" data-placeholder="Categor&iacute;a">
-<%= render :partial => "shared/pulldown_options_array", :collection => @categorias.sort { |a, b| a[:name] <=> b[:name] }, :as => :obj %>
-</select></span><span class="pulldown_span" id="span_retailer_pulldown"><select name="retailer" onChange="dibujar_pulldown_productos(this);" size="4" title="Retailer" id="retailer_pulldown" class="pulldown_selector chzn-select" multiple  data-placeholder="Retailer">
-<%= render :partial => "shared/pulldown_options", :collection => @retailers.sort { |a, b| a.name <=> b.name }, :as => :obj %>
-</select></span>
+<select onChange="dibujar_pulldown_productos(this);" name="categoria" id="categoria_pulldown" class="pulldown_selector chzn-select" size="4" multiple  title="Categor&iacute;a" data-placeholder="Categor&iacute;a"></select></span><span class="pulldown_span" id="span_retailer_pulldown"><select name="retailer" onChange="dibujar_pulldown_productos(this);" size="4" title="Retailer" id="retailer_pulldown" class="pulldown_selector chzn-select" multiple data-placeholder="Retailer"></select></span>
 
 <% for p in @properties %>
 <span class="pulldown_span" id="span_<%= p[:field] %>_pulldown">
-<select onChange="dibujar_pulldown_productos(this);" name="<%= p[:field] %>" id="<%= p[:field] %>_pulldown" class="pulldown_selector chzn-select" size="4" multiple title="<%= p[:name] %>" data-placeholder="<%= p[:name] %>">
-<%= render :partial => "shared/pulldown_options_array", :collection => p[:props].sort { |a, b| a[:name] <=> b[:name] }, :as => :obj %>
-</select></span>
+<select onChange="dibujar_pulldown_productos(this);" name="<%= p[:field] %>" id="<%= p[:field] %>_pulldown" class="pulldown_selector chzn-select" size="4" multiple title="<%= p[:name] %>" data-placeholder="<%= p[:name] %>"></select></span>
 <% end %>
 
 </form>

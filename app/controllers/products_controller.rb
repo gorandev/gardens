@@ -278,26 +278,14 @@ where products_property_values.property_value_id = ? '
     @country_id = session[:country_id]
 
     @pagina = 'Precios'
-    @categorias = Array.new
-    Property.find_by_name('categoria').property_values.each do |c|
-      @categorias.push({
-        :id => c.id,
-        :name => c.value
-      })
-    end
-    @retailers = Retailer.where(:country_id => session[:country_id])
-    
+
     @properties = Array.new
-    for p in Settings['computadoras']['precios']
-      props = Array.new
-      property = Property.find_by_name(p["field"])
-      for pp in property.property_values
-        props.push({
-          :id => pp.id,
-          :name => pp.value
-        })
-      end
-      @properties.push({ :name => p["name"], :field => p["field"], :id => property.id, :props => props })
+    Settings['computadoras']['precios'].each do |p|
+      @properties.push({
+        :name => p["name"],
+        :field => p["field"],
+        :id => Property.find_by_name(p["field"]).id
+      })
     end
   end
 end
