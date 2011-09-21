@@ -269,12 +269,13 @@ where products_property_values.property_value_id = ? '
     # TODO: este bloque habría que hacerlo siempre (en todas las acciones que muestran una página) #
     @countries = Country.all
     if params.has_key?(:country_id) && Country.find_by_id(session[:country_id])
-      @country_id = session[:country_id] = params[:country_id]
-    elsif session.has_key?(:country_id) && Country.find_by_id(session[:country_id])
-      @country_id = session[:country_id]
+      session[:country_id] = params[:country_id]
     else
-      @country_id = session[:country_id] = 2 # TODO: esto debería inicializarse al login
+      unless session.has_key?(:country_id) && Country.find_by_id(session[:country_id])
+        session[:country_id] = 2 # TODO: esto debería inicializarse al login
+      end
     end
+    @country_id = session[:country_id]
 
     @pagina = 'Precios'
     @categorias = Array.new
