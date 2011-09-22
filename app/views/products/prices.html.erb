@@ -215,12 +215,10 @@ span.error {
 <input type="hidden" name="data-placeholder" value="Producto"/>
 <input type="hidden" name="title" value="Producto"/>
 
-<span class="pulldown_span" id="span_categoria_pulldown">
-<select onChange="dibujar_pulldown_productos(this);" name="categoria" id="categoria_pulldown" class="pulldown_selector chzn-select" size="4" multiple  title="Categor&iacute;a" data-placeholder="Categor&iacute;a"></select></span><span class="pulldown_span" id="span_retailer_pulldown"><select name="retailer" onChange="dibujar_pulldown_productos(this);" size="4" title="Retailer" id="retailer_pulldown" class="pulldown_selector chzn-select" multiple data-placeholder="Retailer"></select></span>
+<span class="pulldown_span" id="span_categoria_pulldown"><%= image_tag "ajax-bar-loader.gif", :size => "238x30" %></span><span class="pulldown_span" id="span_retailer_pulldown"><%= image_tag "ajax-bar-loader.gif", :size => "238x30" %></span>
 
 <% for p in @properties %>
-<span class="pulldown_span" id="span_<%= p[:field] %>_pulldown">
-<select onChange="dibujar_pulldown_productos(this);" name="<%= p[:field] %>" id="<%= p[:field] %>_pulldown" class="pulldown_selector chzn-select" size="4" multiple title="<%= p[:name] %>" data-placeholder="<%= p[:name] %>"></select></span>
+<span class="pulldown_span" id="span_<%= p[:field] %>_pulldown"><%= image_tag "ajax-bar-loader.gif", :size => "238x30" %></span>
 <% end %>
 
 </form>
@@ -230,8 +228,7 @@ span.error {
 <input type="hidden" name="excel" id="excel">
 <input type="hidden" name="retailer" id="retailer">
 
-<span class="pulldown_span" id="span_producto_pulldown"><select name="producto" id="producto_pulldown" class="pulldown_selector chzn-select" size="8" multiple title="Producto" data-placeholder="Producto">
-</select>
+<span class="pulldown_span" id="span_producto_pulldown"><%= image_tag "ajax-bar-loader.gif", :size => "238x30" %></select>
 </span>
 <br/>
 <br/>
