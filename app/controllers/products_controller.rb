@@ -212,9 +212,8 @@ class ProductsController < ApplicationController
         ]
       )
     else
-      redis = Redis.new
       @products = Product.find_all_by_id(
-        redis.sinter(*intersect),
+        REDIS.sinter(*intersect),
         :include => [
           :product_type,
           { :items => { :retailer => :country } },
@@ -249,19 +248,18 @@ class ProductsController < ApplicationController
   end
 
   def inicializar_memstore
-    redis = Redis.new
-    redis.flushall
+    REDIS.flushall
     Product.all.each do |p|
-      redis.sadd 'product_type:' + p.product_type.id.to_s, p.id
+      REDIS.sadd 'product_type:' + p.product_type.id.to_s, p.id
       p.active_in_countries.each do |c|
-        redis.sadd 'country:' + c.id.to_s, p.id
+        REDIS.sadd 'country:' + c.id.to_s, p.id
       end
       p.active_in_retailers.each do |r|
-        redis.sadd 'retailer:' + r.id.to_s, p.id
+        REDIS.sadd 'retailer:' + r.id.to_s, p.id
       end
       p.property_values.all.each do |pv|
-        redis.sadd 'property_value:' + pv.id.to_s, p.id
-        redis.sadd 'product:' + p.id.to_s, pv.id
+        REDIS.sadd 'property_value:' + pv.id.to_s, p.id
+        REDIS.sadd 'product:' + p.id.to_s, pv.id
       end
     end
   end
