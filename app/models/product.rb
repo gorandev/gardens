@@ -21,18 +21,18 @@ class Product < ActiveRecord::Base
   validates_presence_of :product_type, :property_values
 
   def active_in_countries
-  	countries_ids = Hash.new
-  	self.items.each do |i|
-  		countries_ids[i.retailer.country.id] = 1
-	end
-  return Country.find_all_by_id(countries_ids.keys)
+    countries_ids = Hash.new
+    self.items.each do |i|
+      countries_ids[i.retailer.country] = 1
+    end
+    return countries_ids.keys
   end
 
   def active_in_retailers
     retailers_ids = Hash.new
     self.items.each do |i|
-      retailers_ids[i.retailer.id] = 1
+      retailers_ids[i.retailer] = 1
     end
-    return Retailer.find_all_by_id(retailers_ids.keys)
+    return retailers_ids.keys
   end
 end

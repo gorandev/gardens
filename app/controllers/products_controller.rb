@@ -262,7 +262,7 @@ where products_property_values.property_value_id = ? '
       condition.push(i)
     end
 
-    @products = Product.find(:all, :include => :product_type, :conditions => condition)
+    @products = Product.find(:all, :conditions => condition)
   end
   
   def prices 
