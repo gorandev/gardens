@@ -145,26 +145,41 @@ class ProductsController < ApplicationController
       return render :json => { :errors => { :product => "no search parameters" } }, :status => 400
     end
 
-    intersect = Array.new
-
-    if params.has_key?(:product_type)
-      if ProductType.find_by_id(params[:product_type])
-        params[:product_type_id] = params[:product_type]
-      else
-        return render :json => { :errors => { :product_type => "not found" } }, :status => 400
-      end
-
-      intersect.push('product_type:' + params[:product_type].to_s)
-    end
-
+    product_ids = Array.new
     if params.has_key?(:country)
       unless Country.find_by_id(params[:country])
         return render :json => { :errors => { :country => "not found" } }, :status => 400
       end
 
-      intersect.push('country:' + params[:country].to_s)
+      product_ids = REDIS.smembers('country:' + params[:country].to_s)
     end
+    
+    if params.has_key?(:product_type)
+      if params[:product_type].is_a?String
+        unless params[:product_type].split(',').size > 0 && ProductType.find_all_by_id(params[:product_type].split(',')).size == params[:product_type].split(',').size
+          return render :json => { :errors => { :product_type => "not found" } }, :status => 400
+        end
+        params[:product_type] = params[:product_type].split(',')
+      elsif params[:product_type].is_a?Array
+        unless params[:product_type].size > 0 && ProductType.find_all_by_id(params[:product_type]).size == params[:product_type].size
+          return render :json => { :errors => { :product_type => "not found" } }, :status => 400
+        end
+      else
+        return render :json => { :errors => { :property_values => "must be comma-separated string or JSON array" } }, :status => 400
+      end
 
+      product_types = Array.new
+      params[:product_type].each do |p|
+        product_types.push('product_type:' + p.to_s)
+      end
+
+      unless product_ids.empty?
+        product_ids = product_ids & REDIS.sunion(*product_types)
+      else
+        product_ids = REDIS.sunion(*product_types)
+      end
+    end
+    
     if params.has_key?(:retailers)
       if params[:retailers].is_a?String
         unless params[:retailers].split(',').size > 0 && Retailer.find_all_by_id(params[:retailers].split(',')).size == params[:retailers].split(',').size
@@ -179,8 +194,15 @@ class ProductsController < ApplicationController
         return render :json => { :errors => { :property_values => "must be comma-separated string or JSON array" } }, :status => 400
       end
 
+      retailers = Array.new
       params[:retailers].each do |r|
-        intersect.push('retailer:' + r.to_s)
+        retailers.push('retailer:' + r.to_s)
+      end
+
+      unless product_ids.empty?
+        product_ids = product_ids & REDIS.sunion(*retailers)
+      else
+        product_ids = REDIS.sunion(*retailers)
       end
     end
 
@@ -198,12 +220,25 @@ class ProductsController < ApplicationController
         return render :json => { :errors => { :property_values => "must be comma-separated string or JSON array" } }, :status => 400
       end
 
+      properties = Hash.new
       params[:property_values].each do |pv|
-        intersect.push('property_value:' + pv.to_s)
+        pname = PropertyValue.find(pv).property.name
+        unless properties.has_key?(pname)
+          properties[pname] = Array.new
+        end
+        properties[pname].push('property_value:' + pv)
+      end
+
+      properties.keys.each do |p|
+        unless product_ids.empty?
+          product_ids = product_ids & REDIS.sunion(*properties[p])
+        else
+          product_ids = REDIS.sunion(*properties[p])
+        end
       end
     end
 
-    if intersect.empty?
+    if product_ids.empty?
       @products = Product.all(
         :include => [
           :product_type,
@@ -213,7 +248,7 @@ class ProductsController < ApplicationController
       )
     else
       @products = Product.find_all_by_id(
-        REDIS.sinter(*intersect),
+        product_ids,
         :include => [
           :product_type,
           { :items => { :retailer => :country } },
