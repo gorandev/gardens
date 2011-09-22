@@ -24,6 +24,7 @@ Gardens::Application.routes.draw do
   resources :items, :defaults => { :format => :json }
   
   get 'products/prices'
+  get 'products/inicializar_memstore'
   
   match 'products/search' => 'products#search', :defaults => { :format => :json }
   resources :products, :defaults => { :format => :json }

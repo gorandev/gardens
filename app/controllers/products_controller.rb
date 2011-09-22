@@ -145,32 +145,24 @@ class ProductsController < ApplicationController
       return render :json => { :errors => { :product => "no search parameters" } }, :status => 400
     end
 
+    intersect = Array.new
+
     if params.has_key?(:product_type)
       if ProductType.find_by_id(params[:product_type])
         params[:product_type_id] = params[:product_type]
       else
         return render :json => { :errors => { :product_type => "not found" } }, :status => 400
       end
+
+      intersect.push('product_type:' + params[:product_type].to_s)
     end
-    
-    condition = Array.new
-    condition_query = String.new
-    condition_params = Array.new
 
     if params.has_key?(:country)
       unless Country.find_by_id(params[:country])
         return render :json => { :errors => { :country => "not found" } }, :status => 400
       end
 
-      unless condition_query.empty?
-        condition_query += ' AND '
-      end
-
-      condition_query += ' products.id in ( '
-      condition_query += ' select items.product_id from items join retailers on items.retailer_id = retailers.id '
-      condition_query += ' where retailers.country_id = ? ) '
-
-      condition_params.push(params[:country])
+      intersect.push('country:' + params[:country].to_s)
     end
 
     if params.has_key?(:retailers)
@@ -187,23 +179,9 @@ class ProductsController < ApplicationController
         return render :json => { :errors => { :property_values => "must be comma-separated string or JSON array" } }, :status => 400
       end
 
-      unless condition_query.empty?
-        condition_query += ' AND '
-      end
-      condition_query += ' products.id in ( select items.product_id from items where items.retailer_id = ? '
-
-      primera_vuelta = 1
       params[:retailers].each do |r|
-        if primera_vuelta == 1
-          primera_vuelta = 0
-        else
-          condition_query += ' OR items.retailer_id = ? '
-        end
-        condition_params.push(r)
+        intersect.push('retailer:' + r.to_s)
       end
-
-      condition_query += ' ) '
-
     end
 
     if params.has_key?(:property_values)
@@ -220,49 +198,30 @@ class ProductsController < ApplicationController
         return render :json => { :errors => { :property_values => "must be comma-separated string or JSON array" } }, :status => 400
       end
 
-      pv_por_prop = Hash.new
-      params[:property_values].each do |v|
-        prop = PropertyValue.find(v).property.id
-        unless pv_por_prop[prop].is_a?Array
-          pv_por_prop[prop] = [ v ]
-        else
-          pv_por_prop[prop].push(v)
-        end
-      end
-  
-      primera_vuelta = 1
-      pv_por_prop.keys.each do |k|
-        if pv_por_prop[k].is_a?Array
-          if primera_vuelta == 1
-            unless condition_query.empty?
-              condition_query += ' AND '
-            end
-            primera_vuelta = 0
-          else
-            condition_query += ' AND '
-          end
-          condition_query += ' products.id in ( select products.id from products join products_property_values on products.id = products_property_values.product_id
-where products_property_values.property_value_id = ? '
-          primera_condicion = 1
-          pv_por_prop[k].each do |j|
-            if primera_condicion == 1
-              primera_condicion = 0
-            else
-              condition_query += ' OR products_property_values.property_value_id = ? '
-            end
-            condition_params.push(j)
-          end
-          condition_query += ' ) '
-        end
+      params[:property_values].each do |pv|
+        intersect.push('property_value:' + pv.to_s)
       end
     end
 
-    condition = [ condition_query ]
-    condition_params.each do |i|
-      condition.push(i)
+    if intersect.empty?
+      @products = Product.all(
+        :include => [
+          :product_type,
+          { :items => { :retailer => :country } },
+          { :property_values => :property }
+        ]
+      )
+    else
+      redis = Redis.new
+      @products = Product.find_all_by_id(
+        redis.sinter(*intersect),
+        :include => [
+          :product_type,
+          { :items => { :retailer => :country } },
+          { :property_values => :property }
+        ]
+      )
     end
-
-    @products = Product.find(:all, :conditions => condition)
   end
   
   def prices 
@@ -286,6 +245,24 @@ where products_property_values.property_value_id = ? '
         :field => p["field"],
         :id => Property.find_by_name(p["field"]).id
       })
+    end
+  end
+
+  def inicializar_memstore
+    redis = Redis.new
+    redis.flushall
+    Product.all.each do |p|
+      redis.sadd 'product_type:' + p.product_type.id.to_s, p.id
+      p.active_in_countries.each do |c|
+        redis.sadd 'country:' + c.id.to_s, p.id
+      end
+      p.active_in_retailers.each do |r|
+        redis.sadd 'retailer:' + r.id.to_s, p.id
+      end
+      p.property_values.all.each do |pv|
+        redis.sadd 'property_value:' + pv.id.to_s, p.id
+        redis.sadd 'product:' + p.id.to_s, pv.id
+      end
     end
   end
 end
