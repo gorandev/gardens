@@ -145,13 +145,17 @@ class ProductsController < ApplicationController
       return render :json => { :errors => { :product => "no search parameters" } }, :status => 400
     end
 
-    product_ids = Array.new
+    product_dumps = Array.new
     if params.has_key?(:country)
       unless Country.find_by_id(params[:country])
         return render :json => { :errors => { :country => "not found" } }, :status => 400
       end
 
-      product_ids = REDIS.smembers('country:' + params[:country].to_s)
+      unless product_dumps.empty?
+        product_dumps = product_dumps & REDIS.smembers('country:' + params[:country].to_s)
+      else
+        product_dumps = REDIS.smembers('country:' + params[:country].to_s)
+      end
     end
     
     if params.has_key?(:product_type)
@@ -173,10 +177,10 @@ class ProductsController < ApplicationController
         product_types.push('product_type:' + p.to_s)
       end
 
-      unless product_ids.empty?
-        product_ids = product_ids & REDIS.sunion(*product_types)
+      unless product_dumps.empty?
+        product_dumps = product_dumps & REDIS.sunion(*product_types)
       else
-        product_ids = REDIS.sunion(*product_types)
+        product_dumps = REDIS.sunion(*product_types)
       end
     end
     
@@ -199,10 +203,10 @@ class ProductsController < ApplicationController
         retailers.push('retailer:' + r.to_s)
       end
 
-      unless product_ids.empty?
-        product_ids = product_ids & REDIS.sunion(*retailers)
+      unless product_dumps.empty?
+        product_dumps = product_dumps & REDIS.sunion(*retailers)
       else
-        product_ids = REDIS.sunion(*retailers)
+        product_dumps = REDIS.sunion(*retailers)
       end
     end
 
@@ -230,15 +234,15 @@ class ProductsController < ApplicationController
       end
 
       properties.keys.each do |p|
-        unless product_ids.empty?
-          product_ids = product_ids & REDIS.sunion(*properties[p])
+        unless product_dumps.empty?
+          product_dumps = product_dumps & REDIS.sunion(*properties[p])
         else
-          product_ids = REDIS.sunion(*properties[p])
+          product_dumps = REDIS.sunion(*properties[p])
         end
       end
     end
 
-    if product_ids.empty?
+    if product_dumps.empty?
       @products = Product.all(
         :include => [
           :product_type,
@@ -247,14 +251,18 @@ class ProductsController < ApplicationController
         ]
       )
     else
-      @products = Product.find_all_by_id(
-        product_ids,
-        :include => [
-          :product_type,
-          { :items => { :retailer => :country } },
-          { :property_values => :property }
-        ]
-      )
+      ProductType.class
+      Item.class
+      Retailer.class
+      PropertyValue.class
+      Property.class
+
+      @products = Array.new
+      product_dumps.each do |pd|
+        p = Product.new
+        p = Marshal.load(pd)
+        @products.push(p)
+      end
     end
   end
   
@@ -284,17 +292,25 @@ class ProductsController < ApplicationController
 
   def inicializar_memstore
     REDIS.flushall
-    Product.all.each do |p|
-      REDIS.sadd 'product_type:' + p.product_type.id.to_s, p.id
+
+    products = Product.all(
+      :include => [
+        :product_type,
+        { :items => { :retailer => :country } },
+        { :property_values => :property }
+      ]
+    )
+
+    products.each do |p|
+      REDIS.sadd 'product_type:' + p.product_type.id.to_s, Marshal.dump(p)
       p.active_in_countries.each do |c|
-        REDIS.sadd 'country:' + c.id.to_s, p.id
+        REDIS.sadd 'country:' + c.id.to_s, Marshal.dump(p)
       end
       p.active_in_retailers.each do |r|
-        REDIS.sadd 'retailer:' + r.id.to_s, p.id
+        REDIS.sadd 'retailer:' + r.id.to_s, Marshal.dump(p)
       end
       p.property_values.all.each do |pv|
-        REDIS.sadd 'property_value:' + pv.id.to_s, p.id
-        REDIS.sadd 'product:' + p.id.to_s, pv.id
+        REDIS.sadd 'property_value:' + pv.id.to_s, Marshal.dump(p)
       end
     end
   end
