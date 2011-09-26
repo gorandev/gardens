@@ -77,7 +77,7 @@ function dibujar_pulldown_productos(obj) {
 		data += 'property_values=' + filtros.join(',');	
 	}
 	
-	data += '&country=<%= @country_id %>';
+	data += '&country=<%= @country_id %>&fast=yeah';
 
 	jQuery.ajax({
 		url: "/products/search",
@@ -85,7 +85,7 @@ function dibujar_pulldown_productos(obj) {
 		cache: false,
 		statusCode: {
 			200: function(data) {
-				llenar_pulldowns(indice, data);
+				llenar_pulldown_productos(indice, data);
 			},
 			400: function() {
 				alert('Error 400!');
@@ -94,57 +94,61 @@ function dibujar_pulldown_productos(obj) {
 	});
 }
 
-function llenar_pulldowns(indice, data) {
+function llenar_pulldown_productos(indice, data) {
+	llenar_pulldown(data, 'producto', 'Producto');
+	
+	var ids_productos = new Array();
+	jQuery.each(data, function(i, v){
+		ids_productos.push(v.id);
+	});
+
+	jQuery.ajax({
+		url: "/property_values/search",
+		data: 'products=' + ids_productos.join(','),
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				llenar_pulldowns_propiedades(indice, data, ids_productos);
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
+}
+
+function llenar_pulldowns_propiedades(indice, data, ids_productos) {
 	for (var i = indice+1; i < pulldowns_ok.length; i++) {
 		var campo = pulldowns_ok[i].campo;
 		var name = pulldowns_ok[i].name;
 
-		var valores = {};
-
-		if (pulldowns_ok[i].campo == 'retailer') {
-			jQuery.each(data, function(i,v ) {
-				jQuery.each(v.active_in_retailers, function(j, w) {
-					if (w.country_id == <%= @country_id %>) {
-						valores[w.retailer_name] = w.retailer_id;	
+		if (campo == 'retailer') {
+			jQuery.ajax({
+				url: "/retailers/search",
+				data: 'products=' + ids_productos.join(',') + '&country=<%= @country_id %>',
+				cache: false,
+				statusCode: {
+					200: function(data) {
+						llenar_pulldown(data, 'retailer', 'Retailer');
+					},
+					400: function() {
+						alert('Error 400!');
 					}
-				})
-			})
-		} else {
-			jQuery.each(data, function(i, v) {
-				jQuery.each(v.property_values, function (j, w) {
-					if (w.property_name == campo) {
-						valores[w.value] = w.id;
-					}
-				})
+				}
 			});
+			continue;
 		}
 
-		var val = [];
-		jQuery.each(valores, function(v, j) {
-			val.push({ id: j, value: v });
-		});
+		var valores = [];
 
-		llenar_pulldown(val, campo, name);
+		jQuery.each(data, function(i,v) {
+			if (v.descripcion_property == campo) {
+				valores.push({ id: v.id, value: v.value });
+			}
+		})
+
+		llenar_pulldown(valores, campo, name);
 	}
-	
-	var productos = [];
-	jQuery.each(data, function(i, v) {
-		var marca = '';
-		var modelo = '';
-		jQuery.each(v.property_values, function (j, w) {
-			if (w.property_name == 'marca') {
-				marca = w.value;
-			}
-			if (w.property_name == 'modelo') {
-				modelo = w.value;
-			}
-		});
-		if (marca != '' && modelo != '') {
-			productos.push({ id: v.id, value: marca + ' ' + modelo});
-		}
-	})
-
-	llenar_pulldown(productos, 'producto', 'Producto');
 }
 
 function llenar_pulldown(data, campo, name) {

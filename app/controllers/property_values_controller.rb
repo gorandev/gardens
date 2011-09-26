@@ -1,3 +1,4 @@
+require 'ostruct'
 class PropertyValuesController < ApplicationController
   respond_to :json
   
@@ -53,6 +54,10 @@ class PropertyValuesController < ApplicationController
   end
   
   def search    
+    if params.has_key?(:products)
+      return _search_fast
+    end
+
     if params.slice(:value, :property, :product_type, :word).empty?
       return render :json => { :errors => { :property_value => "no search parameters" } }, :status => 400
     end
@@ -94,5 +99,24 @@ class PropertyValuesController < ApplicationController
     end
     property_value.destroy
     render :json => "OK"
+  end
+
+  private
+
+  def _search_fast
+    product_ids = params[:products].split(',')
+    pvs = Array.new
+    product_ids.each do |i|
+      pvs = pvs | REDIS.smembers('product:' + i.to_s)
+    end
+    @property_values = Array.new
+    pvs.each do |i|
+      @property_values.push(OpenStruct.new({
+        :id => i,
+        :value => REDIS.get('descripcion.property_value:' + i.to_s),
+        :descripcion_property => REDIS.get('property_name.property_value:' + i.to_s)
+      }))
+    end
+    render "search_fast"
   end
 end

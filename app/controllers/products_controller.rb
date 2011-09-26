@@ -1,3 +1,4 @@
+require 'ostruct'
 class ProductsController < ApplicationController
   respond_to :json
 
@@ -12,7 +13,14 @@ class ProductsController < ApplicationController
   end
   
   def show
-    @product = Product.find(params[:id])
+    Product.class
+    ProductType.class
+    Item.class
+    Country.class
+    Retailer.class
+    PropertyValue.class
+    Property.class
+    @product = Marshal.load(REDIS.get 'obj.product:' + params[:id].to_s)
   end
   
   def new
@@ -251,6 +259,11 @@ class ProductsController < ApplicationController
         ]
       )
     else
+
+      if params.has_key?(:fast)
+        return _search_fast(product_ids)
+      end
+
       Product.class
       ProductType.class
       Item.class
@@ -261,7 +274,7 @@ class ProductsController < ApplicationController
 
       @products = Array.new
       product_ids.each do |id|
-        @products.push(Marshal.load(REDIS.get 'product:' + id.to_s))
+        @products.push(Marshal.load(REDIS.get 'obj.product:' + id.to_s))
       end
     end
   end
@@ -293,26 +306,44 @@ class ProductsController < ApplicationController
   def inicializar_memstore
     REDIS.flushall
 
-    products = Product.all(
-      :include => [
-        :product_type,
-        { :items => { :retailer => :country } },
-        { :property_values => :property }
-      ]
-    )
-
-    products.each do |p|
-      REDIS.set 'product:' + p.id.to_s, Marshal.dump(p)
+    Product.all.each do |p|
+      REDIS.set 'obj.product:' + p.id.to_s, Marshal.dump(p)
+      REDIS.set 'descripcion.product:' + p.id.to_s, p.descripcion
       REDIS.sadd 'product_type:' + p.product_type.id.to_s, p.id
       p.active_in_countries.each do |c|
         REDIS.sadd 'country:' + c.id.to_s, p.id
       end
       p.active_in_retailers.each do |r|
         REDIS.sadd 'retailer:' + r.id.to_s, p.id
+        REDIS.sadd 'retailers.product:' + p.id.to_s, r.id
       end
       p.property_values.all.each do |pv|
         REDIS.sadd 'property_value:' + pv.id.to_s, p.id
+        REDIS.sadd 'product:' + p.id.to_s, pv.id
       end
     end
+
+    PropertyValue.all.each do |pv|
+      REDIS.set 'descripcion.property_value:' + pv.id.to_s, pv.value
+      REDIS.set 'property_name.property_value:' + pv.id.to_s, pv.property.name
+    end
+
+    Retailer.all.each do |r|
+      REDIS.set 'descripcion.retailer:' + r.id.to_s, r.name
+      REDIS.sadd 'retailers_country:' + r.country.id.to_s, r.id
+    end
+  end
+
+  private
+
+  def _search_fast(ids)
+    @products = Array.new
+    ids.each do |i|
+      @products.push(OpenStruct.new({
+        :id => i,
+        :value => REDIS.get('descripcion.product:' + i.to_s)
+      }))
+    end
+    render "search_fast"
   end
 end

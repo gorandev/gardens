@@ -1,3 +1,4 @@
+require 'ostruct'
 class RetailersController < ApplicationController
   respond_to :json
   
@@ -52,7 +53,11 @@ class RetailersController < ApplicationController
     end
   end
   
-  def search    
+  def search
+    if params.has_key?(:products) and params.has_key?(:country)
+      return _search_fast
+    end
+
     if params.slice(:name, :country).empty?
       return render :json => { :errors => { :retailer => "no search parameters" } }, :status => 400
     end
@@ -74,5 +79,25 @@ class RetailersController < ApplicationController
     end
     retailer.destroy
     render :json => "OK"
+  end
+
+  private
+
+  def _search_fast
+    product_retailer = Array.new
+    params[:products].split(',').each do |p|
+      product_retailer.push('retailers.product:' + p.to_s)
+    end
+
+    ids_retailers = REDIS.sunion(*product_retailer) & REDIS.smembers('retailers_country:' + params[:country].to_s)
+
+    @retailers = Array.new
+    ids_retailers.each do |i|
+      @retailers.push(OpenStruct.new({
+        :id => i,
+        :value => REDIS.get('descripcion.retailer:' + i.to_s)
+      }))
+    end
+    render "search_fast"
   end
 end

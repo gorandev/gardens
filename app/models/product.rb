@@ -35,4 +35,22 @@ class Product < ActiveRecord::Base
     end
     return retailers_ids.keys
   end
+
+  def descripcion
+    marca = String.new
+    modelo = String.new
+    self.property_values.each do |pv|
+      if pv.property.name == 'marca'
+        marca = pv.value
+      end
+      if pv.property.name == 'modelo'
+        modelo = pv.value
+      end
+    end
+    if marca.blank? || modelo.blank?
+      return nil
+    else
+      return marca + ' ' + modelo
+    end
+  end
 end
