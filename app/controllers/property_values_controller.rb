@@ -107,8 +107,9 @@ class PropertyValuesController < ApplicationController
     product_ids = params[:products].split(',')
     pvs = Array.new
     product_ids.each do |i|
-      pvs = pvs | REDIS.smembers('product:' + i.to_s)
+      pvs.push('product:' + i.to_s)
     end
+    pvs = REDIS.sunion(*pvs)
     @property_values = Array.new
     pvs.each do |i|
       @property_values.push(OpenStruct.new({
