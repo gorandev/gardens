@@ -86,7 +86,7 @@ class RetailersController < ApplicationController
   def _search_fast
     product_retailer = Array.new
     params[:products].split(',').each do |p|
-      product_retailer.push('retailers.product:' + p.to_s)
+      product_retailer.push("retailers.product:#{p}")
     end
 
     ids_retailers = REDIS.sunion(*product_retailer) & REDIS.smembers('retailers_country:' + params[:country].to_s)
@@ -95,7 +95,7 @@ class RetailersController < ApplicationController
     ids_retailers.each do |i|
       @retailers.push(OpenStruct.new({
         :id => i,
-        :value => REDIS.get('descripcion.retailer:' + i.to_s)
+        :value => REDIS.get("descripcion.retailer:#{i}")
       }))
     end
     render "search_fast"

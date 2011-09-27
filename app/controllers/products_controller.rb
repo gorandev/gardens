@@ -307,31 +307,25 @@ class ProductsController < ApplicationController
     REDIS.flushall
 
     Product.all.each do |p|
-      REDIS.set 'obj.product:' + p.id.to_s, Marshal.dump(p)
-      REDIS.set 'descripcion.product:' + p.id.to_s, p.descripcion
-      REDIS.sadd 'product_type:' + p.product_type.id.to_s, p.id
+      REDIS.set "obj.product:#{p.id}", Marshal.dump(p)
+      REDIS.set "descripcion.product:#{p.id}", p.descripcion
+      REDIS.sadd "product_type:#{p.product_type.id}", p.id
       p.active_in_countries.each do |c|
-        REDIS.sadd 'country:' + c.id.to_s, p.id
+        REDIS.sadd "country:#{c.id}", p.id
       end
       p.active_in_retailers.each do |r|
-        REDIS.sadd 'retailer:' + r.id.to_s, p.id
-        REDIS.sadd 'retailers.product:' + p.id.to_s, r.id
+        REDIS.sadd "retailer:#{r.id}", p.id
+        REDIS.sadd "retailers.product:#{p.id}", r.id
       end
       p.property_values.all.each do |pv|
-        REDIS.sadd 'property_value:' + pv.id.to_s, p.id
-        REDIS.sadd 'product:' + p.id.to_s, pv.id
+        REDIS.sadd "property_value:#{pv.id}", p.id
+        REDIS.sadd "pvs_product:#{p.id}", "#{pv.id}|#{pv.value}|#{pv.property.name}"
       end
-    end
-
-    PropertyValue.all.each do |pv|
-      REDIS.set "props.property_value:#{pv.id}", pv.value + '|' + pv.property.name
-      # REDIS.set 'descripcion.property_value:' + pv.id.to_s, pv.value
-      # REDIS.set 'property_name.property_value:' + pv.id.to_s, pv.property.name
     end
 
     Retailer.all.each do |r|
-      REDIS.set 'descripcion.retailer:' + r.id.to_s, r.name
-      REDIS.sadd 'retailers_country:' + r.country.id.to_s, r.id
+      REDIS.set "descripcion.retailer:#{r.id}", r.name
+      REDIS.sadd "retailers_country:#{r.country.id}", r.id
     end
   end
 
@@ -342,7 +336,7 @@ class ProductsController < ApplicationController
     ids.each do |i|
       @products.push(OpenStruct.new({
         :id => i,
-        :value => REDIS.get('descripcion.product:' + i.to_s)
+        :value => REDIS.get("descripcion.product:#{i}")
       }))
     end
     render "search_fast"
