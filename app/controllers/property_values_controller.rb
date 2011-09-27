@@ -2,8 +2,6 @@ require 'ostruct'
 class PropertyValuesController < ApplicationController
   respond_to :json
   
-  add_method_tracer :_search_fast, 'Custom/PropertyValuesController/_search_fast', :metric => false
-
   def index
     @property_values = PropertyValue.all
     respond_with(@property_values)
@@ -106,14 +104,8 @@ class PropertyValuesController < ApplicationController
   private
 
   def _search_fast
-    product_ids = params[:products].split(',')
-    pvs = Array.new
-    product_ids.each do |i|
-      pvs.push('product:' + i.to_s)
-    end
-    pvs = REDIS.sunion(*pvs)
     @property_values = Array.new
-    pvs.each do |i|
+    REDIS.sunion(*params[:products].split(',').map {|x| "product:#{x}"}).each do |i|
       @property_values.push(OpenStruct.new({
         :id => i,
         :value => REDIS.get('descripcion.property_value:' + i.to_s),
