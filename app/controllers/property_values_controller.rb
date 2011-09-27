@@ -2,6 +2,8 @@ require 'ostruct'
 class PropertyValuesController < ApplicationController
   respond_to :json
   
+  add_method_tracer :_search_fast, 'Custom/PropertyValuesController/_search_fast', :metric => false
+
   def index
     @property_values = PropertyValue.all
     respond_with(@property_values)
