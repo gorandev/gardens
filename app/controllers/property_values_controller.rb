@@ -106,10 +106,11 @@ class PropertyValuesController < ApplicationController
   def _search_fast
     @property_values = Array.new
     REDIS.sunion(*params[:products].split(',').map {|x| "product:#{x}"}).each do |i|
+      data = REDIS.get("props.property_value:#{i}").split('|')
       @property_values.push(OpenStruct.new({
         :id => i,
-        :value => REDIS.get('descripcion.property_value:' + i.to_s),
-        :descripcion_property => REDIS.get('property_name.property_value:' + i.to_s)
+        :value => data[0],
+        :descripcion_property => data[1]
       }))
     end
     render "search_fast"

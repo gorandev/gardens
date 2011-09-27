@@ -324,8 +324,9 @@ class ProductsController < ApplicationController
     end
 
     PropertyValue.all.each do |pv|
-      REDIS.set 'descripcion.property_value:' + pv.id.to_s, pv.value
-      REDIS.set 'property_name.property_value:' + pv.id.to_s, pv.property.name
+      REDIS.set "props.property_value:#{pv.id}", pv.value + '|' + pv.property.name
+      # REDIS.set 'descripcion.property_value:' + pv.id.to_s, pv.value
+      # REDIS.set 'property_name.property_value:' + pv.id.to_s, pv.property.name
     end
 
     Retailer.all.each do |r|
