@@ -308,7 +308,7 @@ class ProductsController < ApplicationController
 
     Product.all.each do |p|
       REDIS.set "obj.product:#{p.id}", Marshal.dump(p)
-      REDIS.set "descripcion.product:#{p.id}", p.descripcion
+      REDIS.sadd "descripcion.product:#{p.id}", "#{p.id}|#{p.descripcion}"
       REDIS.sadd "product_type:#{p.product_type.id}", p.id
       p.active_in_countries.each do |c|
         REDIS.sadd "country:#{c.id}", p.id
@@ -333,10 +333,11 @@ class ProductsController < ApplicationController
 
   def _search_fast(ids)
     @products = Array.new
-    ids.each do |i|
+    REDIS.sunion(*ids.map{|x| "descripcion.product:#{x}"}).each do |arr|
+      data = arr.split('|')
       @products.push(OpenStruct.new({
-        :id => i,
-        :value => REDIS.get("descripcion.product:#{i}")
+        :id => data[0],
+        :value => data[1]
       }))
     end
     render "search_fast"
