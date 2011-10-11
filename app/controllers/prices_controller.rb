@@ -118,10 +118,12 @@ class PricesController < ApplicationController
     params[:date_to] ||= DateTime.now
     params[:date_from] ||= "2000-01-01".to_datetime
     where[:price_date] = (params[:date_from].to_datetime)..(params[:date_to].to_datetime + 1.day)
-        
-    limit = params[:limit] || 10
 
-    @prices = Price.joins(join).where(where).limit(limit).order("price_date DESC")
-    respond_with(@prices)
+    if params.has_key?(:no_limit)
+      @prices = Price.joins(join).where(where).order("price_date DESC")
+    else
+      limit = params[:limit] || 10
+      @prices = Price.joins(join).where(where).limit(limit).order("price_date DESC")
+    end
   end
 end

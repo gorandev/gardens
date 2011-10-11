@@ -70,7 +70,7 @@
 			<div id="aclaracionMarca">
 			<span style="position: absolute; top: 55px; left: 840px;">
 			<form method="get">
-			<select name="country_id" id="country_pulldown" class="chzn-select" style="width: 100px; font-size: 12px;" title="País" data-placeholder="País" onChange="this.form.submit();">
+			<select name="country_id" id="country_pulldown" class="chzn-select" style="width: 120px; font-size: 12px;" title="País" data-placeholder="País" onChange="this.form.submit();">
 			<%= render :partial => "shared/pulldown_options", :collection => @countries.sort { |a, b| a.name <=> b.name }, :as => :obj, :locals => { :selected => @country_id } %>
 			</select>
 			</form>

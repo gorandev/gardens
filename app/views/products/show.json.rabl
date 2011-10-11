@@ -1,5 +1,5 @@
 object @product
-attributes :id
+attributes :id, :descripcion
 child :active_in_countries => :active_in_countries do
 	attributes :id => :country_id, :name => :country_name
 end

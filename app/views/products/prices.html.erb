@@ -176,12 +176,116 @@ function generate_select(campo, name, change) {
 	return jQuery('<select ' + change + 'name="' + campo + '" id="' + campo + '_pulldown" class="pulldown_selector chzn-select" size="4" multiple  title="' + name + '" data-placeholder="' + name + '"></select>');
 }
 
-function restore_pulldowns() {
-	for (var i = 0; i < pulldowns_ok.length; i++) {
-		jQuery('#span_' + pulldowns_ok[i].campo + '_pulldown').html(pulldowns_stored[i]);
+function graficar() {
+	var objs = jQuery('#producto_pulldown').val();
+
+	if (objs.length > 1) {
+		graficar_multi(objs);
+	} else {
+		graficar_single(objs[0]);
 	}
-	jQuery('#span_producto_pulldown').html('<select name="producto" id="producto_pulldown" class="pulldown_selector chzn-select" size="8" multiple="multiple" title="Producto" data-placeholder="Producto"></select>');
-	jQuery(".chzn-select").chosen();
+}
+
+function graficar_single(id) {
+	var data = 'product=' + id + '&currency=<%=@currency_id%>';
+
+	if (jQuery('#fecha_desde').val()) {
+		data += '&date_from=' + jQuery('#fecha_desde').val();
+	}
+
+	if (jQuery('#fecha_hasta').val()) {
+		data += '&date_to=' + jQuery('#fecha_hasta').val();
+	}
+
+	data += '&no_limit=1';
+
+	jQuery.ajax({
+		url: "/prices/search",
+		data: data,
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				dibujar_data_single(data);
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
+}
+
+function dibujar_data_single(data) {
+	var lineas = {};
+
+	jQuery.each(data, function(i,v) {
+		if (!lineas.hasOwnProperty(v.retailer)) {
+			lineas[v.retailer] = new Array;
+		}
+
+		var fecha = v.price_date.split('-');
+		lineas[v.retailer].push([Date.UTC(fecha[0], fecha[1]-1, fecha[2]), v.price]);
+	});
+
+	var series = new Array;
+	jQuery.each(lineas, function(i,v) {
+		series.push({
+		 	name: i,
+		 	data: v
+		 });
+	});
+
+	var options = {
+		chart: {
+			renderTo: 'chart_producto',
+			zoomType: 'x'
+		},
+		title: {
+			text: null,
+			style: {
+				fontFamily: 'Verdana',
+				fontSize: '12px',
+				fontWeight: 'bold'
+			}
+		},
+		xAxis: {
+			type: 'datetime'
+		},
+		yAxis: {
+			title: {
+				text: 'Precio'
+			}
+		},
+		credits: {
+			enabled: false
+		},
+		tooltip: {
+			formatter: function() {
+				var tooltip = new String();
+				
+				tooltip = Highcharts.dateFormat('%A %e %b %Y', this.x) + '<br/><br/>';
+				
+				this.points.each(function(p){
+					if (p.y) {
+						tooltip += p.series.name + ': $' + p.y + '<br/>';
+					}
+				});
+				
+				return tooltip;
+			},
+			shared: true
+		},
+
+		plotOptions: {
+			series: {
+				marker: {
+					enabled: false
+				}
+			}	
+		},
+
+		series: series
+	};
+	var chart = new Highcharts.Chart(options);
 }
 
 jQuery(window).load(function() {
@@ -189,6 +293,23 @@ jQuery(window).load(function() {
 	dibujar_pulldown_productos('start_up');
 	jQuery("#fecha_desde").datepicker();
 	jQuery("#fecha_hasta").datepicker();
+
+	Highcharts.setOptions({
+		lang: {
+			loading: 'Cargando...',
+			months: [
+				'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre',
+				'octubre', 'noviembre', 'diciembre'
+			],
+			weekdays: [ 'domingo', 'lunes', 'martes', 'mi' + String.fromCharCode(233) + 'rcoles', 'jueves', 'viernes', 's' + String.fromCharCode(225) + 'bado' ],
+			thousandsSep: ',',
+			resetZoom: 'volver atr' + String.fromCharCode(225) + 's',
+			downloadPNG: 'Descargar imagen PNG',
+			downloadJPEG: 'Descargar imagen JPEG',
+			downloadPDF: 'Descargar documento PDF',
+			downloadSVG: 'Descargar archivo SVG'
+		}
+	});
 });
 
 </script>

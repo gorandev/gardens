@@ -283,13 +283,14 @@ class ProductsController < ApplicationController
     # TODO: este bloque habría que hacerlo siempre (en todas las acciones que muestran una página) #
     @countries = Country.all
     if params.has_key?(:country_id) && Country.find_by_id(params[:country_id])
-      session[:country_id] = params[:country_id]
+      session[:country] = params[:country_id]
     else
       unless session.has_key?(:country_id) && Country.find_by_id(session[:country_id])
-        session[:country_id] = 2 # TODO: esto debería inicializarse al login
+        session[:country] = 2 # TODO: esto debería inicializarse al login
       end
     end
-    @country_id = session[:country_id]
+    @country_id = session[:country]
+    @currency_id = Country.find(@country_id).currency.id
 
     @pagina = 'Precios'
 
@@ -300,32 +301,6 @@ class ProductsController < ApplicationController
         :field => p["field"],
         :id => Property.find_by_name(p["field"]).id
       })
-    end
-  end
-
-  def inicializar_memstore
-    REDIS.flushall
-
-    Product.all.each do |p|
-      REDIS.set "obj.product:#{p.id}", Marshal.dump(p)
-      REDIS.sadd "descripcion.product:#{p.id}", "#{p.id}|#{p.descripcion}"
-      REDIS.sadd "product_type:#{p.product_type.id}", p.id
-      p.active_in_countries.each do |c|
-        REDIS.sadd "country:#{c.id}", p.id
-      end
-      p.active_in_retailers.each do |r|
-        REDIS.sadd "retailer:#{r.id}", p.id
-        REDIS.sadd "retailers.product:#{p.id}", r.id
-      end
-      p.property_values.all.each do |pv|
-        REDIS.sadd "property_value:#{pv.id}", p.id
-        REDIS.sadd "pvs_product:#{p.id}", "#{pv.id}|#{pv.value}|#{pv.property.name}"
-      end
-    end
-
-    Retailer.all.each do |r|
-      REDIS.set "descripcion.retailer:#{r.id}", r.name
-      REDIS.sadd "retailers_country:#{r.country.id}", r.id
     end
   end
 
