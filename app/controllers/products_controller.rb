@@ -321,20 +321,6 @@ class ProductsController < ApplicationController
     }
   end
 
-  private
-
-  def _search_fast(ids)
-    @products = Array.new
-    REDIS.sunion(*ids.map{|x| "descripcion.product:#{x}"}).each do |arr|
-      data = arr.split('|')
-      @products.push(OpenStruct.new({
-        :id => data[0],
-        :value => data[1]
-      }))
-    end
-    render "search_fast"
-  end
-
   def inicializar_memstore
     REDIS.flushall
 
@@ -359,5 +345,19 @@ class ProductsController < ApplicationController
       REDIS.set "descripcion.retailer:#{r.id}", r.name
       REDIS.sadd "retailers_country:#{r.country.id}", r.id
     end
+  end
+
+  private
+
+  def _search_fast(ids)
+    @products = Array.new
+    REDIS.sunion(*ids.map{|x| "descripcion.product:#{x}"}).each do |arr|
+      data = arr.split('|')
+      @products.push(OpenStruct.new({
+        :id => data[0],
+        :value => data[1]
+      }))
+    end
+    render "search_fast"
   end
 end
