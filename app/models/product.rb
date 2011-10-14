@@ -53,30 +53,4 @@ class Product < ActiveRecord::Base
       return marca + ' ' + modelo
     end
   end
-
-  def inicializar_memstore
-    REDIS.flushall
-
-    Product.all.each do |p|
-      REDIS.set "obj.product:#{p.id}", Marshal.dump(p)
-      REDIS.sadd "descripcion.product:#{p.id}", "#{p.id}|#{p.descripcion}"
-      REDIS.sadd "product_type:#{p.product_type.id}", p.id
-      p.active_in_countries.each do |c|
-        REDIS.sadd "country:#{c.id}", p.id
-      end
-      p.active_in_retailers.each do |r|
-        REDIS.sadd "retailer:#{r.id}", p.id
-        REDIS.sadd "retailers.product:#{p.id}", r.id
-      end
-      p.property_values.all.each do |pv|
-        REDIS.sadd "property_value:#{pv.id}", p.id
-        REDIS.sadd "pvs_product:#{p.id}", "#{pv.id}|#{pv.value}|#{pv.property.name}"
-      end
-    end
-
-    Retailer.all.each do |r|
-      REDIS.set "descripcion.retailer:#{r.id}", r.name
-      REDIS.sadd "retailers_country:#{r.country.id}", r.id
-    end
-  end
 end
