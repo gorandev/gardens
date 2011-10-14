@@ -286,10 +286,10 @@ class ProductsController < ApplicationController
       session[:country] = params[:country_id]
     else
       unless session.has_key?(:country_id) && Country.find_by_id(session[:country_id])
-        session[:country] = 2 # TODO: esto debería inicializarse al login
+        session[:country_id] = 2 # TODO: esto debería inicializarse al login
       end
     end
-    @country_id = session[:country]
+    @country_id = session[:country_id]
     @currency_id = Country.find(@country_id).currency.id
 
     @pagina = 'Precios'
@@ -302,6 +302,23 @@ class ProductsController < ApplicationController
         :id => Property.find_by_name(p["field"]).id
       })
     end
+  end
+
+  def get_dates
+    date_last = Price.joins(:item => :product).where(:products => { :id => params[:id] }).order("prices.created_at DESC").limit(1).first
+    date_first = Price.joins(:item => :product).where(:products => { :id => params[:id] }).order("prices.created_at ASC").limit(1).first
+
+    unless date_first.nil?
+      date_first = date_first.price_date
+    end
+    unless date_last.nil?
+      date_last = date_last.price_date
+    end
+
+    render :json => {
+      :date_from => date_first,
+      :date_to => date_last
+    }
   end
 
   private

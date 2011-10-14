@@ -152,7 +152,7 @@ function llenar_pulldowns_propiedades(indice, data, ids_productos) {
 }
 
 function llenar_pulldown(data, campo, name) {
-	var change = '';
+	var change = 'onChange="set_max_min_date();" ';
 	if (campo != 'producto') {
 		change = 'onChange="dibujar_pulldown_productos(this);" ';
 	}
@@ -286,6 +286,37 @@ function dibujar_data_single(data) {
 		series: series
 	};
 	var chart = new Highcharts.Chart(options);
+}
+
+function set_max_min_date() {
+	var objs = jQuery('#producto_pulldown').val();
+
+	if (!objs || objs.length != 1) {
+		jQuery("#fecha_desde").datepicker('option', 'minDate', null);
+		jQuery("#fecha_desde").datepicker('setDate', '-1m');
+		jQuery("#fecha_hasta").datepicker('option', 'maxDate', null);
+		jQuery("#fecha_hasta").datepicker('setDate', '+0');
+		return;
+	}
+
+	jQuery.ajax({
+		url: '/products/' + objs[0] + '/get_dates',
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				var fecha_min = data.date_from.split('-');
+				jQuery("#fecha_desde").datepicker('option', 'minDate', new Date(fecha_min[0], fecha_min[1]-1, fecha_min[2]));
+				jQuery("#fecha_desde").datepicker('setDate', new Date(fecha_min[0], fecha_min[1]-1, fecha_min[2]));
+
+				var fecha_max = data.date_to.split('-');
+				jQuery("#fecha_hasta").datepicker('option', 'maxDate', new Date(fecha_max[0], fecha_max[1]-1, fecha_max[2]));	
+				jQuery("#fecha_hasta").datepicker('setDate', new Date(fecha_max[0], fecha_max[1]-1, fecha_max[2]));
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
 }
 
 jQuery(window).load(function() {
