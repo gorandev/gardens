@@ -283,7 +283,7 @@ class ProductsController < ApplicationController
     # TODO: este bloque habría que hacerlo siempre (en todas las acciones que muestran una página) #
     @countries = Country.all
     if params.has_key?(:country_id) && Country.find_by_id(params[:country_id])
-      session[:country] = params[:country_id]
+      session[:country_id] = params[:country_id]
     else
       unless session.has_key?(:country_id) && Country.find_by_id(session[:country_id])
         session[:country_id] = 2 # TODO: esto debería inicializarse al login
