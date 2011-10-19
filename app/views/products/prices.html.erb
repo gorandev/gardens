@@ -216,18 +216,39 @@ function graficar_single(id) {
 
 function dibujar_data_single(data) {
 	var lineas = {};
-
 	jQuery.each(data, function(i,v) {
 		if (!lineas.hasOwnProperty(v.retailer)) {
-			lineas[v.retailer] = new Array;
+			lineas[v.retailer] = {};
 		}
 
 		var fecha = v.price_date.split('-');
-		lineas[v.retailer].push([Date.UTC(fecha[0], fecha[1]-1, fecha[2]), v.price]);
+		var fecha_utc = Date.UTC(fecha[0], fecha[1]-1, fecha[2]);
+
+		if (!lineas[v.retailer].hasOwnProperty(fecha_utc)) {
+			lineas[v.retailer][fecha_utc] = new Array;
+		}
+
+		lineas[v.retailer][fecha_utc].push(v.price);
 	});
 
-	var series = new Array;
+	var lineas_promediadas = {};
 	jQuery.each(lineas, function(i,v) {
+		lineas_promediadas[i] = new Array;
+		jQuery.each(v, function(j,x) {
+			if (x.length > 1) {
+				var total = 0;
+				for (var z = 0; z < x.length; z++) {
+					total += x[z];
+				}
+				lineas_promediadas[i].push([parseInt(j), Math.round(total/(x.length))]);
+			} else {
+				lineas_promediadas[i].push([parseInt(j), x[0]]);
+			}
+		})
+	})
+
+	var series = new Array;
+	jQuery.each(lineas_promediadas, function(i,v) {
 		series.push({
 		 	name: i,
 		 	data: v
