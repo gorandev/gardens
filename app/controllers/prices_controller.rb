@@ -84,10 +84,10 @@ class PricesController < ApplicationController
     end
     
     if params.has_key?(:product)
-      unless Product.exists?(params[:product])
-        return render :json => { :errors => { :product => "not found" } }, :status => 400
+      unless params[:product].is_a?Array
+        params[:product] = params[:product].split(',')
       end
-      
+
       if join.index(:item).nil?
         join.push(:item)
       end
