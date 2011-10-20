@@ -9,6 +9,7 @@
 #  updated_at :datetime
 #  color      :string(255)
 #
+
 class Retailer < ActiveRecord::Base
   belongs_to :country
   has_many :items

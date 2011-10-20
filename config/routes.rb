@@ -1,5 +1,9 @@
 Gardens::Application.routes.draw do
 
+  devise_for :users
+
+  root :to => 'products#prices'
+
   resources :events, :defaults => { :format => :json }
 
   match 'currencies/search' => 'currencies#search', :defaults => { :format => :json }

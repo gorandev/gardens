@@ -9,7 +9,7 @@
 <%= stylesheet_link_tag "estilos", "modalbox", "prototip", "lightbox", "chosen", "jquery-ui-1.8.14.custom","jquery-datepicker.css" %>
 <%= yield :stylesheet %>
 
-<%= javascript_include_tag "https://ajax.googleapis.com/ajax/libs/prototype/1.7.0.0/prototype.js", "https://ajax.googleapis.com/ajax/libs/scriptaculous/1.9.0/scriptaculous.js?load=effects,builder,dragdrop", "prototip", "lightbox", "modalbox", "idashboard" %>
+<%= javascript_include_tag "https://ajax.googleapis.com/ajax/libs/prototype/1.7.0.0/prototype.js", "https://ajax.googleapis.com/ajax/libs/scriptaculous/1.9.0/scriptaculous.js?load=effects,builder,dragdrop", "prototip", "lightbox", "modalbox", "idashboard", "rails" %>
 
 <%= yield :javascript %>
 
@@ -55,19 +55,22 @@
 			<!--Login de usuarios-->
 			<div id="barraUsuario">
 				<div id="login">
-				<% if defined?@usuario %>
-					Hola, <%= @usuario %> 
-					&nbsp;&nbsp;
-				<% end %>	
-				<a href="/dashboard/logout">logout</a> | <a href="/dashboard/cambiar_password">cambiar password</a>
+				<% if user_signed_in? %>
+				<%= link_to('logout', destroy_user_session_path, :method => :delete) %>
+				<% end %>
+				<br/>
 				</div>
-				<!--Buscador-->
 				<div id="buscar">
 					<br/>
 				</div>
 			</div>
 			<!--Aclaracion de marca-->
 			<div id="aclaracionMarca">
+			<span style="position: absolute; top: 55px; left: 390px; color: white; font-size: 14px;">
+			<span class="notice"><%= notice %></span>
+			<span class="alert"><%= alert %></span>
+			</span>
+			<% if defined?@countries %>
 			<span style="position: absolute; top: 55px; left: 840px;">
 			<form method="get">
 			<select name="country_id" id="country_pulldown" class="chzn-select" style="width: 120px; font-size: 12px;" title="País" data-placeholder="País" onChange="this.form.submit();">
@@ -75,6 +78,7 @@
 			</select>
 			</form>
 			</span>
+			<% end %>
 			</div>
 		</div>
 		<!--Cuerpo=Menu + Contenido-->

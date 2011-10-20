@@ -9,13 +9,14 @@ gem 'rabl'
 gem 'settingslogic'
 gem 'thin'
 gem 'redis'
+gem 'devise'
 
 group :development do
-  gem 'rspec-rails', '2.5.0'
+  gem 'rspec-rails'
   gem 'annotate'
 end
 
 group :test do
-  gem 'rspec', '2.5.0'
-  gem 'webrat', '0.7.1'
+  gem 'rspec'
+  gem 'webrat'
 end
