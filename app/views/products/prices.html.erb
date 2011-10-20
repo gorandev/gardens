@@ -176,33 +176,47 @@ function generate_select(campo, name, change) {
 	return jQuery('<select ' + change + 'name="' + campo + '" id="' + campo + '_pulldown" class="pulldown_selector chzn-select" size="4" multiple  title="' + name + '" data-placeholder="' + name + '"></select>');
 }
 
-var prices_last_data_sent = {};
+var prices_last_query_string_sent = {};
 var data_graficos = {};
 
-function graficar(id) {
-	var data = 'product=' + jQuery('#producto_pulldown').val().join(',');
+function crear_query_string() {
+	var query_string = 'product=';
 
-	data +='&currency=<%=@currency_id%>';
+	if (arguments[0]) {
+		query_string += arguments[0]
+	} else {
+		query_string += jQuery('#producto_pulldown').val().join(',');	
+	}
+
+	query_string +='&currency=<%=@currency_id%>';
 
 	if (jQuery('#fecha_desde').val()) {
-		data += '&date_from=' + jQuery('#fecha_desde').val();
+		query_string += '&date_from=' + jQuery('#fecha_desde').val();
 	}
 
 	if (jQuery('#fecha_hasta').val()) {
-		data += '&date_to=' + jQuery('#fecha_hasta').val();
+		query_string += '&date_to=' + jQuery('#fecha_hasta').val();
 	}
 
-	data += '&no_limit=1';
+	query_string += '&no_limit=1';
 
-	if (prices_last_data_sent.hasOwnProperty(id) && data == prices_last_data_sent[id]) {
+	return query_string;
+}
+
+function graficar(id) {
+	var query_string = crear_query_string();
+
+	if (
+		prices_last_query_string_sent.hasOwnProperty(id) && query_string == prices_last_query_string_sent[id]
+	) {
 		return dibujar_data(id);
 	} else {
-		prices_last_data_sent[id] = data;
+		prices_last_query_string_sent[id] = query_string;
 	}
 
 	jQuery.ajax({
 		url: "/prices/search",
-		data: data,
+		data: query_string,
 		cache: false,
 		statusCode: {
 			200: function(data) {
