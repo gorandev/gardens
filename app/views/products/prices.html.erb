@@ -176,7 +176,10 @@ function generate_select(campo, name, change) {
 	return jQuery('<select ' + change + 'name="' + campo + '" id="' + campo + '_pulldown" class="pulldown_selector chzn-select" size="4" multiple  title="' + name + '" data-placeholder="' + name + '"></select>');
 }
 
-function graficar() {
+var prices_last_data_sent = {};
+var data_graficos = {};
+
+function graficar(id) {
 	var data = 'product=' + jQuery('#producto_pulldown').val().join(',');
 
 	data +='&currency=<%=@currency_id%>';
@@ -191,10 +194,10 @@ function graficar() {
 
 	data += '&no_limit=1';
 
-	if (data == prices_last_data_sent) {
-		return dibujar_data();
+	if (prices_last_data_sent.hasOwnProperty(id) && data == prices_last_data_sent[id]) {
+		return dibujar_data(id);
 	} else {
-		prices_last_data_sent = data;
+		prices_last_data_sent[id] = data;
 	}
 
 	jQuery.ajax({
@@ -203,8 +206,8 @@ function graficar() {
 		cache: false,
 		statusCode: {
 			200: function(data) {
-				data_graficos = data;
-				dibujar_data();
+				data_graficos[id] = data;
+				dibujar_data(id);
 			},
 			400: function() {
 				alert('Error 400!');
@@ -213,11 +216,8 @@ function graficar() {
 	});
 }
 
-var prices_last_data_sent;
-var data_graficos;
-
-function dibujar_data() {
-	var data = data_graficos;
+function dibujar_data(id) {
+	var data = data_graficos[id];
 
 	var prods = {};
 	var lineas = {};
@@ -225,8 +225,8 @@ function dibujar_data() {
 	var retailers = {};
 
 	var id_producto;
-	if (arguments[0]) {
-		id_producto = arguments[0];
+	if (arguments[1]) {
+		id_producto = arguments[1];
 	}
 
 	jQuery.each(data, function(i,v) {
@@ -338,7 +338,7 @@ function dibujar_data() {
 
 	var options = {
 		chart: {
-			renderTo: 'chart_producto',
+			renderTo: 'chart_' + id,
 			zoomType: 'x'
 		},
 		title: {
@@ -364,11 +364,11 @@ function dibujar_data() {
 			formatter: function() {
 				var tooltip = new String();
 				
-				tooltip = Highcharts.dateFormat('%A %e %b %Y', this.x) + '<br/><br/>';
-				
+				tooltip = '<i>' + Highcharts.dateFormat('%A %e %b %Y', this.x) + '</i><br/><br/>';
+
 				this.points.each(function(p){
 					if (p.y) {
-						tooltip += p.series.name + ': $' + p.y + '<br/>';
+						tooltip += '<b>' + p.series.name + ':</b> $' + p.y + '<br/>';
 					}
 				});
 				
@@ -386,7 +386,7 @@ function dibujar_data() {
 					events: {
 						click: function() {
 							if (this.id_producto) {
-								dibujar_data(this.id_producto);
+								dibujar_data(id, this.id_producto);
 							}
 						}
 					}
@@ -402,7 +402,7 @@ function dibujar_data() {
 function set_max_min_date() {
 	var objs = jQuery('#producto_pulldown').val();
 
-	if (!objs || objs.length != 1) {
+	if (!objs) {
 		jQuery("#fecha_desde").datepicker('option', 'minDate', null);
 		jQuery("#fecha_desde").datepicker('setDate', '-1m');
 		jQuery("#fecha_hasta").datepicker('option', 'maxDate', null);
@@ -411,15 +411,18 @@ function set_max_min_date() {
 	}
 
 	jQuery.ajax({
-		url: '/products/' + objs[0] + '/get_dates',
+		url: '/products/get_dates?product=' + objs.join(','),
 		cache: false,
 		statusCode: {
 			200: function(data) {
 				var fecha_min = data.date_from.split('-');
-				jQuery("#fecha_desde").datepicker('option', 'minDate', new Date(fecha_min[0], fecha_min[1]-1, fecha_min[2]));
-				jQuery("#fecha_desde").datepicker('setDate', new Date(fecha_min[0], fecha_min[1]-1, fecha_min[2]));
-
 				var fecha_max = data.date_to.split('-');
+
+				jQuery("#fecha_desde").datepicker('option', 'minDate', new Date(fecha_min[0], fecha_min[1]-1, fecha_min[2]));
+				jQuery("#fecha_desde").datepicker('option', 'maxDate', new Date(fecha_max[0], fecha_max[1]-1, fecha_max[2]));
+				jQuery("#fecha_desde").datepicker('setDate', new Date(fecha_min[0], fecha_min[1]-1, fecha_min[2]));
+				
+				jQuery("#fecha_hasta").datepicker('option', 'minDate', new Date(fecha_min[0], fecha_min[1]-1, fecha_min[2]));
 				jQuery("#fecha_hasta").datepicker('option', 'maxDate', new Date(fecha_max[0], fecha_max[1]-1, fecha_max[2]));	
 				jQuery("#fecha_hasta").datepicker('setDate', new Date(fecha_max[0], fecha_max[1]-1, fecha_max[2]));
 			},
@@ -511,14 +514,14 @@ Hasta:
 <input class="date_input" type="text" name="fecha_hasta" id="fecha_hasta" size="8" value="<%= (Date.current).strftime("%d/%m/%Y") %>"/>
 </div>
 
-<input type="button" onClick="graficar();" id="boton_ver" value="Ver"/>
+<input type="button" onClick="graficar(0);" id="boton_ver" value="Ver"/>
 <input type="button" onClick="graficar('excel');" id="boton_ver_excel" value="Ver Excel"/>
 </form>
 
 </div>
 
 <div style="position: relative; top: -600px; left: 250px; width: 550px; height: 500px;" id="chart">
-<div id="chart_producto" style="height: 500px; width: 550px;"></div>
+<div id="chart_0" style="height: 500px; width: 550px;"></div>
 <div style="display: none; width: 550px;" id="history_buttons">
 <p style="text-align: center;">
 <input type="button" id="history_back" disabled value="&lt;--" onClick="showhistorychart(-1);">&nbsp;

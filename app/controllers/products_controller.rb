@@ -305,8 +305,12 @@ class ProductsController < ApplicationController
   end
 
   def get_dates
-    date_last = Price.joins(:item => :product).where(:products => { :id => params[:id] }).order("prices.created_at DESC").limit(1).first
-    date_first = Price.joins(:item => :product).where(:products => { :id => params[:id] }).order("prices.created_at ASC").limit(1).first
+    unless params[:product].is_a?Array
+      params[:product] = params[:product].split(',')
+    end
+
+    date_last = Price.joins(:item => :product).where(:products => { :id => params[:product] }).order("prices.created_at DESC").limit(1).first
+    date_first = Price.joins(:item => :product).where(:products => { :id => params[:product] }).order("prices.created_at ASC").limit(1).first
 
     unless date_first.nil?
       date_first = date_first.price_date
