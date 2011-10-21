@@ -173,10 +173,14 @@ function dibujar_data(params) {
 					events: {
 						click: function() {
 							if (this.id_producto) {
-								dibujar_data({
+								var props = {
 									id: id,
 									id_producto: this.id_producto
-								});
+								};
+								if (params.hasOwnProperty('no_save_button')) {
+									props['no_save_button'] = true;
+								}
+								dibujar_data(props);
 							}
 						}
 					}
@@ -196,22 +200,30 @@ function dibujar_data(params) {
 	};
 
 	if (id_producto) {
-		options.exporting.buttons.backButton = {
-			_titleKey: 'backButtonTitle',
-			x: -62,
-			symbol: 'square',
-			onclick: function() {
-				dibujar_data({id: id});
-			}
-		};
-
 		if (!params.hasOwnProperty('no_save_button')) {
+			options.exporting.buttons.backButton = {
+				_titleKey: 'backButtonTitle',
+				x: -62,
+				symbol: 'square',
+				onclick: function() {
+					dibujar_data({id: id});
+				}
+			};
 			options.exporting.buttons.exportButton.menuItems.push({
 				text: 'Salvar reporte',
 				onclick: function() {
 					salvar_reporte({id_producto: id_producto});
 				}
 			});
+		} else {
+			options.exporting.buttons.backButton = {
+				_titleKey: 'backButtonTitle',
+				x: -62,
+				symbol: 'square',
+				onclick: function() {
+					dibujar_data({id: id, no_save_button: true});
+				}
+			};
 		}
 	} else {
 		if (!params.hasOwnProperty('no_save_button')) {
