@@ -12,4 +12,5 @@
 
 class SavedReport < ActiveRecord::Base
 	belongs_to :user
+	validates_presence_of :querystring, :user
 end

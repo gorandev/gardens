@@ -47,6 +47,9 @@ Gardens::Application.routes.draw do
   
   match 'no_words/search' => 'no_words#search', :defaults => { :format => :json }
   resources :no_words, :defaults => { :format => :json }
+
+  get 'saved_reports/show_all'
+  resources :saved_reports, :defaults => { :format => :json }
   
   # The priority is based upon order of creation:
   # first created -> highest priority.

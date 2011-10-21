@@ -1,0 +1,62 @@
+<% content_for :titulo_pagina do %>Mis Reportes<% end %>
+<% content_for :javascript do %>
+<%= javascript_include_tag "https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js" %>
+<script type="text/javascript">jQuery.noConflict();</script>
+<%= javascript_include_tag "highcharts", "modules/exporting", "highcharts_graficar" %>
+<script type="text/javascript">
+
+function graficar(id, query_string) {
+	jQuery.ajax({
+		url: "/prices/search",
+		data: query_string,
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				data_graficos[id] = data;
+				dibujar_data({
+					id: id,
+					no_save_button: true
+				});
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
+}
+
+jQuery(window).load(function() {
+	Highcharts.setOptions({
+		lang: {
+			loading: 'Cargando...',
+			months: [
+				'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre',
+				'octubre', 'noviembre', 'diciembre'
+			],
+			weekdays: [ 'domingo', 'lunes', 'martes', 'mi' + String.fromCharCode(233) + 'rcoles', 'jueves', 'viernes', 's' + String.fromCharCode(225) + 'bado' ],
+			thousandsSep: ',',
+			resetZoom: 'volver atr' + String.fromCharCode(225) + 's',
+			downloadPNG: 'Descargar imagen PNG',
+			downloadJPEG: 'Descargar imagen JPEG',
+			downloadPDF: 'Descargar documento PDF',
+			downloadSVG: 'Descargar archivo SVG',
+			exportButtonTitle: 'Exportar a varios formatos',
+			printButtonTitle: 'Imprimir',
+			backButtonTitle: 'Volver atrás'
+		}
+	});
+
+	<% @saved_reports.each_with_index do |sr, i| %>
+		graficar(<%=i%>, '<%=sr.querystring%>');
+	<% end %>
+});
+</script>
+<% end %>
+<h1>Reportes</h1>
+<div style="width: 800px;">
+<% @saved_reports.each_with_index do |sr, i| %>
+	<div id="id_<%=i%>" style="width: 400px; height: 450px; float: left;">
+		<div id="chart_<%=i%>"></div>
+	</div>
+<% end %>
+</div>

@@ -2,7 +2,7 @@
 <% content_for :javascript do %>
 <%= javascript_include_tag "https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js" %>
 <script type="text/javascript">jQuery.noConflict();</script>
-<%= javascript_include_tag "highcharts", "modules/exporting", "chosen.jquery.min", "tooltipsy.min" %>
+<%= javascript_include_tag "highcharts", "modules/exporting", "chosen.jquery.min", "tooltipsy.min", "highcharts_graficar" %>
 
 <script type="text/javascript">
 function agregar_tooltips() {
@@ -177,13 +177,12 @@ function generate_select(campo, name, change) {
 }
 
 var prices_last_query_string_sent = {};
-var data_graficos = {};
 
-function crear_query_string() {
+function crear_query_string(params) {
 	var query_string = 'product=';
 
-	if (arguments[0]) {
-		query_string += arguments[0]
+	if (params.hasOwnProperty('id_producto')) {
+		query_string += params['id_producto'];
 	} else {
 		query_string += jQuery('#producto_pulldown').val().join(',');	
 	}
@@ -194,20 +193,23 @@ function crear_query_string() {
 		query_string += '&date_from=' + jQuery('#fecha_desde').val();
 	}
 
-	if (jQuery('#fecha_hasta').val()) {
-		query_string += '&date_to=' + jQuery('#fecha_hasta').val();
+	if (!params.hasOwnProperty('for_saving')) {
+		if (jQuery('#fecha_hasta').val()) {
+			query_string += '&date_to=' + jQuery('#fecha_hasta').val();
+		}	
 	}
-
+	
 	query_string += '&no_limit=1';
 
 	return query_string;
 }
 
 function graficar(id) {
-	var query_string = crear_query_string();
+	var query_string = crear_query_string({});
 
 	if (
-		prices_last_query_string_sent.hasOwnProperty(id) && query_string == prices_last_query_string_sent[id]
+		prices_last_query_string_sent.hasOwnProperty(id) && 
+		query_string == prices_last_query_string_sent[id]
 	) {
 		return dibujar_data(id);
 	} else {
@@ -221,7 +223,9 @@ function graficar(id) {
 		statusCode: {
 			200: function(data) {
 				data_graficos[id] = data;
-				dibujar_data(id);
+				dibujar_data({
+					id: id
+				});
 			},
 			400: function() {
 				alert('Error 400!');
@@ -230,187 +234,33 @@ function graficar(id) {
 	});
 }
 
-function dibujar_data(id) {
-	var data = data_graficos[id];
+function salvar_reporte(params) {
+	var qs;
 
-	var prods = {};
-	var lineas = {};
-	var lineas_por_fecha = {};
-	var retailers = {};
-
-	var id_producto;
-	if (arguments[1]) {
-		id_producto = arguments[1];
-	}
-
-	jQuery.each(data, function(i,v) {
-		if (id_producto && v.id_product != id_producto) {
-			return;
-		}
-
-		if (!retailers.hasOwnProperty(v.retailer)) {
-			retailers[v.retailer] = v.retailer_color;
-		}
-
-		if (!prods.hasOwnProperty(v.id_product)) {
-			prods[v.id_product] = v.name_product;
-		}
-
-		if (!lineas.hasOwnProperty(v.id_product)) {
-			lineas[v.id_product] = {}
-		}
-
-		if (!lineas_por_fecha.hasOwnProperty(v.id_product)) {
-			lineas_por_fecha[v.id_product] = {}
-		}
-
-		if (!lineas[v.id_product].hasOwnProperty(v.retailer)) {
-			lineas[v.id_product][v.retailer] = {};
-		}
-
-		var fecha = v.price_date.split('-');
-		var fecha_utc = Date.UTC(fecha[0], fecha[1]-1, fecha[2]);
-
-		if (!lineas[v.id_product][v.retailer].hasOwnProperty(fecha_utc)) {
-			lineas[v.id_product][v.retailer][fecha_utc] = new Array;
-		}
-
-		if (!lineas_por_fecha[v.id_product].hasOwnProperty(fecha_utc)) {
-			lineas_por_fecha[v.id_product][fecha_utc] = new Array;
-		}
-
-		lineas[v.id_product][v.retailer][fecha_utc].push(v.price);
-		lineas_por_fecha[v.id_product][fecha_utc].push(v.price);
-	});
-
-	var lineas_promediadas = {};
-	var titulo;
-
-	if (Object.keys(prods).length == 1) {
-		jQuery.each(lineas[Object.keys(prods)[0]], function(i,v) {
-			lineas_promediadas[i] = new Array;
-			jQuery.each(v, function(j,x) {
-				if (x.length > 1) {
-					var total = 0;
-					for (var z = 0; z < x.length; z++) {
-						total += x[z];
-					}
-					lineas_promediadas[i].push([parseInt(j), Math.round(total/(x.length))]);
-				} else {
-					lineas_promediadas[i].push([parseInt(j), x[0]]);
-				}
-			});
-		});
-
-		titulo = prods[Object.keys(prods)[0]];
-	}
-
-	if (Object.keys(prods).length > 1) {
-		jQuery.each(lineas_por_fecha, function(i,v) {
-			lineas_promediadas[prods[i]] = new Array;
-			jQuery.each(v, function(j,x) {
-				if (x.length > 1) {
-					var total = 0;
-					for (var z = 0; z < x.length; z++) {
-						total += x[z];
-					}
-					lineas_promediadas[prods[i]].push({
-						x: parseInt(j),
-						y: Math.round(total/(x.length)),
-						id_producto: i
-					});
-				} else {
-					lineas_promediadas[prods[i]].push({
-						x: parseInt(j),
-						y: x[0],
-						id_producto: i
-					});
-				}
-			});
-		})
-
-		titulo = 'Varios productos';
-	}
-
-	var series = new Array;
-	if (titulo == 'Varios productos') {
-		jQuery.each(lineas_promediadas, function(i,v) {
-			series.push({
-			 	name: i,
-			 	data: v
-			 });
-		});
+	if (params.hasOwnProperty('id_producto')) {
+		qs = crear_query_string({ id_producto: params['id_producto'], for_saving: true });
 	} else {
-		jQuery.each(lineas_promediadas, function(i,v) {
-			series.push({
-			 	name: i,
-			 	color: retailers[i],
-			 	data: v
-			 });
-		});
+		qs = crear_query_string({ for_saving: true });
 	}
 
-	var options = {
-		chart: {
-			renderTo: 'chart_' + id,
-			zoomType: 'x'
-		},
-		title: {
-			text: titulo,
-			style: {
-				fontFamily: 'Verdana',
-				fontSize: '12px',
-				fontWeight: 'bold'
-			}
-		},
-		xAxis: {
-			type: 'datetime'
-		},
-		yAxis: {
-			title: {
-				text: 'Precio'
-			}
-		},
-		credits: {
-			enabled: false
-		},
-		tooltip: {
-			formatter: function() {
-				var tooltip = new String();
-				
-				tooltip = '<i>' + Highcharts.dateFormat('%A %e %b %Y', this.x) + '</i><br/><br/>';
-
-				this.points.each(function(p){
-					if (p.y) {
-						tooltip += '<b>' + p.series.name + ':</b> $' + p.y + '<br/>';
-					}
-				});
-				
-				return tooltip;
-			},
-			shared: true
-		},
-
-		plotOptions: {
-			series: {
-				marker: {
-					enabled: false
-				},
-				point: {
-					events: {
-						click: function() {
-							if (this.id_producto) {
-								dibujar_data(id, this.id_producto);
-							}
-						}
-					}
-				}
-			}	
-		},
-
-		series: series
+	var data = {
+		querystring: qs
 	};
-	var chart = new Highcharts.Chart(options);
+
+	jQuery.ajax({
+		url: '/saved_reports',
+		type: 'POST',
+		data: data,
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				alert('Reporte salvado.');
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});	
 }
 
 function set_max_min_date() {
@@ -466,7 +316,10 @@ jQuery(window).load(function() {
 			downloadPNG: 'Descargar imagen PNG',
 			downloadJPEG: 'Descargar imagen JPEG',
 			downloadPDF: 'Descargar documento PDF',
-			downloadSVG: 'Descargar archivo SVG'
+			downloadSVG: 'Descargar archivo SVG',
+			exportButtonTitle: 'Exportar a varios formatos',
+			printButtonTitle: 'Imprimir',
+			backButtonTitle: 'Volver atrás'
 		}
 	});
 });
