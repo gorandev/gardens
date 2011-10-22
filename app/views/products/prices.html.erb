@@ -216,6 +216,23 @@ function graficar(id) {
 		prices_last_query_string_sent[id] = query_string;
 	}
 
+	var chart = new Highcharts.Chart({
+		chart: {
+			renderTo: 'chart_' + id 
+		},
+		title: { 
+			text: null 
+		},
+		credits: {
+			enabled: false
+		},
+		exporting: {
+			enabled: false
+		}
+	});
+
+	chart.showLoading();
+
 	jQuery.ajax({
 		url: "/prices/search",
 		data: query_string,

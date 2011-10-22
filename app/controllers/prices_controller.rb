@@ -121,10 +121,10 @@ class PricesController < ApplicationController
     where[:price_date] = (params[:date_from].to_datetime)..(params[:date_to].to_datetime + 1.day)
 
     if params.has_key?(:no_limit)
-      @prices = Price.joins(join).where(where).order("price_date DESC")
+      @prices = Price.includes(:currency, :item => [ :retailer, :product ]).joins(join).where(where).order("price_date DESC")
     else
       limit = params[:limit] || 10
-      @prices = Price.joins(join).where(where).limit(limit).order("price_date DESC")
+      @prices = Price.includes(:currency, :item => [ :retailer, :product ]).joins(join).where(where).limit(limit).order("price_date DESC")
     end
   end
 end
