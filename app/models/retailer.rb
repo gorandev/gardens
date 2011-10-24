@@ -14,6 +14,7 @@ class Retailer < ActiveRecord::Base
   belongs_to :country
   has_many :items
   has_many :products, :through => :items
+  has_many :sales
   
   validates_presence_of :name, :country, :color
 end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111020210907) do
+ActiveRecord::Schema.define(:version => 20111024172414) do
 
   create_table "countries", :force => true do |t|
     t.string   "iso_code"
@@ -66,6 +66,21 @@ ActiveRecord::Schema.define(:version => 20111020210907) do
     t.integer "item_id"
     t.integer "property_value_id"
   end
+
+  create_table "media_channel_types", :force => true do |t|
+    t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "media_channels", :force => true do |t|
+    t.string   "name"
+    t.integer  "media_channel_type_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "media_channels", ["media_channel_type_id"], :name => "index_media_channels_on_media_channel_type_id"
 
   create_table "misspellings", :force => true do |t|
     t.string   "value"
@@ -148,6 +163,26 @@ ActiveRecord::Schema.define(:version => 20111020210907) do
   end
 
   add_index "retailers", ["country_id"], :name => "index_retailers_on_country_id"
+
+  create_table "sales", :force => true do |t|
+    t.date     "sale_date"
+    t.integer  "price"
+    t.string   "origin"
+    t.integer  "units_available"
+    t.date     "valid_since"
+    t.date     "valid_until"
+    t.boolean  "bundle"
+    t.boolean  "deleted"
+    t.integer  "media_channel_id"
+    t.integer  "retailer_id"
+    t.integer  "product_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "sales", ["media_channel_id"], :name => "index_sales_on_media_channel_id"
+  add_index "sales", ["product_id"], :name => "index_sales_on_product_id"
+  add_index "sales", ["retailer_id"], :name => "index_sales_on_retailer_id"
 
   create_table "saved_reports", :force => true do |t|
     t.text     "querystring"

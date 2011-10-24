@@ -17,6 +17,7 @@ class Product < ActiveRecord::Base
   has_and_belongs_to_many :property_values
   has_many :items
   has_many :retailers, :through => :items
+  has_many :sales
   
   validates_presence_of :product_type, :property_values
 
