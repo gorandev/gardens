@@ -7,6 +7,7 @@
 #  media_channel_type_id :integer
 #  created_at            :datetime
 #  updated_at            :datetime
+#  country_id            :integer
 #
 
 require 'spec_helper'

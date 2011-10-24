@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111024172414) do
+ActiveRecord::Schema.define(:version => 20111024212937) do
 
   create_table "countries", :force => true do |t|
     t.string   "iso_code"
@@ -78,8 +78,10 @@ ActiveRecord::Schema.define(:version => 20111024172414) do
     t.integer  "media_channel_type_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "country_id"
   end
 
+  add_index "media_channels", ["country_id"], :name => "index_media_channels_on_country_id"
   add_index "media_channels", ["media_channel_type_id"], :name => "index_media_channels_on_media_channel_type_id"
 
   create_table "misspellings", :force => true do |t|
@@ -178,6 +180,7 @@ ActiveRecord::Schema.define(:version => 20111024172414) do
     t.integer  "product_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "page"
   end
 
   add_index "sales", ["media_channel_id"], :name => "index_sales_on_media_channel_id"
