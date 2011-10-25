@@ -15,4 +15,5 @@ class Currency < ActiveRecord::Base
   validates_presence_of :name, :symbol
   has_one :country
   has_many :prices
+  has_many :sales
 end

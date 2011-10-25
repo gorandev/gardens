@@ -50,6 +50,9 @@ Gardens::Application.routes.draw do
 
   get 'saved_reports/show_all'
   resources :saved_reports, :defaults => { :format => :json }
+
+  resources :media_channels, :defaults => { :format => :json }
+  resources :sales, :defaults => { :format => :json }
   
   # The priority is based upon order of creation:
   # first created -> highest priority.

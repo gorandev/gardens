@@ -1,0 +1,11 @@
+object @sale
+attributes :id, :sale_date, :price, :origin, :units_available, :valid_since, :valid_until, :bundle, :page
+glue :media_channel do
+	attributes :name => :media_channel
+end
+glue :retailer do
+	attributes :name => :retailer
+end
+glue :product do
+	attributes :id => :id_product
+end	

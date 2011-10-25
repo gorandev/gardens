@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111024212937) do
+ActiveRecord::Schema.define(:version => 20111025160204) do
 
   create_table "countries", :force => true do |t|
     t.string   "iso_code"
@@ -133,9 +133,6 @@ ActiveRecord::Schema.define(:version => 20111024212937) do
     t.integer "property_value_id"
   end
 
-  add_index "products_property_values", ["product_id"], :name => "index_products_property_values_on_product_id"
-  add_index "products_property_values", ["property_value_id"], :name => "index_products_property_values_on_property_value_id"
-
   create_table "properties", :force => true do |t|
     t.string   "name"
     t.integer  "product_type_id"
@@ -181,8 +178,10 @@ ActiveRecord::Schema.define(:version => 20111024212937) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "page"
+    t.integer  "currency_id"
   end
 
+  add_index "sales", ["currency_id"], :name => "index_sales_on_currency_id"
   add_index "sales", ["media_channel_id"], :name => "index_sales_on_media_channel_id"
   add_index "sales", ["product_id"], :name => "index_sales_on_product_id"
   add_index "sales", ["retailer_id"], :name => "index_sales_on_retailer_id"

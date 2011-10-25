@@ -1,5 +1,5 @@
 require 'spec_helper'
-
+include Devise::TestHelpers
 describe ProductsController do
 
   let(:expected) {
@@ -19,6 +19,9 @@ describe ProductsController do
 
   before(:each) do
     request.env['HTTP_ACCEPT'] = "application/json"
+    request.env["devise.mapping"] = Devise.mappings[:user]
+    @user = Factory(:user)
+    sign_in @user
   end
 
   describe "GET 'index'" do

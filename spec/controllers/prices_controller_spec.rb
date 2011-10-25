@@ -1,5 +1,5 @@
 require 'spec_helper'
-
+include Devise::TestHelpers
 describe PricesController do
 
   let(:expected) {
@@ -41,6 +41,9 @@ describe PricesController do
 
   before(:each) do
     request.env['HTTP_ACCEPT'] = "application/json"
+    request.env["devise.mapping"] = Devise.mappings[:user]
+    @user = Factory(:user)
+    sign_in @user
   end
 
   describe "GET 'index'" do
@@ -177,14 +180,14 @@ describe PricesController do
       Price.create(:item => item, :currency => currency, :price => 99, :price_date => date)
       { "item" => item.id, "currency" => currency.id }.map { |a, v|
         get :search, a.to_sym => v
-        ActiveSupport::JSON.decode(response.body).should == [{"price"=>99, "price_date"=> date, "item"=>1, "currency"=>"Felicidon"}]
+        ActiveSupport::JSON.decode(response.body).should == [{"price"=>99, "price_date"=> date.strftime, "item"=>1, "retailer" => "Falarino", "retailer_color" => "#FFFFFF", "currency"=>"Felicidon" }]
       }
     end
     
     it "should work combining parameters" do
       Price.create(:item => item, :currency => currency, :price => 99, :price_date => date)
       get :search, :item => item.id, :currency => currency.id
-      ActiveSupport::JSON.decode(response.body).should == [{"price"=>99, "price_date"=> date, "item"=>1, "currency"=>"Felicidon"}]
+      ActiveSupport::JSON.decode(response.body).should == [{"price"=>99, "price_date"=> date.strftime, "item"=>1, "retailer" => "Falarino", "retailer_color" => "#FFFFFF", "currency"=>"Felicidon"}]
     end
   end  
 end

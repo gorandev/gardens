@@ -23,4 +23,10 @@ class Sale < ActiveRecord::Base
 	belongs_to :media_channel
 	belongs_to :retailer
 	belongs_to :product
+	belongs_to :currency
+
+	validates :price, :numericality => { :only_integer => true }
+	validates :page, :numericality => { :only_integer => true }
+	validates :units_available, :numericality => { :only_integer => true }, :allow_nil => true
+	validates_presence_of :sale_date, :media_channel, :retailer, :product, :currency
 end

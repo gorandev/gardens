@@ -76,7 +76,7 @@ describe ProductTypesController do
     
     it "should work with the name parameter" do
       get :search, :name => "Washing Machine"
-      ActiveSupport::JSON.decode(response.body).should == [{"id"=>1, "name"=>"Washing Machine", "array"=>[]}]
+      ActiveSupport::JSON.decode(response.body).should == [{"id"=>1, "name"=>"Washing Machine", ""=>[]}]
     end
   end
 end

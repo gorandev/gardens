@@ -14,4 +14,6 @@ class MediaChannel < ActiveRecord::Base
 	belongs_to :media_channel_type
 	belongs_to :country
 	has_many :sales
+
+	validates_presence_of :name, :country, :media_channel_type
 end

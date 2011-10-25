@@ -161,14 +161,14 @@ describe RetailersController do
     
     it "should work with any single parameter" do
       get :search, :name => 'Falarino'
-      ActiveSupport::JSON.decode(response.body).should == [{"name"=>"Falarino", "country"=>"Felicidonia", "id"=>1}]
+      ActiveSupport::JSON.decode(response.body).should == [{"name"=>"Falarino", "country"=>"Felicidonia", "id"=>1, "color" => "#FFFFFF"}]
       get :search, :country => country.id
-      ActiveSupport::JSON.decode(response.body).should == [{"name"=>"Falarino", "country"=>"Felicidonia", "id"=>1}]
+      ActiveSupport::JSON.decode(response.body).should == [{"name"=>"Falarino", "country"=>"Felicidonia", "id"=>1, "color" => "#FFFFFF"}]
     end
     
     it "should work with more than one parameter" do
       get :search, :name => 'Falarino', :country => country.id
-      ActiveSupport::JSON.decode(response.body).should == [{"name"=>"Falarino", "country"=>"Felicidonia", "id"=>1}]
+      ActiveSupport::JSON.decode(response.body).should == [{"name"=>"Falarino", "country"=>"Felicidonia", "id"=>1, "color" => "#FFFFFF"}]
     end
   end
 end
