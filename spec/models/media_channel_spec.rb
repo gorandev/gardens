@@ -8,6 +8,7 @@
 #  created_at            :datetime
 #  updated_at            :datetime
 #  country_id            :integer
+#  retailer_id           :integer
 #
 
 require 'spec_helper'

@@ -15,6 +15,7 @@ class Retailer < ActiveRecord::Base
   has_many :items
   has_many :products, :through => :items
   has_many :sales
+  has_many :media_channels
   
   validates_presence_of :name, :country, :color
 end

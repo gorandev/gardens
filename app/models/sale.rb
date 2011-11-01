@@ -17,6 +17,8 @@
 #  created_at       :datetime
 #  updated_at       :datetime
 #  page             :integer
+#  currency_id      :integer
+#  imagen_id        :integer
 #
 
 class Sale < ActiveRecord::Base

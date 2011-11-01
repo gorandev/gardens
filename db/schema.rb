@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111025160204) do
+ActiveRecord::Schema.define(:version => 20111031170916) do
 
   create_table "countries", :force => true do |t|
     t.string   "iso_code"
@@ -79,10 +79,12 @@ ActiveRecord::Schema.define(:version => 20111025160204) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "country_id"
+    t.integer  "retailer_id"
   end
 
   add_index "media_channels", ["country_id"], :name => "index_media_channels_on_country_id"
   add_index "media_channels", ["media_channel_type_id"], :name => "index_media_channels_on_media_channel_type_id"
+  add_index "media_channels", ["retailer_id"], :name => "index_media_channels_on_retailer_id"
 
   create_table "misspellings", :force => true do |t|
     t.string   "value"
@@ -179,6 +181,7 @@ ActiveRecord::Schema.define(:version => 20111025160204) do
     t.datetime "updated_at"
     t.integer  "page"
     t.integer  "currency_id"
+    t.integer  "imagen_id"
   end
 
   add_index "sales", ["currency_id"], :name => "index_sales_on_currency_id"
@@ -209,6 +212,7 @@ ActiveRecord::Schema.define(:version => 20111025160204) do
     t.string   "last_sign_in_ip"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "authentication_token"
   end
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true

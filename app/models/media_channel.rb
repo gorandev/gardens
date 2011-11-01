@@ -8,12 +8,14 @@
 #  created_at            :datetime
 #  updated_at            :datetime
 #  country_id            :integer
+#  retailer_id           :integer
 #
 
 class MediaChannel < ActiveRecord::Base
 	belongs_to :media_channel_type
 	belongs_to :country
+	belongs_to :retailer
 	has_many :sales
 
-	validates_presence_of :name, :country, :media_channel_type
+	validates_presence_of :name, :media_channel_type
 end

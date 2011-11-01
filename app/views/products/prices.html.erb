@@ -240,9 +240,7 @@ function graficar(id) {
 		statusCode: {
 			200: function(data) {
 				data_graficos[id] = data;
-				dibujar_data({
-					id: id
-				});
+				get_promos(id);
 			},
 			400: function() {
 				alert('Error 400!');

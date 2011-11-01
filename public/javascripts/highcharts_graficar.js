@@ -1,10 +1,34 @@
 
 var data_graficos = {};
+var data_promos_graficos = {};
+
+var promos = {};
+var promos_por_producto = {};
+
+function get_promos(id) {
+	jQuery.ajax({
+		url: "/sales/search",
+		data: prices_last_query_string_sent[id],
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				data_promos_graficos[id] = data;
+				dibujar_data({
+					id: id
+				});
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});	
+}
 
 function dibujar_data(params) {
 	var id = params['id'];
 
 	var data = data_graficos[id];
+	var data_promos = data_promos_graficos[id];
 
 	var prods = {};
 	var lineas = {};
@@ -59,18 +83,56 @@ function dibujar_data(params) {
 	var lineas_promediadas = {};
 	var titulo;
 
+	jQuery.each(data_promos, function(i,v) {
+		if (!promos.hasOwnProperty(v.id)) {
+			promos[v.id] = v;
+		}
+		if (!promos_por_producto.hasOwnProperty(v.id_product)) {
+			promos_por_producto[v.id_product] = {};
+		}
+
+		var fecha = v.sale_date.split('-');
+		var fecha_utc = Date.UTC(fecha[0], fecha[1]-1, fecha[2]);
+
+		if (!promos_por_producto[v.id_product].hasOwnProperty(fecha_utc)) {
+			promos_por_producto[v.id_product][fecha_utc] = new Array;
+		}
+
+		promos_por_producto[v.id_product][fecha_utc].push(v.id);
+	});
+
 	if (Object.keys(prods).length == 1) {
 		jQuery.each(lineas[Object.keys(prods)[0]], function(i,v) {
 			lineas_promediadas[i] = new Array;
 			jQuery.each(v, function(j,x) {
+				var valor_y = x[0];
+
 				if (x.length > 1) {
 					var total = 0;
 					for (var z = 0; z < x.length; z++) {
 						total += x[z];
 					}
-					lineas_promediadas[i].push([parseInt(j), Math.round(total/(x.length))]);
+					valor_y = Math.round(total/(x.length))
+				}
+
+				if (
+					promos_por_producto.hasOwnProperty(Object.keys(prods)[0]) && 
+					promos_por_producto[Object.keys(prods)[0]].hasOwnProperty(j)
+				) {
+					lineas_promediadas[i].push({
+						x: parseInt(j),
+						y: valor_y,
+						prod: Object.keys(prods)[0],
+						fecha: j,	
+						marker: {
+							enabled: true
+						}
+					});					
 				} else {
-					lineas_promediadas[i].push([parseInt(j), x[0]]);
+					lineas_promediadas[i].push({
+						x: parseInt(j),
+						y: valor_y
+					});
 				}
 			});
 		});

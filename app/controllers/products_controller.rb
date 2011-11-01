@@ -14,14 +14,7 @@ class ProductsController < ApplicationController
   end
   
   def show
-    Product.class
-    ProductType.class
-    Item.class
-    Country.class
-    Retailer.class
-    PropertyValue.class
-    Property.class
-    @product = Marshal.load(REDIS.get 'obj.product:' + params[:id].to_s)
+    @product = Product.find(params[:id])
   end
   
   def new
