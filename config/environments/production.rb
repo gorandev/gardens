@@ -49,6 +49,4 @@ Gardens::Application.configure do
   config.active_support.deprecation = :notify
 
   config.action_mailer.default_url_options = { :host => 'gardens.heroku.com' }
-
-  ENV["REDISTOGO_URL"] = 'redis://localhost:6379'
 end
