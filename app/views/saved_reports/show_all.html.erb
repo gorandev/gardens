@@ -30,10 +30,7 @@ function graficar(id, query_string) {
 		statusCode: {
 			200: function(data) {
 				data_graficos[id] = data;
-				dibujar_data({
-					id: id,
-					no_save_button: true
-				});
+				get_promos(id, query_string);
 			},
 			400: function() {
 				alert('Error 400!');

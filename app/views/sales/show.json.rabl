@@ -1,5 +1,5 @@
 object @sale
-attributes :id, :sale_date, :price, :origin, :units_available, :valid_since, :valid_until, :bundle, :page
+attributes :id, :sale_date, :price, :origin, :units_available, :valid_since, :valid_until, :bundle, :page, :imagen_id
 glue :media_channel do
 	attributes :name => :media_channel
 end
