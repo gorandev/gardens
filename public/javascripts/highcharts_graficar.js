@@ -325,12 +325,12 @@ function mostrar_promos(producto, fecha) {
 
 	promos_html += '<table align="center" style="font-size: 14px;" width="100%">';
 
-	promos_html += '<tr>';
-	promos_html += '<td>';
-	promos_html += '<table align="center">';
-
 	jQuery.each(promos_por_producto[producto][fecha], function(i,v) {
 		var pr = promos[v];
+
+		promos_html += '<tr>';
+		promos_html += '<td>';
+		promos_html += '<table align="center">';
 
 		promos_html += '<td align="right"><b>Fuente:</b></td>';
 		promos_html += '<td>' + pr.media_channel + '</td>';
