@@ -104,14 +104,33 @@ function dibujar_data(params) {
 			promos_por_producto[v.id_product] = {};
 		}
 
-		var fecha = v.sale_date.split('-');
-		var fecha_utc = Date.UTC(fecha[0], fecha[1]-1, fecha[2]);
+		if (v.valid_since && v.valid_until) {
 
-		if (!promos_por_producto[v.id_product].hasOwnProperty(fecha_utc)) {
-			promos_por_producto[v.id_product][fecha_utc] = {};
+			var fecha_desde = v.valid_since.split('-');
+			var fDesde = new Date(fecha_desde[0], fecha_desde[1]-1, fecha_desde[2]);
+
+			var fecha_hasta = v.valid_until.split('-');
+			var fHasta = new Date(fecha_hasta[0], fecha_hasta[1]-1, fecha_hasta[2]);
+
+			for (var fecha = fDesde; fecha <= fHasta; fecha.setDate(fecha.getDate()+1)) {
+				var fecha_utc = Date.UTC(fecha.getFullYear(), fecha.getMonth(), fecha.getDate());
+
+				if (!promos_por_producto[v.id_product].hasOwnProperty(fecha_utc)) {
+					promos_por_producto[v.id_product][fecha_utc] = {};
+				}
+				promos_por_producto[v.id_product][fecha_utc][v.retailer] = v.id;
+			}
+
+		} else {
+			var fecha = v.sale_date.split('-');
+			var fecha_utc = Date.UTC(fecha[0], fecha[1]-1, fecha[2]);
+
+			if (!promos_por_producto[v.id_product].hasOwnProperty(fecha_utc)) {
+				promos_por_producto[v.id_product][fecha_utc] = {};
+			}
+
+			promos_por_producto[v.id_product][fecha_utc][v.retailer] = v.id;
 		}
-
-		promos_por_producto[v.id_product][fecha_utc][v.retailer] = v.id;
 	});
 
 	if (Object.keys(prods).length == 1) {
@@ -129,6 +148,7 @@ function dibujar_data(params) {
 				}
 
 				if (
+					!params.hasOwnProperty('no_sales') &&
 					promos_por_producto.hasOwnProperty(Object.keys(prods)[0]) && 
 					promos_por_producto[Object.keys(prods)[0]].hasOwnProperty(j) &&
 					promos_por_producto[Object.keys(prods)[0]][j].hasOwnProperty(i)
@@ -317,7 +337,37 @@ function dibujar_data(params) {
 		}
 	}
 
+	if (Object.keys(prods).length == 1) {
+		if (!params.hasOwnProperty('no_sales')) {
+			options.subtitle = {
+				text: '(con publicaciones)',
+				style: {
+					fontFamily: 'Verdana',
+					fontSize: '10px'
+				}
+			};
+		} else {
+			options.subtitle = {
+				text: '(sin publicaciones)',
+				style: {
+					fontFamily: 'Verdana',
+					fontSize: '10px'
+				}
+			};
+		}
+	}
+
 	var chart = new Highcharts.Chart(options);
+
+	if (!params.hasOwnProperty('no_sales')) {
+		jQuery(chart.container).dblclick(function() {
+			dibujar_data({id: id, no_sales: true});
+		});		
+	} else {
+		jQuery(chart.container).dblclick(function() {
+			dibujar_data({id: id});
+		});
+	}
 }
 
 function mostrar_promos(producto, fecha) {
