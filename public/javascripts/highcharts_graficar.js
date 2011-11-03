@@ -338,34 +338,33 @@ function dibujar_data(params) {
 	}
 
 	if (Object.keys(prods).length == 1) {
+		var subtitulo;
+
 		if (!params.hasOwnProperty('no_sales')) {
-			options.subtitle = {
-				text: '(con publicaciones)',
-				style: {
-					fontFamily: 'Verdana',
-					fontSize: '10px'
-				}
-			};
+			subtitulo = '(con publicaciones)';
 		} else {
-			options.subtitle = {
-				text: '(sin publicaciones)',
-				style: {
-					fontFamily: 'Verdana',
-					fontSize: '10px'
-				}
-			};
+			subtitulo = '(sin publicaciones)';
 		}
+
+		options.subtitle = {
+			text: subtitulo,
+			style: {
+				fontFamily: 'Verdana',
+				fontSize: '10px'
+			}
+		};
 	}
 
 	var chart = new Highcharts.Chart(options);
+	
+	if (Object.keys(prods).length == 1) {
+		var opts_dblclick = { id: id };
 
-	if (!params.hasOwnProperty('no_sales')) {
+		if (!params.hasOwnProperty('no_sales')) { opts_dblclick.no_sales = true; }
+		if (id_producto) { opts_dblclick.id_producto = id_producto; }
+
 		jQuery(chart.container).dblclick(function() {
-			dibujar_data({id: id, no_sales: true});
-		});		
-	} else {
-		jQuery(chart.container).dblclick(function() {
-			dibujar_data({id: id});
+			dibujar_data(opts_dblclick);
 		});
 	}
 }
