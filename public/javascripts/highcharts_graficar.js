@@ -13,6 +13,11 @@ function get_promos(id) {
 		querystring = prices_last_query_string_sent[id];
 	}
 
+	var opts = { id: id };
+	if (arguments[2]) {
+		opts.no_save_button = true;
+	}
+
 	jQuery.ajax({
 		url: "/sales/search",
 		data: querystring,
@@ -20,9 +25,7 @@ function get_promos(id) {
 		statusCode: {
 			200: function(data) {
 				data_promos_graficos[id] = data;
-				dibujar_data({
-					id: id
-				});
+				dibujar_data(opts);
 			},
 			400: function() {
 				alert('Error 400!');
@@ -363,6 +366,7 @@ function dibujar_data(params) {
 		var opts_dblclick = { id: id };
 
 		if (!params.hasOwnProperty('no_sales')) { opts_dblclick.no_sales = true; }
+		if (params.hasOwnProperty('no_save_button')) { opts_dblclick.no_save_button = true; }
 		if (id_producto) { opts_dblclick.id_producto = id_producto; }
 
 		jQuery(chart.container).dblclick(function() {
