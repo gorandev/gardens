@@ -251,7 +251,9 @@ function dibujar_data(params) {
 
 				this.points.each(function(p){
 					if (p.y) {
-						tooltip += '<b>' + p.series.name + ':</b> $' + p.y + '<br/>';
+						tooltip += '<b>' + p.series.name + ':</b> $';
+						tooltip += Highcharts.numberFormat(p.y, 0, ',', '.');
+						tooltip += '<br/>';
 					}
 				});
 				
@@ -397,7 +399,7 @@ function mostrar_promos(producto, fecha) {
 
 		promos_html += '<tr>';
 		promos_html += '<td align="right"><b>Precio:</b></td>';
-		promos_html += '<td>$' + pr.price + '</td>';
+		promos_html += '<td>$' + Highcharts.numberFormat(pr.price, 0, ',', '.') + '</td>';
 		promos_html += '</tr>';
 
 		promos_html += '<tr>';
