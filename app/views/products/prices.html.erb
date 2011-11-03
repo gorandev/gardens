@@ -279,6 +279,9 @@ function salvar_reporte(params) {
 }
 
 function set_max_min_date() {
+	jQuery('#boton_ver').attr('disabled', true);
+	jQuery('#boton_ver_excel').attr('disabled', true);
+
 	var objs = jQuery('#producto_pulldown').val();
 
 	if (!objs) {
@@ -304,6 +307,9 @@ function set_max_min_date() {
 				jQuery("#fecha_hasta").datepicker('option', 'minDate', new Date(fecha_min[0], fecha_min[1]-1, fecha_min[2]));
 				jQuery("#fecha_hasta").datepicker('option', 'maxDate', new Date(fecha_max[0], fecha_max[1]-1, fecha_max[2]));	
 				jQuery("#fecha_hasta").datepicker('setDate', new Date(fecha_max[0], fecha_max[1]-1, fecha_max[2]));
+
+				jQuery('#boton_ver').attr('disabled', false);
+				jQuery('#boton_ver_excel').attr('disabled', false);
 			},
 			400: function() {
 				alert('Error 400!');
