@@ -54,4 +54,14 @@ class Product < ActiveRecord::Base
       return marca + ' ' + modelo
     end
   end
+
+  def marca
+    marca = String.new
+    self.property_values.each do |pv|
+      if pv.property.name == 'marca'
+        marca = pv.value
+      end
+    end
+    return marca
+  end
 end

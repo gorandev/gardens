@@ -13,6 +13,32 @@ class ProductsController < ApplicationController
     )
   end
   
+  def pagina_producto
+    @product = Product.find_by_id(params[:id])
+    @pagina = 'Productos'
+
+    @marcas = Property.find_by_name('marca').property_values.order(:value).all
+  
+    @properties = Array.new
+    if !@product.nil?
+      Settings['computadoras']['pagina_producto'].each do |p|
+        next if (@product.property_values.find_by_property_id(Property.find_by_name(p["field"]).nil?))
+        next if (@product.property_values.find_by_property_id(Property.find_by_name(p["field"]).id).nil?)
+        value = @product.property_values.find_by_property_id(Property.find_by_name(p["field"]).id).value
+        unless p["boolean"].nil?
+          value = (
+            @product.property_values.find_by_property_id(Property.find_by_name(p["field"]).id).value ? 
+            'Si' : 'No'
+          );
+        end
+        @properties.push({
+          :name => p["name"],
+          :value => value
+        })
+      end
+    end
+  end
+
   def show
     @product = Product.find(params[:id])
   end

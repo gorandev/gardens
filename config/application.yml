@@ -1,21 +1,31 @@
 ﻿defaults: &defaults
   computadoras:
-    precios: [ 
-		{ "name": "Marca", "field": "marca" }, 
-		{ "name": "Marca del procesador", "field": "marca_procesador" }, 
-		{ "name": "Modelo del procesador", "field": "modelo_procesador" }, 
-		{ "name": "Memoria RAM", "field": "memoria" }, 
-		{ "name": "Disco Rígido", "field": "disco" }, 
-		{ "name": "Display", "field": "pantalla" }, 
-		{ "name": "OS", "field": "os" }, 
-		{ "name": "Touch", "field": "touch" } 
+    precios: [
+		{ "name": "Marca", "field": "marca" },
+		{ "name": "Marca del procesador", "field": "marca_procesador" },
+		{ "name": "Modelo del procesador", "field": "modelo_procesador" },
+		{ "name": "Memoria RAM", "field": "memoria" },
+		{ "name": "Disco Rígido", "field": "disco" },
+		{ "name": "Display", "field": "pantalla" },
+		{ "name": "OS", "field": "os" },
+		{ "name": "Touch", "field": "touch" }
+    ]
+
+    pagina_producto: [
+    	{ "name": "Procesador marca", "field": "marca_procesador" },
+    	{ "name": "Procesador modelo", "field": "modelo_procesador" },
+    	{ "name": "RAM", "field": "memoria" },
+    	{ "name": "HDD", "field": "disco" },
+    	{ "name": "Display", "field": "pantalla" },
+    	{ "name": "Sist. Operativo", "field": "os" },
+    	{ "name": "Touch", "field": "touch", "boolean": true }
     ]
 
 development:
   <<: *defaults
-	
+
 test:
   <<: *defaults
-	
+
 production:
   <<: *defaults

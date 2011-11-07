@@ -1,0 +1,164 @@
+<% content_for :titulo_pagina do %>Productos<% end %>
+<% content_for :javascript do %>
+<%= javascript_include_tag "https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js" %>
+<script type="text/javascript">jQuery.noConflict();</script>
+<%= javascript_include_tag "highcharts", "modules/exporting", "chosen.jquery.min", "highcharts_graficar" %>
+<%= javascript_include_tag "jquery-ui-1.8.14.custom.min", "jquery-ui-datepicker-es" %>
+<script type="text/javascript">
+
+function get_productos() {
+	if (jQuery('#marca_pulldown').val() == "") {
+		return false;
+	}
+
+	var data = {
+		fast: true,
+		property_values: jQuery('#marca_pulldown').val()
+	}
+
+	jQuery.ajax({
+		url: "/products/search",
+		data: data,
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				llenar_pulldown_productos(data);
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
+
+	return false;
+}
+
+function llenar_pulldown_productos(data) {
+	var select = jQuery('<select name="producto" id="producto_pulldown" class="pulldown_selector chzn-select" data-placeholder="Seleccione un producto..."><option></option></select>');
+
+	var props_ordered = data.sort(function(a, b) {
+		return ( a.value < b.value ? -1 : (a.value > b.value ? 1 : 0 ) );
+	});
+	
+	for (var i = 0; i < props_ordered.length; i++) {
+		<% unless @product.nil? %>
+		if (props_ordered[i].id == <%=@product.id%>) {
+			select.append('<option selected value="' + props_ordered[i].id + '">' + props_ordered[i].value + '</option>');
+		} else {
+		<% end %>
+			select.append('<option value="' + props_ordered[i].id + '">' + props_ordered[i].value + '</option>');
+		<% unless @product.nil? %>
+		}
+		<% end %>
+		
+	}
+
+	jQuery('#span_producto_pulldown').html(select);
+	jQuery('#producto_pulldown').chosen({no_results_text: "Sin resultados para"});
+	jQuery('#boton_mostrar').removeAttr('disabled');
+}
+
+jQuery(window).load(function() {
+	jQuery(".chzn-select").chosen({no_results_text: "Sin resultados para"});
+	get_productos();
+
+<% unless @product.nil? %>
+	jQuery("#imagen_producto").error(function() {
+		if ( /\.png$/.test(jQuery("#imagen_producto").attr('src')) ) {
+			jQuery("#imagen_producto").attr(
+				'src',
+				'http://computadoras.idashboard.com.ar/images/productos/<%=@product.imagen_id%>_med.jpg'
+			);
+		} else {
+			jQuery("#imagen_producto").attr(
+				'src',
+				'http://computadoras.idashboard.com.ar/images/productos/notfound.jpg'
+			);
+		}
+	});
+
+	jQuery("#imagen_producto").attr(
+		'src',
+		'http://computadoras.idashboard.com.ar/images/productos/<%=@product.imagen_id%>_med.png'
+	);
+<% end %>
+
+});
+</script>
+<% end %>
+
+<style type="text/css">
+
+.pulldown_selector {
+	font-size: 12px;
+	width: 400px;
+}
+
+</style>
+
+<h2>Seleccionar producto</h2>
+
+<select name="marca" id="marca_pulldown" class="pulldown_selector chzn-select" data-placeholder="Seleccione una marca..." onChange="return get_productos();">
+<option></option>
+<% @marcas.each do |m| %>
+<% if !@product.nil? && @product.marca == m.value %>
+<option selected value="<%=m.id%>"><%=m.value%></option>
+<% else %>
+<option value="<%=m.id%>"><%=m.value%></option>
+<% end %>
+<% end %>
+</select>
+<br/>
+<span id="span_producto_pulldown">
+</span>
+<br/>
+<input type="button" id="boton_mostrar" value="Mostrar detalles" disabled onClick="window.location = '/products/pagina_producto/' + jQuery('#producto_pulldown').val()"/>
+
+<% if !@product.nil? %>
+
+<br/><br/><br/>
+
+<em style="font-family:Verdana;font-size:12px;font-style:normal;font-weight:bold;color:#000000;">
+<%= @product.descripcion %>
+</em><br/><br/>
+
+<div class="detalleDescripcion">
+<center>
+<% if @product.imagen_id.nil? %>
+<img src="/images/productos/notfound.jpg">
+<% else %>
+<img class="imagen_producto" id="imagen_producto"/>
+<% end %>
+</center>
+</div>
+
+<!--Lista de especificaciones del producto -->
+<div class="detalleEspecificacion">
+	<h4>Propiedades</h4>
+<% @properties.each do |prop| %>
+	<dl>
+		<dt><%=prop[:name]%></dt>
+		<dd><%=prop[:value]%></dd>
+	</dl>
+<% end %>
+	<br/>
+	<br/>
+	<dl>
+		<dt>M&aacute;ximo</dt>
+		<dd id="max_precio"></dd>
+	</dl>
+	<dl>
+		<dt>M&iacute;nimo</dt>
+		<dd id="min_precio"></dd>
+	</dl>
+	<dl>
+		<dt>Diferencia</dt>
+		<dd id="dif_precio"></dd>
+	</dl>
+	<dl>
+		<dt>Promedio</dt>
+		<dd id="avg_precio"></dd>
+	</dl>
+</div>
+
+<% end %>
