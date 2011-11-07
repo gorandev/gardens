@@ -27,7 +27,7 @@ class ProductsController < ApplicationController
         value = @product.property_values.find_by_property_id(Property.find_by_name(p["field"]).id).value
         unless p["boolean"].nil?
           value = (
-            @product.property_values.find_by_property_id(Property.find_by_name(p["field"]).id).value ? 
+            @product.property_values.find_by_property_id(Property.find_by_name(p["field"]).id).value.to_i > 0 ? 
             'Si' : 'No'
           );
         end
