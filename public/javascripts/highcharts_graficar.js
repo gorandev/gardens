@@ -47,6 +47,9 @@ function dibujar_data(params) {
 	var lineas_por_fecha = {};
 	var retailers = {};
 
+	var max_value = 0;
+	var min_value = 9999999;
+
 	var id_producto;
 	if (params.hasOwnProperty('id_producto')) {
 		id_producto = params['id_producto'];
@@ -164,12 +167,28 @@ function dibujar_data(params) {
 						marker: {
 							symbol: 'diamond'
 						}
-					});					
+					});
+					
+					if (promos[promos_por_producto[Object.keys(prods)[0]][j][i]].price > max_value) {
+						max_value = promos[promos_por_producto[Object.keys(prods)[0]][j][i]].price;
+					}
+
+					if (promos[promos_por_producto[Object.keys(prods)[0]][j][i]].price < min_value) {
+						min_value = promos[promos_por_producto[Object.keys(prods)[0]][j][i]].price;
+					}
 				} else {
 					lineas_promediadas[i].push({
 						x: parseInt(j),
 						y: valor_y
 					});
+
+					if (valor_y > max_value) {
+						max_value = valor_y;
+					}
+
+					if (valor_y < min_value) {
+						min_value = valor_y;
+					}
 				}
 			});
 		});
@@ -372,6 +391,13 @@ function dibujar_data(params) {
 		jQuery(chart.container).dblclick(function() {
 			dibujar_data(opts_dblclick);
 		});
+	}
+
+	if (typeof mostrar_minimos_y_maximos === 'object') {
+		jQuery('#min_precio').html(min_value);
+		jQuery('#max_precio').html(max_value);
+		jQuery('#dif_precio').html(max_value-min_value);
+		jQuery('#avg_precio').html(Math.round((max_value+min_value)/2));
 	}
 }
 
