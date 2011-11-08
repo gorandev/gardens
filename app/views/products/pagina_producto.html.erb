@@ -168,11 +168,11 @@ available_countries[<%=c%>] = true;
 			sale_date: '<%=s.sale_date%>',
 			price: <%=s.price%>,
 			origin: '<%=s.origin%>',
-			units_available: <%=s.units_available%>,
+			units_available: <%=s.units_available.nil? ? 0 : s.units_available%>,
 			valid_since: '<%=s.valid_since%>',
 			valid_until: '<%=s.valid_until%>',
 			bundle: <%=s.bundle%>,
-			page: <%=s.page%>,
+			page: <%=s.page.nil? ? 0 : s.page%>,
 			imagen_id: <%=s.imagen_id%>,
 			media_channel: '<%=s.media_channel.name%>',
 			retailer: '<%=s.retailer.name%>',
@@ -351,6 +351,7 @@ jQuery(window).load(function() {
 	<% end %>
 </div>
 
+<% if @sales.length > 0 %>
 <!-- PROMOS -->
 <div class="ultimasPublicaciones">
 
@@ -362,10 +363,8 @@ jQuery(window).load(function() {
 			</div>
 		</div>
 	<div class="cuerpoPublicaciones" id="cuerpoPublicaciones">
-	
-	<!-- aquí metemos las promos -->
 	<% @sales.each do |s| %>
-	<% if @country_id == 1 %>
+	<% if @country_id.to_i == 1 %>
 	<img class="imagen_promo" src="http://computadoras.idashboard.com.ar/uploaded_images/promocion-<%=s.imagen_id%>_thumb.png" onClick="mostrar_promos({promo: <%=s.id%>});">
 	<% else %>
 	<img class="imagen_promo" src="http://chile.computadoras.idashboard.com.ar/uploaded_images/promocion-<%=s.imagen_id%>_thumb.png" onClick="mostrar_promos({promo: <%=s.id%>});">
@@ -385,5 +384,6 @@ jQuery(window).load(function() {
 	
 </div>
 <!-- FIN PROMOS -->
+<% end %>
 
 <% end %>
