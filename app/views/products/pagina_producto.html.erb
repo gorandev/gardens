@@ -153,9 +153,15 @@ function salvar_reporte(params) {
 		}
 	});	
 }
-<% end %>
 
 var mostrar_minimos_y_maximos = new String;
+
+var available_countries = {};
+<% @available_countries.each do |c| %>
+available_countries[<%=c%>] = true;
+<% end %>
+
+<% end %>
 
 jQuery(window).load(function() {
 	jQuery(".chzn-select").chosen({no_results_text: "Sin resultados para"});
@@ -200,6 +206,21 @@ jQuery(window).load(function() {
 		graficar(0);
 
 	<% end %>
+
+	jQuery('#country_pulldown').chosen().change(function() {
+		if (available_countries.hasOwnProperty(jQuery('#country_pulldown').val()[0])) {
+			jQuery('#country_form').submit();
+		} else {
+			alert('Este producto no existe para ese país.');
+			jQuery('#country_pulldown').val(<%=@country_id%>);
+			jQuery("#country_pulldown").trigger("liszt:updated");
+			return false;
+		}
+	});
+<% else %>
+	jQuery('#country_pulldown').chosen().change(function() {
+		jQuery('#country_form').submit();
+	});
 <% end %>
 
 });

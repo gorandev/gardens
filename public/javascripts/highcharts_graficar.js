@@ -394,10 +394,10 @@ function dibujar_data(params) {
 	}
 
 	if (typeof mostrar_minimos_y_maximos === 'object') {
-		jQuery('#min_precio').html(min_value);
-		jQuery('#max_precio').html(max_value);
-		jQuery('#dif_precio').html(max_value-min_value);
-		jQuery('#avg_precio').html(Math.round((max_value+min_value)/2));
+		jQuery('#min_precio').html(Highcharts.numberFormat(min_value, 0, ',', '.'));
+		jQuery('#max_precio').html(Highcharts.numberFormat(max_value, 0, ',', '.'));
+		jQuery('#dif_precio').html(Highcharts.numberFormat((max_value-min_value), 0, ',', '.'));
+		jQuery('#avg_precio').html(Highcharts.numberFormat((Math.round((max_value+min_value)/2)), 0, ',', '.'));
 	}
 }
 

@@ -343,6 +343,10 @@ jQuery(window).load(function() {
 			backButtonTitle: 'Volver atrás'
 		}
 	});
+
+	jQuery('#country_pulldown').change(function() {
+		jQuery('#country_form').submit();
+	});
 });
 
 </script>

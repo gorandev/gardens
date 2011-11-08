@@ -49,6 +49,11 @@ class ProductsController < ApplicationController
         })
       end
 
+      @available_countries = Array.new
+      @product.active_in_countries.each do |c|
+        @available_countries.push(c.id)
+      end
+
       @dates = _get_dates(@product.id)
     end
   end
