@@ -13,7 +13,8 @@ function get_productos() {
 
 	var data = {
 		fast: true,
-		property_values: jQuery('#marca_pulldown').val()
+		property_values: jQuery('#marca_pulldown').val(),
+		country: <%=@country_id%>
 	}
 
 	jQuery.ajax({
@@ -58,6 +59,102 @@ function llenar_pulldown_productos(data) {
 	jQuery('#boton_mostrar').removeAttr('disabled');
 }
 
+<% unless @product.nil? %>
+var prices_last_query_string_sent = {};
+
+function crear_query_string(params) {
+	var query_string = 'product=<%=@product.id%>';
+	query_string +='&currency=<%=@currency_id%>';
+
+	if (jQuery('#fecha_desde').val()) {
+		query_string += '&date_from=' + jQuery('#fecha_desde').val();
+	}
+
+	if (!params.hasOwnProperty('for_saving')) {
+		if (jQuery('#fecha_hasta').val()) {
+			query_string += '&date_to=' + jQuery('#fecha_hasta').val();
+		}	
+	}
+	
+	query_string += '&no_limit=1';
+	return query_string;
+}
+
+function graficar(id) {
+	var query_string = crear_query_string({});
+
+	if (
+		prices_last_query_string_sent.hasOwnProperty(id) && 
+		query_string == prices_last_query_string_sent[id]
+	) {
+		return dibujar_data(id);
+	} else {
+		prices_last_query_string_sent[id] = query_string;
+	}
+
+	var chart = new Highcharts.Chart({
+		chart: {
+			renderTo: 'chart_' + id 
+		},
+		title: { 
+			text: null 
+		},
+		credits: {
+			enabled: false
+		},
+		exporting: {
+			enabled: false
+		}
+	});
+
+	chart.showLoading();
+
+	jQuery.ajax({
+		url: "/prices/search",
+		data: query_string,
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				data_graficos[id] = data;
+				get_promos(id);
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
+}
+
+function salvar_reporte(params) {
+	var qs;
+
+	if (params.hasOwnProperty('id_producto')) {
+		qs = crear_query_string({ id_producto: params['id_producto'], for_saving: true });
+	} else {
+		qs = crear_query_string({ for_saving: true });
+	}
+
+	var data = {
+		querystring: qs
+	};
+
+	jQuery.ajax({
+		url: '/saved_reports',
+		type: 'POST',
+		data: data,
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				alert('Reporte salvado.');
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});	
+}
+<% end %>
+
 jQuery(window).load(function() {
 	jQuery(".chzn-select").chosen({no_results_text: "Sin resultados para"});
 	get_productos();
@@ -81,6 +178,26 @@ jQuery(window).load(function() {
 		'src',
 		'http://computadoras.idashboard.com.ar/images/productos/<%=@product.imagen_id%>_med.png'
 	);
+
+	jQuery("#fecha_desde").datepicker();
+	jQuery("#fecha_hasta").datepicker();
+
+	<% unless @dates[0].nil? || @dates[1].nil? %>
+
+		var fecha_min = '<%=@dates[0].strftime('%Y-%m-%d')%>'.split('-');
+		var fecha_max = '<%=@dates[1].strftime('%Y-%m-%d')%>'.split('-');
+
+		jQuery("#fecha_desde").datepicker('option', 'minDate', new Date(fecha_min[0], fecha_min[1]-1, fecha_min[2]));
+		jQuery("#fecha_desde").datepicker('option', 'maxDate', new Date(fecha_max[0], fecha_max[1]-1, fecha_max[2]));
+		jQuery("#fecha_desde").datepicker('setDate', new Date(fecha_min[0], fecha_min[1]-1, fecha_min[2]));
+
+		jQuery("#fecha_hasta").datepicker('option', 'minDate', new Date(fecha_min[0], fecha_min[1]-1, fecha_min[2]));
+		jQuery("#fecha_hasta").datepicker('option', 'maxDate', new Date(fecha_max[0], fecha_max[1]-1, fecha_max[2]));
+		jQuery("#fecha_hasta").datepicker('setDate', new Date(fecha_max[0], fecha_max[1]-1, fecha_max[2]));
+
+		graficar(0);
+
+	<% end %>
 <% end %>
 
 });
@@ -114,7 +231,7 @@ jQuery(window).load(function() {
 <br/>
 <input type="button" id="boton_mostrar" value="Mostrar detalles" disabled onClick="window.location = '/products/pagina_producto/' + jQuery('#producto_pulldown').val()"/>
 
-<% if !@product.nil? %>
+<% unless @product.nil? %>
 
 <br/><br/><br/>
 
@@ -159,6 +276,36 @@ jQuery(window).load(function() {
 		<dt>Promedio</dt>
 		<dd id="avg_precio"></dd>
 	</dl>
+</div>
+
+<!--Graficos del producto-->
+<div class="graficosProducto">
+	<!--Historial de precio-->
+	<% unless @dates[0].nil? || @dates[1].nil? %>
+	<div class="historialPrecio">
+		<div id='chart_0' style="height: 500px; width: 600px;"></div>
+		<br/>
+		
+		<div style="position: relative; left: 200px;">
+		<div class="date_div" style="display: inline; float: left;">
+		Desde:
+		<input class="date_input" type="text" readonly name="fecha_desde" id="fecha_desde" size="8" value="<%=@dates[0].strftime('%d/%m/%Y')%>"/> 
+		</div>
+		
+		<div class="date_div">
+		Hasta:
+		<input class="date_input" type="text" readonly name="fecha_hasta" id="fecha_hasta" size="8" value="<%=@dates[1].strftime('%d/%m/%Y')%>"/> 
+		</div>
+		
+		<input type="button" onClick="graficar(0);" value="Ver" style="position: relative; left: 80px;"/>
+		</div>
+	</div>
+	<% else %>
+	<br/><br/>
+	<center>
+	<h3>No hay datos de precios para este producto.</h3>
+	</center>
+	<% end %>
 </div>
 
 <% end %>

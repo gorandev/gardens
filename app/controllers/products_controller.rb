@@ -14,10 +14,22 @@ class ProductsController < ApplicationController
   end
   
   def pagina_producto
+    # TODO: este bloque habría que hacerlo siempre (en todas las acciones que muestran una página) #
+    @countries = Country.all
+    if params.has_key?(:country_id) && Country.find_by_id(params[:country_id])
+      session[:country_id] = params[:country_id]
+    else
+      unless session.has_key?(:country_id) && Country.find_by_id(session[:country_id])
+        session[:country_id] = 2 # TODO: esto debería inicializarse al login
+      end
+    end
+    @country_id = session[:country_id]
+    @currency_id = Country.find(@country_id).currency.id
+    
     @product = Product.find_by_id(params[:id])
     @pagina = 'Productos'
 
-    @marcas = Property.find_by_name('marca').property_values.order(:value).all
+    @marcas = PropertyValue.find_all_by_id(REDIS.smembers"marcas_por_country:#{@country_id}").sort! { |a, b| a.value <=> b.value }
   
     @properties = Array.new
     if !@product.nil?
@@ -36,6 +48,8 @@ class ProductsController < ApplicationController
           :value => value
         })
       end
+
+      @dates = _get_dates(@product.id)
     end
   end
 
@@ -325,35 +339,28 @@ class ProductsController < ApplicationController
   end
 
   def get_dates
-    unless params[:product].is_a?Array
-      params[:product] = params[:product].split(',')
-    end
-
-    date_last = Price.joins(:item => :product).where(:products => { :id => params[:product] }).order("prices.created_at DESC").limit(1).first
-    date_first = Price.joins(:item => :product).where(:products => { :id => params[:product] }).order("prices.created_at ASC").limit(1).first
-
-    unless date_first.nil?
-      date_first = date_first.price_date
-    end
-    unless date_last.nil?
-      date_last = date_last.price_date
-    end
+    dates = _get_dates(params[:product])
 
     render :json => {
-      :date_from => date_first,
-      :date_to => date_last
+      :date_from => dates[0],
+      :date_to => dates[1]
     }
   end
 
   def inicializar_memstore
     REDIS.flushall
 
+    marcas_por_country = Hash.new
     Product.all.each do |p|
       REDIS.set "obj.product:#{p.id}", Marshal.dump(p)
       REDIS.sadd "descripcion.product:#{p.id}", "#{p.id}|#{p.descripcion}"
       REDIS.sadd "product_type:#{p.product_type.id}", p.id
       p.active_in_countries.each do |c|
         REDIS.sadd "country:#{c.id}", p.id
+        unless marcas_por_country.has_key?(c.id)
+          marcas_por_country[c.id] = Hash.new
+        end
+        marcas_por_country[c.id][p.property_values.joins(:property).where(:properties => { :name => 'marca' }).first.id] = 1;
       end
       p.active_in_retailers.each do |r|
         REDIS.sadd "retailer:#{r.id}", p.id
@@ -365,6 +372,12 @@ class ProductsController < ApplicationController
       end
     end
 
+    marcas_por_country.keys.each do |c|
+      marcas_por_country[c].keys.each do |m|
+        REDIS.sadd "marcas_por_country:#{c}", m
+      end
+    end
+
     Retailer.all.each do |r|
       REDIS.set "descripcion.retailer:#{r.id}", r.name
       REDIS.sadd "retailers_country:#{r.country.id}", r.id
@@ -372,6 +385,24 @@ class ProductsController < ApplicationController
   end
 
   private
+
+  def _get_dates(product_ids)
+    unless product_ids.is_a?Array
+      product_ids = product_ids.to_s.split(',')
+    end
+
+    date_last = Price.joins(:item => :product).where(:products => { :id => product_ids }).order("prices.created_at DESC").limit(1).first
+    date_first = Price.joins(:item => :product).where(:products => { :id => product_ids }).order("prices.created_at ASC").limit(1).first
+
+    unless date_first.nil?
+      date_first = date_first.price_date
+    end
+    unless date_last.nil?
+      date_last = date_last.price_date
+    end
+
+    return [ date_first, date_last ]
+  end
 
   def _search_fast(ids)
     @products = Array.new
