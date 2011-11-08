@@ -161,6 +161,26 @@ var available_countries = {};
 available_countries[<%=c%>] = true;
 <% end %>
 
+<% @sales.each do |s| %>
+	if (!promos.hasOwnProperty(<%=s.id%>)) {
+		promos[<%=s.id%>] = {
+			id: <%=s.id%>,
+			sale_date: '<%=s.sale_date%>',
+			price: <%=s.price%>,
+			origin: '<%=s.origin%>',
+			units_available: <%=s.units_available%>,
+			valid_since: '<%=s.valid_since%>',
+			valid_until: '<%=s.valid_until%>',
+			bundle: <%=s.bundle%>,
+			page: <%=s.page%>,
+			imagen_id: <%=s.imagen_id%>,
+			media_channel: '<%=s.media_channel.name%>',
+			retailer: '<%=s.retailer.name%>',
+			currency_id: <%=s.currency.id%>
+		};
+	}
+<% end %>
+
 <% end %>
 
 jQuery(window).load(function() {
@@ -330,5 +350,40 @@ jQuery(window).load(function() {
 	</center>
 	<% end %>
 </div>
+
+<!-- PROMOS -->
+<div class="ultimasPublicaciones">
+
+	<h4>&Uacute;ltimas publicaciones</h4>
+		<div class="techo">
+			<div class="esteticaSup">
+				<div class="esteticaSupIzq"></div>
+				<div class="esteticaSupDer"></div>
+			</div>
+		</div>
+	<div class="cuerpoPublicaciones" id="cuerpoPublicaciones">
+	
+	<!-- aquí metemos las promos -->
+	<% @sales.each do |s| %>
+	<% if @country_id == 1 %>
+	<img class="imagen_promo" src="http://computadoras.idashboard.com.ar/uploaded_images/promocion-<%=s.imagen_id%>_thumb.png" onClick="mostrar_promos({promo: <%=s.id%>});">
+	<% else %>
+	<img class="imagen_promo" src="http://chile.computadoras.idashboard.com.ar/uploaded_images/promocion-<%=s.imagen_id%>_thumb.png" onClick="mostrar_promos({promo: <%=s.id%>});">
+	<% end %>
+	<% end %>
+	<br/><br/><br/><br/><br/><br/><br/>
+	<a href="/dashboard/publicaciones?id_producto=<%=@product.id%>">ver m&aacute;s...</a>
+	
+	</div>
+	
+	<div class="pie">
+		<div class="esteticaInf">
+			<div class="esteticaInfIzq"></div>
+			<div class="esteticaInfDer"></div>
+		</div>
+	</div>
+	
+</div>
+<!-- FIN PROMOS -->
 
 <% end %>

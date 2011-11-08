@@ -55,6 +55,7 @@ class ProductsController < ApplicationController
       end
 
       @dates = _get_dates(@product.id)
+      @sales = @product.sales.where(:currency_id => @currency_id).order('sale_date DESC').limit(5)
     end
   end
 

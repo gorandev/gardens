@@ -8,4 +8,7 @@ glue :retailer do
 end
 glue :product do
 	attributes :id => :id_product
-end	
+end
+glue :currency do
+	attributes :id => :currency_id
+end

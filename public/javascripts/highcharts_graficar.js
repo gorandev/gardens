@@ -294,7 +294,10 @@ function dibujar_data(params) {
 					events: {
 						click: function() {
 							if (this.producto && this.fecha) {
-								mostrar_promos(this.producto, this.fecha);
+								mostrar_promos({
+									producto: this.producto,
+									fecha: this.fecha
+								});
 							}
 
 							if (this.id_producto) {
@@ -401,12 +404,27 @@ function dibujar_data(params) {
 	}
 }
 
-function mostrar_promos(producto, fecha) {
+function mostrar_promos(params) {
+	var producto = params['producto'];
+	var fecha = params['fecha'];
+	var promo = params['promo'];
+
+	if (!producto && !fecha && !promo) {
+		return false;
+	}
+
+	var prods;
+	if (producto && fecha) {
+		prods = promos_por_producto[producto][fecha];
+	} else {
+		prods = { promo: promo };
+	}
+
 	var promos_html = new String;
 
 	promos_html += '<table align="center" style="font-size: 14px;" width="100%">';
 
-	jQuery.each(promos_por_producto[producto][fecha], function(i,v) {
+	jQuery.each(prods, function(i,v) {
 		var pr = promos[v];
 
 		promos_html += '<tr>';
@@ -460,8 +478,15 @@ function mostrar_promos(producto, fecha) {
 		promos_html += '</td>';
 
 		promos_html += '<td align="center">';
-		promos_html += '<a href="http://abmarket.computadoras.idashboard.com.ar/uploaded_images/promocion-' + pr.imagen_id + '.png" target="verPromo">';
-		promos_html += '<img height="500" width="500" class="img_promo" src="http://abmarket.computadoras.idashboard.com.ar/uploaded_images/promocion-' + pr.imagen_id + '_med.png" border="0"/>';
+
+		if (pr.currency_id == 1) {
+			promos_html += '<a href="http://computadoras.idashboard.com.ar/uploaded_images/promocion-' + pr.imagen_id + '.png" target="verPromo">';
+			promos_html += '<img height="500" width="500" class="img_promo" src="http://computadoras.idashboard.com.ar/uploaded_images/promocion-' + pr.imagen_id + '_med.png" border="0"/>';
+		} else {
+			promos_html += '<a href="http://chile.computadoras.idashboard.com.ar/uploaded_images/promocion-' + pr.imagen_id + '.png" target="verPromo">';
+			promos_html += '<img height="500" width="500" class="img_promo" src="http://chile.computadoras.idashboard.com.ar/uploaded_images/promocion-' + pr.imagen_id + '_med.png" border="0"/>';
+		}
+				
 		promos_html += '</a>';
 		promos_html += '</td>';
 
