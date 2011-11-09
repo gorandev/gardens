@@ -1,4 +1,27 @@
 
+Highcharts.setOptions({
+	lang: {
+		loading: 'Cargando...',
+		months: [
+			'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre',
+			'octubre', 'noviembre', 'diciembre'
+		],
+		shortMonths: [
+			'ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'
+		],
+		weekdays: [ 'domingo', 'lunes', 'martes', 'mi' + String.fromCharCode(233) + 'rcoles', 'jueves', 'viernes', 's' + String.fromCharCode(225) + 'bado' ],
+		thousandsSep: ',',
+		resetZoom: 'volver atr' + String.fromCharCode(225) + 's',
+		downloadPNG: 'Descargar imagen PNG',
+		downloadJPEG: 'Descargar imagen JPEG',
+		downloadPDF: 'Descargar documento PDF',
+		downloadSVG: 'Descargar archivo SVG',
+		exportButtonTitle: 'Exportar a varios formatos',
+		printButtonTitle: 'Imprimir',
+		backButtonTitle: 'Volver atrás'
+	}
+});
+
 var data_graficos = {};
 var data_promos_graficos = {};
 

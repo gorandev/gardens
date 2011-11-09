@@ -40,26 +40,6 @@ function graficar(id, query_string) {
 }
 
 jQuery(window).load(function() {
-	Highcharts.setOptions({
-		lang: {
-			loading: 'Cargando...',
-			months: [
-				'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre',
-				'octubre', 'noviembre', 'diciembre'
-			],
-			weekdays: [ 'domingo', 'lunes', 'martes', 'mi' + String.fromCharCode(233) + 'rcoles', 'jueves', 'viernes', 's' + String.fromCharCode(225) + 'bado' ],
-			thousandsSep: ',',
-			resetZoom: 'volver atr' + String.fromCharCode(225) + 's',
-			downloadPNG: 'Descargar imagen PNG',
-			downloadJPEG: 'Descargar imagen JPEG',
-			downloadPDF: 'Descargar documento PDF',
-			downloadSVG: 'Descargar archivo SVG',
-			exportButtonTitle: 'Exportar a varios formatos',
-			printButtonTitle: 'Imprimir',
-			backButtonTitle: 'Volver atrás'
-		}
-	});
-
 	<% @saved_reports.each_with_index do |sr, i| %>
 		graficar(<%=i%>, '<%=sr.querystring%>');
 	<% end %>

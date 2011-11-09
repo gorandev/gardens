@@ -323,27 +323,6 @@ jQuery(window).load(function() {
 	dibujar_pulldown_productos('start_up');
 	jQuery("#fecha_desde").datepicker();
 	jQuery("#fecha_hasta").datepicker();
-
-	Highcharts.setOptions({
-		lang: {
-			loading: 'Cargando...',
-			months: [
-				'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre',
-				'octubre', 'noviembre', 'diciembre'
-			],
-			weekdays: [ 'domingo', 'lunes', 'martes', 'mi' + String.fromCharCode(233) + 'rcoles', 'jueves', 'viernes', 's' + String.fromCharCode(225) + 'bado' ],
-			thousandsSep: ',',
-			resetZoom: 'volver atr' + String.fromCharCode(225) + 's',
-			downloadPNG: 'Descargar imagen PNG',
-			downloadJPEG: 'Descargar imagen JPEG',
-			downloadPDF: 'Descargar documento PDF',
-			downloadSVG: 'Descargar archivo SVG',
-			exportButtonTitle: 'Exportar a varios formatos',
-			printButtonTitle: 'Imprimir',
-			backButtonTitle: 'Volver atrás'
-		}
-	});
-
 	jQuery('#country_pulldown').change(function() {
 		jQuery('#country_form').submit();
 	});
