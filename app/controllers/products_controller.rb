@@ -49,6 +49,13 @@ class ProductsController < ApplicationController
         })
       end
 
+      pv_similares_ids = Array.new
+      @product.property_values.joins(:property).where(
+        :properties => { :name => Settings['computadoras']['productos_similares'] }).each do |pv|
+          pv_similares_ids.push("property_value:#{pv.id}")
+      end
+      @productos_similares = Product.find_all_by_id(REDIS.sinter(*pv_similares_ids)).sort! { |a, b| a.descripcion <=> b.descripcion }
+
       @available_countries = Array.new
       @product.active_in_countries.each do |c|
         @available_countries.push(c.id)

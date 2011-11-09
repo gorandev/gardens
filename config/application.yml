@@ -21,6 +21,12 @@
     	{ "name": "Touch", "field": "touch", "boolean": true }
     ]
 
+    productos_similares: [
+      "categoria",
+      "marca_procesador",
+      "modelo_procesador"
+    ]
+
 development:
   <<: *defaults
 

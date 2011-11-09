@@ -1,4 +1,4 @@
-/* HTM TAGS ___________________________________________________________________*/
+ HTM TAGS ___________________________________________________________________*/
 
 html{
 	font-size:100%;
@@ -1039,3 +1039,57 @@ li li .esteticaMenu a{
 }
 
 <![endif]-->
+
+.imagen_producto {
+	max-width: 200px;
+	max-height: 200px;
+	padding: 0px;
+	align: center;
+}
+
+.imagen_producto_relacionado {
+	max-width: 100px;
+	max-height: 100px;
+}
+
+.imagen_promo {
+	max-width: 100px;
+	max-height: 100px;
+	cursor: pointer;
+}
+
+.select_producto_a {
+	background-color: #E5E5E5;
+}
+.select_producto_b {
+	background-color: #FFFFFF;
+}
+
+table.listadoProductos {
+	font-family:Verdana;
+	font-size:10px;
+	color:#666;
+	width: 85%;
+	font-weight:bold;
+	background-color:#CCC;
+	border-top:1px solid #CCC;
+	border-right:1px solid #CCC;
+	border-left:1px solid #CCC;
+}
+
+tr.tr_producto_relacionado {
+	background-color:#FFF;
+}
+
+td.td_producto_relacionado {
+	border-top:1px solid #CCC;
+	border-right:1px solid #CCC;
+	border-left:1px solid #CCC;
+}
+
+th.th_producto.relacionado {
+	background-color:#FFF;
+	border-top:1px solid #CCC;
+	border-right:1px solid #CCC;
+	border-left:1px solid #CCC;
+}

@@ -32,7 +32,7 @@ Gardens::Application.routes.draw do
 
   match 'products/get_dates' => 'products#get_dates', :defaults => { :format => :json }
   match 'products/search' => 'products#search', :defaults => { :format => :json }
-  match 'products/pagina_producto(/:id)' => 'products#pagina_producto'
+  match 'products/pagina_producto(/:id)' => 'products#pagina_producto', :as => 'pagina_producto'
   resources :products, :defaults => { :format => :json }
 
   match 'properties/product_type/:id' => 'properties#get_by_product_type', 

@@ -1,6 +1,6 @@
 <% content_for :titulo_pagina do %>Productos<% end %>
 <% content_for :javascript do %>
-<%= javascript_include_tag "https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js" %>
+<%= javascript_include_tag "http://code.jquery.com/jquery-1.7.min.js" %>
 <script type="text/javascript">jQuery.noConflict();</script>
 <%= javascript_include_tag "highcharts", "modules/exporting", "chosen.jquery.min", "highcharts_graficar" %>
 <%= javascript_include_tag "jquery-ui-1.8.14.custom.min", "jquery-ui-datepicker-es" %>
@@ -367,7 +367,7 @@ jQuery(window).load(function() {
 	<% @sales.each do |s| %>
 	<% if @country_id.to_i == 1 %>
 	<img class="imagen_promo" src="http://computadoras.idashboard.com.ar/uploaded_images/promocion-<%=s.imagen_id%>_thumb.png" onClick="mostrar_promos({promo: <%=s.id%>});">
-	<% else %>
+	<% elsif @country_id.to_i == 2 %>
 	<img class="imagen_promo" src="http://chile.computadoras.idashboard.com.ar/uploaded_images/promocion-<%=s.imagen_id%>_thumb.png" onClick="mostrar_promos({promo: <%=s.id%>});">
 	<% end %>
 	<% end %>
@@ -385,6 +385,50 @@ jQuery(window).load(function() {
 	
 </div>
 <!-- FIN PROMOS -->
+<% end %>
+
+<% unless @productos_similares.length == 1 %>
+<!--PRODUCTOS SIMILARES-->
+<div class="ultimasPublicaciones">
+
+	<h4>Productos similares</h4>
+							
+	<div class="techo">
+		<div class="esteticaSup">
+			<div class="esteticaSupIzq"></div>
+			<div class="esteticaSupDer"></div>
+		</div>
+	</div>
+
+	<div class="cuerpoPublicaciones" id="cuerpo_productos_similares">
+		
+<table align="center" border="0" cellspacing="0" cellpadding="0" class="listadoProductos" id="productos_similares">
+<tr class="tr_producto_relacionado" align="center"><th class="th_producto_relacionado">FOTO</th><th>PRODUCTO</th><th>PRECIO</th></tr>
+
+<% @productos_similares.each do |ps| %>
+<% next if ps.id == @product.id %>
+<tr id="producto_<%= ps.id %>" class="tr_producto_relacionado" align="center">
+	<td class="td_producto_relacionado" width="100" style="padding: 0px;">
+		<%= link_to image_tag("http://computadoras.idashboard.com.ar/images/productos/#{ps.imagen_id}_thumb.png", :class => "imagen_producto_relacionado"), pagina_producto_path(ps) %>
+	</td>
+	<td class="td_producto_relacionado"><%= link_to ps.descripcion, pagina_producto_path(ps) %></td>
+	<td class="td_producto_relacionado">$<%= !Price.includes(:currency, :item => [ :retailer, :product ]).joins(:item).where(:currency_id => @currency_id, :items => { :product_id => ps.id }).order("price_date DESC").empty? ? Price.includes(:currency, :item => [ :retailer, :product ]).joins(:item).where(:currency_id => @currency_id, :items => { :product_id => ps.id }).order("price_date DESC").first.price : '--' %></td>
+</tr>
+<% end %>
+
+</table>
+		
+	</div>
+
+	<div class="pie">
+		<div class="esteticaInf">
+			<div class="esteticaInfIzq"></div>
+			<div class="esteticaInfDer"></div>
+		</div>
+	</div>	
+							
+</div>
+<!-- FIN PRODUCTOS SIMILARES -->
 <% end %>
 
 <% end %>
