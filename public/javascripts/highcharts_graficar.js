@@ -260,6 +260,11 @@ function dibujar_data(params) {
 		yAxis: {
 			title: {
 				text: 'Precio'
+			},
+			labels: {
+				formatter: function() {
+					return Highcharts.numberFormat(this.value, 0, ',', '.');
+				}
 			}
 		},
 		credits: {
