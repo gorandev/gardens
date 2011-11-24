@@ -65,7 +65,7 @@ class ApplicationController < ActionController::Base
       session[:country_id] = params[:country_id]
     else
       unless session.has_key?(:country_id) && Country.find_by_id(session[:country_id])
-        session[:country_id] = 2 # TODO: este default debería salir del usuario
+        session[:country_id] = 1
       end
     end
     @country_id = session[:country_id]

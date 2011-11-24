@@ -41,6 +41,7 @@ function graficar(id, query_string) {
 
 jQuery(window).load(function() {
 	<% @saved_reports.each_with_index do |sr, i| %>
+	<% next unless sr.querystring.include?('currency=' + @currency_id.to_s) %>
 		graficar(<%=i%>, '<%=sr.querystring%>');
 	<% end %>
 });
@@ -49,6 +50,7 @@ jQuery(window).load(function() {
 <h1>Reportes</h1>
 <div style="width: 800px;">
 <% @saved_reports.each_with_index do |sr, i| %>
+<% next unless sr.querystring.include?('currency=' + @currency_id.to_s) %>
 	<div id="id_<%=i%>" style="width: 400px; height: 450px; float: left;">
 		<div id="chart_<%=i%>"></div>
 	</div>
