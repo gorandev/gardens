@@ -1,6 +1,6 @@
 require 'ostruct'
 class ProductsController < ApplicationController
-  before_filter :authenticate_user!
+  before_filter :authenticate_user!, :set_globales
   respond_to :json
 
   def index
@@ -14,18 +14,6 @@ class ProductsController < ApplicationController
   end
   
   def pagina_producto
-    # TODO: este bloque habría que hacerlo siempre (en todas las acciones que muestran una página) #
-    @countries = Country.all
-    if params.has_key?(:country_id) && Country.find_by_id(params[:country_id])
-      session[:country_id] = params[:country_id]
-    else
-      unless session.has_key?(:country_id) && Country.find_by_id(session[:country_id])
-        session[:country_id] = 2 # TODO: esto debería inicializarse al login
-      end
-    end
-    @country_id = session[:country_id]
-    @currency_id = Country.find(@country_id).currency.id
-    
     @product = Product.find_by_id(params[:id])
     @pagina = 'Productos'
 
@@ -327,18 +315,6 @@ class ProductsController < ApplicationController
   end
   
   def prices 
-    # TODO: este bloque habría que hacerlo siempre (en todas las acciones que muestran una página) #
-    @countries = Country.all
-    if params.has_key?(:country_id) && Country.find_by_id(params[:country_id])
-      session[:country_id] = params[:country_id]
-    else
-      unless session.has_key?(:country_id) && Country.find_by_id(session[:country_id])
-        session[:country_id] = 2 # TODO: esto debería inicializarse al login
-      end
-    end
-    @country_id = session[:country_id]
-    @currency_id = Country.find(@country_id).currency.id
-
     @pagina = 'Precios'
 
     @properties = Array.new
@@ -427,5 +403,20 @@ class ProductsController < ApplicationController
       }))
     end
     render "search_fast"
+  end
+
+  protected
+
+  def set_globales
+    @countries = Country.all
+    if params.has_key?(:country_id) && Country.find_by_id(params[:country_id])
+      session[:country_id] = params[:country_id]
+    else
+      unless session.has_key?(:country_id) && Country.find_by_id(session[:country_id])
+        session[:country_id] = 2 # TODO: esto debería inicializarse al login
+      end
+    end
+    @country_id = session[:country_id]
+    @currency_id = Country.find(@country_id).currency.id
   end
 end

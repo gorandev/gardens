@@ -316,7 +316,7 @@ function dibujar_data(params) {
 			series: {
 				marker: {
 					enabled: true,
-					symbol: 'url(blank.png)'
+					symbol: 'url(/images/blank.png)'
 				},
 				point: {
 					events: {
