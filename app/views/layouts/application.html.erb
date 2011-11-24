@@ -60,8 +60,8 @@
         		image_chile = "chile_gris.png"
     		end
     		%>
-    		<li><%= link_to image_tag(image_argentina, :title => "Argentina"), url_for(:country_id => 1) %></li>
-            <li><%= link_to image_tag(image_chile, :title => "Chile"), url_for(:country_id => 2) %></li>
+    		<li><%= link_to image_tag(image_argentina, :title => "Argentina"), url_for(:country_id => 1), :id => 'link_argentina' %></li>
+            <li><%= link_to image_tag(image_chile, :title => "Chile"), url_for(:country_id => 2), :id => 'link_chile' %></li>
         </ul>
     </div>
 </div>
@@ -189,7 +189,7 @@
 						<div class="esteticaMenuSupIzq"></div>
 						</div>
 						<% end %>
-						<a href="/dashboard/publicaciones">&nbsp;PUBLICACIONES</a>
+						<a href="/sales/ver">&nbsp;PUBLICACIONES</a>
 						<% if defined?@pagina and @pagina == 'Publicaciones' %>
 						<div class="esteticaMenuInf">
 						<div class="esteticaMenuInfIzq"></div>

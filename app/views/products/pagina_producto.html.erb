@@ -44,19 +44,30 @@ function llenar_pulldown_productos(data) {
 	for (var i = 0; i < props_ordered.length; i++) {
 		<% unless @product.nil? %>
 		if (props_ordered[i].id == <%=@product.id%>) {
-			select.append('<option selected value="' + props_ordered[i].id + '">' + props_ordered[i].value + '</option>');
+			select.append('<option selected value="' + props_ordered[i].id + '">' + props_ordered[i].value.replace(jQuery("#marca_pulldown option:selected").text(),'') + '</option>');
 		} else {
 		<% end %>
-			select.append('<option value="' + props_ordered[i].id + '">' + props_ordered[i].value + '</option>');
+			select.append('<option value="' + props_ordered[i].id + '">' + props_ordered[i].value.replace(jQuery("#marca_pulldown option:selected").text(),'') + '</option>');
 		<% unless @product.nil? %>
 		}
 		<% end %>
-		
 	}
 
 	jQuery('#span_producto_pulldown').html(select);
 	jQuery('#producto_pulldown').chosen({no_results_text: "Sin resultados para"});
-	jQuery('#boton_mostrar').removeAttr('disabled');
+	jQuery('#producto_pulldown').chosen().change(function() {
+		if (jQuery('#producto_pulldown').val() != '') {
+			jQuery('#boton_mostrar').css('display', '');
+		} else {
+			jQuery('#boton_mostrar').css('display', 'none');
+		}
+	});
+
+	if (jQuery('#producto_pulldown').val() != '') {
+		jQuery('#boton_mostrar').css('display', '');
+	} else {
+		jQuery('#boton_mostrar').css('display', 'none');
+	}
 }
 
 <% unless @product.nil? %>
@@ -228,19 +239,18 @@ jQuery(window).load(function() {
 
 	<% end %>
 
-	jQuery('#country_pulldown').chosen().change(function() {
-		if (available_countries.hasOwnProperty(jQuery('#country_pulldown').val()[0])) {
-			jQuery('#country_form').submit();
-		} else {
+	jQuery('#link_argentina').click(function(e) {
+		if (!available_countries.hasOwnProperty(1)) {
 			alert('Este producto no existe para ese país.');
-			jQuery('#country_pulldown').val(<%=@country_id%>);
-			jQuery("#country_pulldown").trigger("liszt:updated");
 			return false;
 		}
 	});
-<% else %>
-	jQuery('#country_pulldown').chosen().change(function() {
-		jQuery('#country_form').submit();
+
+	jQuery('#link_chile').click(function(e) {
+		if (!available_countries.hasOwnProperty(2)) {
+			alert('Este producto no existe para ese país.');
+			return false;
+		}
 	});
 <% end %>
 
@@ -257,8 +267,6 @@ jQuery(window).load(function() {
 
 </style>
 
-<h2>Seleccionar producto</h2>
-
 <select name="marca" id="marca_pulldown" class="pulldown_selector chzn-select" data-placeholder="Seleccione una marca..." onChange="return get_productos();">
 <option></option>
 <% @marcas.each do |m| %>
@@ -269,19 +277,15 @@ jQuery(window).load(function() {
 <% end %>
 <% end %>
 </select>
-<br/>
+
 <span id="span_producto_pulldown">
 </span>
 <br/>
-<input type="button" id="boton_mostrar" value="Mostrar detalles" disabled onClick="window.location = '/products/pagina_producto/' + jQuery('#producto_pulldown').val()"/>
+<input style="float: right; display: none;" type="button" id="boton_mostrar" value="Mostrar detalles" onClick="window.location = '/products/pagina_producto/' + jQuery('#producto_pulldown').val()"/>
 
 <% unless @product.nil? %>
 
 <br/><br/><br/>
-
-<em style="font-family:Verdana;font-size:12px;font-style:normal;font-weight:bold;color:#000000;">
-<%= @product.descripcion %>
-</em><br/><br/>
 
 <div class="detalleDescripcion">
 <center>
@@ -412,7 +416,7 @@ jQuery(window).load(function() {
 		<%= link_to image_tag("http://computadoras.idashboard.com.ar/images/productos/#{ps.imagen_id}_thumb.png", :class => "imagen_producto_relacionado"), pagina_producto_path(ps) %>
 	</td>
 	<td class="td_producto_relacionado"><%= link_to ps.descripcion, pagina_producto_path(ps) %></td>
-	<td class="td_producto_relacionado">$<%= !Price.includes(:currency, :item => [ :retailer, :product ]).joins(:item).where(:currency_id => @currency_id, :items => { :product_id => ps.id }).order("price_date DESC").empty? ? Price.includes(:currency, :item => [ :retailer, :product ]).joins(:item).where(:currency_id => @currency_id, :items => { :product_id => ps.id }).order("price_date DESC").first.price : '--' %></td>
+	<td class="td_producto_relacionado"><%= !Price.includes(:currency, :item => [ :retailer, :product ]).joins(:item).where(:currency_id => @currency_id, :items => { :product_id => ps.id }).order("price_date DESC").empty? ? number_with_delimiter(Price.includes(:currency, :item => [ :retailer, :product ]).joins(:item).where(:currency_id => @currency_id, :items => { :product_id => ps.id }).order("price_date DESC").first.price, :delimiter => '.', :separator => ',') : 'N/A' %></td>
 </tr>
 <% end %>
 

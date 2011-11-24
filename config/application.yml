@@ -1,14 +1,14 @@
 ﻿defaults: &defaults
   computadoras:
     precios: [
-		{ "name": "Marca", "field": "marca" },
-		{ "name": "Marca del procesador", "field": "marca_procesador" },
-		{ "name": "Modelo del procesador", "field": "modelo_procesador" },
-		{ "name": "Memoria RAM", "field": "memoria" },
-		{ "name": "Disco Rígido", "field": "disco" },
-		{ "name": "Display", "field": "pantalla" },
-		{ "name": "OS", "field": "os" },
-		{ "name": "Touch", "field": "touch" }
+  		{ "name": "Marca", "field": "marca" },
+  		{ "name": "Marca del procesador", "field": "marca_procesador" },
+  		{ "name": "Modelo del procesador", "field": "modelo_procesador" },
+  		{ "name": "Memoria RAM", "field": "memoria" },
+  		{ "name": "Disco Rígido", "field": "disco" },
+  		{ "name": "Display", "field": "pantalla" },
+  		{ "name": "OS", "field": "os" },
+  		{ "name": "Touch", "field": "touch" }
     ]
 
     pagina_producto: [
@@ -20,7 +20,7 @@
     	{ "name": "Sist. Operativo", "field": "os" },
     	{ "name": "Touch", "field": "touch", "boolean": true }
     ]
-
+    
     productos_similares: [
       "categoria",
       "marca_procesador",

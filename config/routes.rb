@@ -55,6 +55,7 @@ Gardens::Application.routes.draw do
   resources :media_channel_types, :defaults => { :format => :json }
   resources :media_channels, :defaults => { :format => :json }
 
+  get 'sales/ver'
   match 'sales/search' => 'sales#search', :defaults => { :format => :json }
   resources :sales, :defaults => { :format => :json }
 

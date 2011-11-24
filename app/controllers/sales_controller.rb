@@ -73,4 +73,8 @@ class SalesController < ApplicationController
 
     @sales = Sale.includes(:media_channel, :retailer, :product).where(where).order("sale_date DESC")
   end
+
+  def ver
+  	@pagina = 'Publicaciones'
+  end
 end

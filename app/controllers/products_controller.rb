@@ -49,7 +49,7 @@ class ProductsController < ApplicationController
         @available_countries.push(c.id)
       end
 
-      @dates = _get_dates(@product.id)
+      @dates = _get_dates(@product.id, @currency_id)
       @sales = @product.sales.where(:currency_id => @currency_id).order('sale_date DESC').limit(5)
     end
   end
@@ -328,7 +328,7 @@ class ProductsController < ApplicationController
   end
 
   def get_dates
-    dates = _get_dates(params[:product])
+    dates = _get_dates(params[:product], @currency_id)
 
     render :json => {
       :date_from => dates[0],
@@ -375,13 +375,13 @@ class ProductsController < ApplicationController
 
   private
 
-  def _get_dates(product_ids)
+  def _get_dates(product_ids, currency)
     unless product_ids.is_a?Array
       product_ids = product_ids.to_s.split(',')
     end
 
-    date_last = Price.joins(:item => :product).where(:products => { :id => product_ids }).order("prices.created_at DESC").limit(1).first
-    date_first = Price.joins(:item => :product).where(:products => { :id => product_ids }).order("prices.created_at ASC").limit(1).first
+    date_last = Price.joins(:item => :product).where(:currency_id => currency, :products => { :id => product_ids }).order("prices.created_at DESC").limit(1).first
+    date_first = Price.joins(:item => :product).where(:currency_id => currency, :products => { :id => product_ids }).order("prices.created_at ASC").limit(1).first
 
     unless date_first.nil?
       date_first = date_first.price_date
