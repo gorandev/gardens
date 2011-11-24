@@ -1,6 +1,8 @@
 class ApplicationController < ActionController::Base
   # protect_from_forgery
   rescue_from ActiveRecord::RecordNotFound, :with => :record_not_found
+
+  before_filter :authenticate_user!, :set_globales
   
   def create_item(params)
     property_values = Array.new
@@ -53,5 +55,20 @@ class ApplicationController < ActionController::Base
  
   def record_not_found
     render :text => "404 Not Found", :status => 404
+  end
+
+  protected
+
+  def set_globales
+    @countries = Country.all
+    if params.has_key?(:country_id) && Country.find_by_id(params[:country_id])
+      session[:country_id] = params[:country_id]
+    else
+      unless session.has_key?(:country_id) && Country.find_by_id(session[:country_id])
+        session[:country_id] = 2 # TODO: este default debería salir del usuario
+      end
+    end
+    @country_id = session[:country_id]
+    @currency_id = Country.find(@country_id).currency.id
   end
 end

@@ -40,48 +40,36 @@
 <%= favicon_link_tag %>
 </head>
 <body>
+
+<!-- BARRA DE MENU -->
+<div id="barra_menu">
+	<div class="contenido_barra_menu">
+        <a href="http://www.idashboard.la"><h1>iDashboard</h1></a>
+        <ul class="items">
+            <li><%= link_to "Computadoras", "", :id => "link_computadoras", :onClick => "return false;" %></li>
+            <li><%= link_to "Televisores", "", :id => "link_televisores", :onClick => "return false;" %></li>
+            <li><%= link_to "Celulares", "", :id => "link_celulares", :onClick => "return false;" %></li>
+        </ul>
+        <ul class="paises">
+        	<% 
+        	image_argentina = "argentina_gris.png"
+        	image_chile = "chile.png"
+
+        	if @country_id.to_i == 1
+        		image_argentina = "argentina.png"
+        		image_chile = "chile_gris.png"
+    		end
+    		%>
+    		<li><%= link_to image_tag(image_argentina, :title => "Argentina"), url_for(:country_id => 1) %></li>
+            <li><%= link_to image_tag(image_chile, :title => "Chile"), url_for(:country_id => 2) %></li>
+        </ul>
+    </div>
+</div>
+
+<br/><br/>
+
 <div id="wrapper">
 	<div id="contenedor">
-		<!--Encabezado-->
-		<div id="encabezado">
-			<!--Accesos directos para navegadores de voz -->
-			<div id="accesoDirecto">
-				<p><a href="#contenido">Ir directo al contenido</a></p>
-				<p><a href="#menu">Ir directo al menu</a></p>
-			</div>
-			<!--Marca-->
-			<div id="marca">
-				<h1>iDashboard: Estrategia + Gesti&oacute;n</h1>
-			</div>
-			<!--Login de usuarios-->
-			<div id="barraUsuario">
-				<div id="login">
-				<% if user_signed_in? %>
-				<%= link_to('logout', destroy_user_session_path, :method => :delete) %>
-				<% end %>
-				<br/>
-				</div>
-				<div id="buscar">
-					<br/>
-				</div>
-			</div>
-			<!--Aclaracion de marca-->
-			<div id="aclaracionMarca">
-			<span style="position: absolute; top: 55px; left: 390px; color: white; font-size: 14px;">
-			<span class="notice"><%= notice %></span>
-			<span class="alert"><%= alert %></span>
-			</span>
-			<% if defined?@countries %>
-			<span style="position: absolute; top: 55px; left: 840px;">
-			<form method="get" id="country_form">
-			<select name="country_id" id="country_pulldown" class="chzn-select" style="width: 120px; font-size: 12px;" title="País" data-placeholder="País">
-			<%= render :partial => "shared/pulldown_options", :collection => @countries.sort { |a, b| a.name <=> b.name }, :as => :obj, :locals => { :selected => @country_id } %>
-			</select>
-			</form>
-			</span>
-			<% end %>
-			</div>
-		</div>
 		<!--Cuerpo=Menu + Contenido-->
 		<div id="cuerpo">
 			<div class="esteticaIzq">

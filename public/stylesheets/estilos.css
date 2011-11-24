@@ -634,3 +634,81 @@ th.th_producto.relacionado {
 	border-right:1px solid #CCC;
 	border-left:1px solid #CCC;
 }
+
+/* NUEVA BARRA DE MENU */
+
+div.contenido_barra_menu{
+	width:960px;
+	margin:0 auto	
+}
+div#barra_menu h1{
+	outline:none;
+	margin:0;
+	padding:0;
+}
+div#barra_menu ul{
+	list-style:none
+}
+div#barra_menu a{
+	text-decoration:none
+}
+div#barra_menu ul li, div#footer div.links a{
+	margin-right:8px
+}
+div#barra_menu ul li:last-child{
+	margin-right:0
+}
+div#barra_menu{
+	padding:0px 0 10px;
+	background:url(http://img.idashboard.la/bg-menu.png) repeat-x;
+	position:fixed;
+	width:100%;
+	top:0;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:13px;
+	color:#666;
+	z-index: 9999;
+}
+div#barra_menu h1{
+	background:url(http://img.idashboard.la/idashboard.png) no-repeat;
+	width:420px;
+	height:38px;
+	display:block;
+	text-indent:-9999px
+}
+div#barra_menu h1, div#barra_menu ul{
+	margin-right:66px
+}
+div#barra_menu h1, div#barra_menu ul, div#barra_menu ul li, div#clientes ul li, div#footer div.links a{
+	float:left
+}
+div#barra_menu ul.items{
+	margin-top:10px
+	outline:none;
+	margin:10px;
+}
+div#barra_menu ul.social, div#barra_menu ul.paises{
+	margin-top:6px
+}
+div#barra_menu ul.paises{
+	margin-right:0;
+	float:right;
+	outline:none;
+}
+div#barra_menu ul.paises li img{
+	cursor:pointer;
+}
+div#barra_menu ul.items li a, div#footer div.links a{
+	background:url(http://img.idashboard.la/sep.gif) no-repeat right 3px;
+	display:block;
+	padding-right:8px	
+}
+div#barra_menu ul.items li a{
+	text-transform:uppercase;
+	color:#FFF;
+	font-size:12px;
+	font-weight:bold;
+}
+div#barra_menu ul.items li:last-child a, div#footer div.links a:last-child{
+	background:none
+}
