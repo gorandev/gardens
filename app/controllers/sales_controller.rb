@@ -67,6 +67,20 @@ class SalesController < ApplicationController
       where[:product_id] = params[:product]
     end
     
+    if params.has_key?(:media_channel)
+    	unless params[:media_channel].is_a?Array
+    		params[:media_channel] = params[:media_channel].split(',')
+    	end
+    	where[:media_channel_id] = params[:media_channel]
+    end
+
+    if params.has_key?(:retailer)
+    	unless params[:retailer].is_a?Array
+    		params[:retailer] = params[:retailer].split(',')
+    	end
+    	where[:retailer_id] = params[:retailer]
+    end
+
     params[:date_to] ||= DateTime.now
     params[:date_from] ||= "2000-01-01".to_datetime
     where[:sale_date] = (params[:date_from].to_datetime)..(params[:date_to].to_datetime + 1.day)

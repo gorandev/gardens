@@ -61,6 +61,8 @@ function dibujar_pulldown_productos(obj) {
 	});
 }
 
+var global_ids_productos;
+
 function llenar_pulldown_productos(indice, data) {
 	llenar_pulldown(data, 'producto', 'Producto');
 	
@@ -68,6 +70,8 @@ function llenar_pulldown_productos(indice, data) {
 	jQuery.each(data, function(i, v){
 		ids_productos.push(v.id);
 	});
+
+	global_ids_productos = ids_productos;
 
 	jQuery.ajax({
 		url: "/property_values/search",

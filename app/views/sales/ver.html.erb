@@ -2,7 +2,7 @@
 <% content_for :javascript do %>
 <%= javascript_include_tag "http://code.jquery.com/jquery-1.7.min.js" %>
 <script type="text/javascript">jQuery.noConflict();</script>
-<%= javascript_include_tag "chosen.jquery.min", "tooltipsy.min", "selectores_encadenados" %>
+<%= javascript_include_tag "highcharts", "chosen.jquery.min", "tooltipsy.min", "selectores_encadenados" %>
 <script type="text/javascript">
 function agregar_tooltips() {
 	jQuery('div[id^="tooltipsy"]').remove()
@@ -39,6 +39,223 @@ var pulldowns_ok = [
 		campo: "os"
 	}
 ];
+
+var globaldata;
+var globaldataXid;
+
+function get_promos() {
+	if (arguments[0]) {
+		$('pagina').value = arguments[0];
+	} else {
+		$('pagina').value = '';
+	}
+	
+	jQuery('#boton_submit').attr('value', 'Espere...');
+	jQuery('#boton_submit').attr('disabled', true);
+	
+	jQuery('#boton_excel').hide();
+	jQuery('#boton_excel_gris').show();
+	jQuery('#boton_word').hide();
+	jQuery('#boton_word_gris').show();
+
+	var data = {};
+	
+	if (jQuery('#producto_pulldown').val() != null) {
+		data.product = jQuery('#producto_pulldown').val().join(',');
+	} else {
+		data.product = global_ids_productos.join(',');
+	}
+
+	if (jQuery('#retailer_pulldown').val() != null) {
+		data.retailer = jQuery('#retailer_pulldown').val().join(',');	
+	}
+
+	if (jQuery('#mediachannel_pulldown').val() != null) {
+		data.media_channel = jQuery('#mediachannel_pulldown').val().join(',');
+	}
+
+	if (jQuery('#fecha_desde').val() != null) {
+		data.date_from = jQuery('#fecha_desde').val();
+	}
+	
+	if (jQuery('#fecha_hasta').val() != null) {
+		data.date_to = jQuery('#fecha_hasta').val();
+	}
+
+	data.currency = <%= @currency_id %>;
+
+	jQuery.ajax({
+		url: "/sales/search",
+		data: data,
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				jQuery('#boton_submit').attr('value', 'Ver publicaciones');
+				jQuery('#boton_submit').removeAttr('disabled');
+				reload_global_data(data);
+				llenar_tabla_promos(1);
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
+}
+
+function reload_global_data(data) {
+	globaldata = data;
+
+	globaldataXid = {};
+	jQuery.each(globaldata, function(i, v) {
+		globaldataXid[v.id] = v;
+	});
+}
+
+function llenar_tabla_promos(pagina) {
+	jQuery('.celdapromo').remove();
+	jQuery('.celda_paginador').remove();
+	var data = globaldata.slice((pagina-1)*16, (pagina-1)*16 + 16);
+
+	jQuery.each(data, function(i, v) {
+		var celda = '<div style="width: 200px; height: 200px; float: left; text-align: center;" class="celdapromo">';
+
+	<% if @country_id.to_i == 1 %>
+		celda += '<img class="imagen_promo" src="http://computadoras.idashboard.com.ar/uploaded_images/promocion-' + v.imagen_id + '_thumb.png" onClick="mostrar_promo(' + v.id + ');"><br/>';
+	<% elsif @country_id.to_i == 2 %>
+		celda += '<img class="imagen_promo" src="http://chile.computadoras.idashboard.com.ar/uploaded_images/promocion-' + v.imagen_id + '_thumb.png" onClick="mostrar_promo(' + v.id + ');"><br/>';
+	<% end %>
+		
+		celda += '<br/>';
+		
+		var aFecha = v.sale_date.split('-');
+
+		celda += aFecha[2] + '/' + aFecha[1] + '/' + aFecha[0] + '<br/>';
+		celda += v.retailer + '<br/>';
+		
+		celda += '<b><a href="/products/pagina_producto/' + v.id_product + '">' + v.descripcion + '</a></b><br/>';
+		
+		celda += v.media_channel + ' - $' + v.price;
+		celda += '<br/>';
+
+		celda += '</div>';
+		jQuery('#contenido').append(celda);
+	});
+
+	if (globaldata.length > 16) {
+		var paginador = '<div style="clear: both; width: 800px; height: 50px; text-align: center;" class="celda_paginador">'
+		
+		if (pagina != 1) {
+			paginador += '<a href="#" onClick="return llenar_tabla_promos(' + (pagina-1) + ');">&lt;&lt;Anterior</a>';
+		}
+
+		for (var p = 1; p <= Math.ceil(globaldata.length / 16); p++) {
+			paginador += ' ';
+			if (p == pagina) {
+				paginador += p;
+			} else {
+				paginador += '<a href="#" onClick="return llenar_tabla_promos(' + p + ');">' + p + '</a>'
+			}
+			paginador += ' ';
+		}
+
+		if (pagina != Math.ceil(globaldata.length / 16)) {
+			paginador += '<a href="#" onClick="return llenar_tabla_promos(' + (pagina+1) + ');">&gt;&gt;Siguiente</a>';	
+		}
+			
+		paginador += '</div>';
+		jQuery('#contenido').append(paginador);
+	}
+
+	return false;
+}
+
+function set_max_min_date() {
+	return false;
+}
+
+function mostrar_promo(id) {
+	var pr = globaldataXid[id];
+
+	var promos_html = new String;
+	promos_html += '<table align="center" style="font-size: 14px;" width="100%">';
+
+	promos_html += '<tr>';
+	promos_html += '<td>';
+	promos_html += '<table align="center">';
+
+	promos_html += '<td align="right"><b>Fuente:</b></td>';
+	promos_html += '<td>' + pr.media_channel + '</td>';
+	promos_html += '</tr>';
+
+	promos_html += '<tr>';
+	promos_html += '<td align="right"><b>Retailer:</b></td>';
+	promos_html += '<td>' + pr.retailer + '</td>';
+	promos_html += '</tr>';
+
+	promos_html += '<tr>';
+	promos_html += '<td align="right"><b>Producto:</b></td>';
+	promos_html += '<td>' + pr.descripcion + '</td>';
+	promos_html += '</tr>';
+
+	promos_html += '<tr>';
+	promos_html += '<td align="right"><b>Precio:</b></td>';
+	promos_html += '<td>$' + Highcharts.numberFormat(pr.price, 0, ',', '.') + '</td>';
+	promos_html += '</tr>';
+
+	promos_html += '<tr>';
+	promos_html += '<td align="right"><b>Validez:</b></td>';
+	promos_html += '<td>';
+
+	var fecha_desde = pr.valid_since.split('-');
+	var fecha_desde_utc = Date.UTC(fecha_desde[0], fecha_desde[1]-1, fecha_desde[2]);
+
+	if (pr.valid_until) {
+		var fecha_hasta = pr.valid_until.split('-');
+		var fecha_hasta_utc = Date.UTC(fecha_hasta[0], fecha_hasta[1]-1, fecha_hasta[2]);
+		promos_html += 'Del ' + Highcharts.dateFormat('%e/%m/%Y', fecha_desde_utc) + ' al ' + Highcharts.dateFormat('%e/%m/%Y', fecha_hasta_utc);
+	} else {
+		promos_html += Highcharts.dateFormat('%e/%m/%Y', fecha_desde_utc);
+	}
+	promos_html += '</td>';
+	promos_html += '</tr>';
+
+	promos_html += '<tr>';
+	promos_html += '<td align="right"><b>Bundle:</b></td>';
+	promos_html += '<td>';
+	promos_html += ( pr.bundle ? 'S&iacute;' : 'No' );
+	promos_html += '</td>';
+	promos_html += '</tr>';
+
+	promos_html += '</table>';
+	promos_html += '</td>';
+
+	promos_html += '<td align="center">';
+
+	if (pr.currency_id == 1) {
+		promos_html += '<a href="http://computadoras.idashboard.com.ar/uploaded_images/promocion-' + pr.imagen_id + '.png" target="verPromo">';
+		promos_html += '<img height="500" width="500" class="img_promo" src="http://computadoras.idashboard.com.ar/uploaded_images/promocion-' + pr.imagen_id + '_med.png" border="0"/>';
+	} else {
+		promos_html += '<a href="http://chile.computadoras.idashboard.com.ar/uploaded_images/promocion-' + pr.imagen_id + '.png" target="verPromo">';
+		promos_html += '<img height="500" width="500" class="img_promo" src="http://chile.computadoras.idashboard.com.ar/uploaded_images/promocion-' + pr.imagen_id + '_med.png" border="0"/>';
+	}
+			
+	promos_html += '</a>';
+	promos_html += '</td>';
+
+	promos_html += '</tr>';
+
+
+	promos_html += '</table>';
+
+	Modalbox.show(
+		promos_html,
+		{
+			title: 'Ver promoci&oacute;n',
+			width: 800,
+			height: 600
+		}
+	);
+}
 
 jQuery(window).load(function() {
 	jQuery(".chzn-select").chosen();
@@ -97,7 +314,7 @@ jQuery(window).load(function() {
 
 </style>
 
-<div style="height: 1000px;">
+<div style="height: 280px;">
 
 <form id="filtros" method="post" action="/dashboard/ajax_get_promociones" target="_blank">
 
@@ -188,8 +405,5 @@ Hasta:
 <input type="hidden" name="html" id="html">
 <input type="hidden" name="pagina" id="pagina">
 </form>
-
-<div id="tabla_promos" style="position: relative; top: 300px;">
-</div>
 
 </div>

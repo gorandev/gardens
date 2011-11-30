@@ -413,7 +413,7 @@ jQuery(window).load(function() {
 <% next if ps.id == @product.id %>
 <tr id="producto_<%= ps.id %>" class="tr_producto_relacionado" align="center">
 	<td class="td_producto_relacionado" width="100" style="padding: 0px;">
-		<%= link_to image_tag("http://computadoras.idashboard.com.ar/images/productos/#{ps.imagen_id}_thumb.png", :class => "imagen_producto_relacionado"), pagina_producto_path(ps) %>
+		<%= link_to image_tag("http://computadoras.idashboard.com.ar/images/productos/#{ps.imagen_id}_thumb.png", :class => "imagen_producto_relacionado", :border => 0), pagina_producto_path(ps) %>
 	</td>
 	<td class="td_producto_relacionado"><%= link_to ps.descripcion, pagina_producto_path(ps) %></td>
 	<td class="td_producto_relacionado"><%= !Price.includes(:currency, :item => [ :retailer, :product ]).joins(:item).where(:currency_id => @currency_id, :items => { :product_id => ps.id }).order("price_date DESC").empty? ? number_with_delimiter(Price.includes(:currency, :item => [ :retailer, :product ]).joins(:item).where(:currency_id => @currency_id, :items => { :product_id => ps.id }).order("price_date DESC").first.price, :delimiter => '.', :separator => ',') : 'N/A' %></td>
