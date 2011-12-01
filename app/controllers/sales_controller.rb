@@ -103,5 +103,9 @@ class SalesController < ApplicationController
 
   def ver
   	@pagina = 'Publicaciones'
+    @id_producto = 0
+  	if params.has_key?(:id_producto)
+  		@id_producto = params[:id_producto]
+  	end
   end
 end

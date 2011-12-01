@@ -278,9 +278,11 @@ function mostrar_promo(id) {
 
 jQuery(window).load(function() {
 	jQuery(".chzn-select").chosen();
+	selected_product = <%=@id_producto%>;
 	dibujar_pulldown_productos('start_up');
 	jQuery("#fecha_desde").datepicker();
 	jQuery("#fecha_hasta").datepicker();
+	jQuery.when(llenar_pulldown()).then(get_promos());
 });
 </script>
 <%= javascript_include_tag "jquery-ui-1.8.14.custom.min", "jquery-ui-datepicker-es" %>

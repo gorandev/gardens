@@ -62,6 +62,7 @@ function dibujar_pulldown_productos(obj) {
 }
 
 var global_ids_productos;
+var selected_product;
 
 function llenar_pulldown_productos(indice, data) {
 	llenar_pulldown(data, 'producto', 'Producto');
@@ -135,7 +136,11 @@ function llenar_pulldown(data, campo, name) {
 	});
 	
 	for (var i = 0; i < props_ordered.length; i++) {
-		select.append('<option value="' + props_ordered[i].id + '">' + props_ordered[i].value + '</option');
+		if (campo == 'producto' && selected_product == props_ordered[i].id) {
+			select.append('<option selected value="' + props_ordered[i].id + '">' + props_ordered[i].value + '</option>');
+		} else {
+			select.append('<option value="' + props_ordered[i].id + '">' + props_ordered[i].value + '</option>');
+		}
 	}
 
 	jQuery('#span_' + campo + '_pulldown').html(select);
