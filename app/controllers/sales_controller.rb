@@ -1,3 +1,4 @@
+require 'ostruct'
 class SalesController < ApplicationController
 	respond_to :json
 
@@ -85,7 +86,19 @@ class SalesController < ApplicationController
     params[:date_from] ||= "2000-01-01".to_datetime
     where[:sale_date] = (params[:date_from].to_datetime)..(params[:date_to].to_datetime + 1.day)
 
-    @sales = Sale.includes(:media_channel, :retailer, :product).where(where).order("sale_date DESC")
+    if params.has_key?(:getcount)
+    	total_entries = Sale.includes(:media_channel, :retailer, :product).where(where).count
+    	@total_pages = OpenStruct.new({
+    		:paginas => ( (total_entries.to_i / params[:count].to_i).ceil )
+    	})
+    	render 'getcount'
+    end
+
+    if params.has_key?(:offset) && params.has_key?(:count)
+    	@sales = Sale.includes(:media_channel, :retailer, :product).where(where).order("sale_date DESC").limit(params[:count]).offset(params[:offset])
+    else
+    	@sales = Sale.includes(:media_channel, :retailer, :product).where(where).order("sale_date DESC")
+    end
   end
 
   def ver

@@ -40,16 +40,18 @@ var pulldowns_ok = [
 	}
 ];
 
-var globaldata;
 var globaldataXid;
+var globalSubmitData;
 
 function get_promos() {
+
+	var offset = 0;
+	var count = 16;
+
 	if (arguments[0]) {
-		$('pagina').value = arguments[0];
-	} else {
-		$('pagina').value = '';
+		offset = (arguments[0]-1) * count;
 	}
-	
+
 	jQuery('#boton_submit').attr('value', 'Espere...');
 	jQuery('#boton_submit').attr('disabled', true);
 	
@@ -58,7 +60,10 @@ function get_promos() {
 	jQuery('#boton_word').hide();
 	jQuery('#boton_word_gris').show();
 
-	var data = {};
+	var data = {
+		'offset': offset,
+		'count': count
+	};
 	
 	if (jQuery('#producto_pulldown').val() != null) {
 		data.product = jQuery('#producto_pulldown').val().join(',');
@@ -84,6 +89,8 @@ function get_promos() {
 
 	data.currency = <%= @currency_id %>;
 
+	globalSubmitData = data;
+
 	jQuery.ajax({
 		url: "/sales/search",
 		data: data,
@@ -92,8 +99,7 @@ function get_promos() {
 			200: function(data) {
 				jQuery('#boton_submit').attr('value', 'Ver publicaciones');
 				jQuery('#boton_submit').removeAttr('disabled');
-				reload_global_data(data);
-				llenar_tabla_promos(1);
+				llenar_tabla_promos(data);
 			},
 			400: function() {
 				alert('Error 400!');
@@ -102,21 +108,13 @@ function get_promos() {
 	});
 }
 
-function reload_global_data(data) {
-	globaldata = data;
-
+function llenar_tabla_promos(data) {
 	globaldataXid = {};
-	jQuery.each(globaldata, function(i, v) {
-		globaldataXid[v.id] = v;
-	});
-}
-
-function llenar_tabla_promos(pagina) {
 	jQuery('.celdapromo').remove();
 	jQuery('.celda_paginador').remove();
-	var data = globaldata.slice((pagina-1)*16, (pagina-1)*16 + 16);
 
 	jQuery.each(data, function(i, v) {
+		globaldataXid[v.id] = v;
 		var celda = '<div style="width: 200px; height: 200px; float: left; text-align: center;" class="celdapromo">';
 
 	<% if @country_id.to_i == 1 %>
@@ -141,32 +139,53 @@ function llenar_tabla_promos(pagina) {
 		jQuery('#contenido').append(celda);
 	});
 
-	if (globaldata.length > 16) {
-		var paginador = '<div style="clear: both; width: 800px; height: 50px; text-align: center;" class="celda_paginador">'
-		
-		if (pagina != 1) {
-			paginador += '<a href="#" onClick="return llenar_tabla_promos(' + (pagina-1) + ');">&lt;&lt;Anterior</a>';
-		}
+	var data = globalSubmitData;
+	data.getcount = 1;
 
-		for (var p = 1; p <= Math.ceil(globaldata.length / 16); p++) {
-			paginador += ' ';
-			if (p == pagina) {
-				paginador += p;
-			} else {
-				paginador += '<a href="#" onClick="return llenar_tabla_promos(' + p + ');">' + p + '</a>'
+	jQuery.ajax({
+		url: "/sales/search",
+		data: data,
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				if (data.paginas > 1) {
+					agregar_paginador(data.paginas);
+				}
+			},
+			400: function() {
+				alert('Error 400!');
 			}
-			paginador += ' ';
 		}
-
-		if (pagina != Math.ceil(globaldata.length / 16)) {
-			paginador += '<a href="#" onClick="return llenar_tabla_promos(' + (pagina+1) + ');">&gt;&gt;Siguiente</a>';	
-		}
-			
-		paginador += '</div>';
-		jQuery('#contenido').append(paginador);
-	}
+	});
 
 	return false;
+}
+
+function agregar_paginador(totalpaginas) {
+	var paginador = '<div style="clear: both; width: 800px; height: 50px; text-align: center;" class="celda_paginador">'
+	
+	var pagina = (globalSubmitData.offset + globalSubmitData.count) / globalSubmitData.count;
+
+	if (pagina != 1) {
+		paginador += '<a href="#" onClick="return get_promos(' + (pagina-1) + ');">&lt;&lt;Anterior</a>';
+	}
+
+	for (var p = 1; p <= totalpaginas; p++) {
+		paginador += ' ';
+		if (p == pagina) {
+			paginador += p;
+		} else {
+			paginador += '<a href="#" onClick="return get_promos(' + p + ');">' + p + '</a>'
+		}
+		paginador += ' ';
+	}
+
+	if (pagina != totalpaginas) {
+		paginador += '<a href="#" onClick="return get_promos(' + (pagina+1) + ');">&gt;&gt;Siguiente</a>';	
+	}
+		
+	paginador += '</div>';
+	jQuery('#contenido').append(paginador);	
 }
 
 function set_max_min_date() {
