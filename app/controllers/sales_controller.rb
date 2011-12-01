@@ -91,7 +91,7 @@ class SalesController < ApplicationController
     	@total_pages = OpenStruct.new({
     		:paginas => ( (total_entries.to_i / params[:count].to_i).ceil )
     	})
-    	render 'getcount'
+    	render 'getcount' and return
     end
 
     if params.has_key?(:offset) && params.has_key?(:count)
