@@ -7,6 +7,8 @@ Gardens::Application.routes.draw do
     match 'products/pagina_producto(/:id)' => 'products#pagina_producto', :as => 'pagina_producto'
     get 'saved_reports/show_all'  
     get 'sales/ver'
+
+    resources :saved_reports, :defaults => { :format => :json }
   end
 
   constraints(:subdomain => "api") do
@@ -53,8 +55,6 @@ Gardens::Application.routes.draw do
     
     match 'no_words/search' => 'no_words#search', :defaults => { :format => :json }
     resources :no_words, :defaults => { :format => :json }
-    
-    resources :saved_reports, :defaults => { :format => :json }
 
     resources :media_channel_types, :defaults => { :format => :json }
     resources :media_channels, :defaults => { :format => :json }
