@@ -2,7 +2,7 @@ class ItemsController < ApplicationController
   respond_to :json
   
   def index
-    @items = Item.all
+    @items = Item.limit(@count).offset(@offset)
     respond_with(@items)
   end
   
@@ -140,7 +140,7 @@ class ItemsController < ApplicationController
       join.push(:property_values)
     end
 
-    @items = Item.joins(join).where(params.slice(:retailer_id, :product_id, :product_type_id, :property_values, :source, :url)).group(:id)
+    @items = Item.joins(join).where(params.slice(:retailer_id, :product_id, :product_type_id, :property_values, :source, :url)).group(:id).limit(@count).offset(@offset)
     respond_with(@items)
   end
   

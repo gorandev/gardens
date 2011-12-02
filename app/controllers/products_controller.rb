@@ -4,13 +4,7 @@ class ProductsController < ApplicationController
   respond_to :json
 
   def index
-    @products = Product.all(
-      :include => [
-        :product_type,
-        { :items => { :retailer => :country } },
-        { :property_values => :property }
-      ]
-    )
+    @products = Product.limit(@count).offset(@offset)
   end
   
   def pagina_producto

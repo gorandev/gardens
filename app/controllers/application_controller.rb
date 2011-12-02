@@ -71,5 +71,8 @@ class ApplicationController < ActionController::Base
     @country_id = session[:country_id]
     @currency_id = Country.find(@country_id).currency.id
     @hostname = Settings['host']
+
+    @offset = params[:offset] || 0
+    @count = params[:count] || 16
   end
 end

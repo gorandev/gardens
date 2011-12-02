@@ -3,7 +3,7 @@ class PropertyValuesController < ApplicationController
   respond_to :json
   
   def index
-    @property_values = PropertyValue.all
+    @property_values = PropertyValue.limit(@count).offset(@offset)
     respond_with(@property_values)
   end
   

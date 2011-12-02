@@ -3,7 +3,7 @@ class PricesController < ApplicationController
   respond_to :json
   
   def index
-    @prices = Price.all
+    @prices = Price.limit(@count).offset(@offset)
     respond_with(@prices)
   end
   

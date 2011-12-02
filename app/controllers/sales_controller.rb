@@ -3,7 +3,7 @@ class SalesController < ApplicationController
 	respond_to :json
 
 	def index
-		@sales = Sale.all
+		@sales = Sale.limit(@count).offset(@offset)
 	end
 
 	def show
@@ -94,11 +94,7 @@ class SalesController < ApplicationController
     	render 'getcount' and return
     end
 
-    if params.has_key?(:offset) && params.has_key?(:count)
-    	@sales = Sale.includes(:media_channel, :retailer, :product).where(where).order("sale_date DESC").limit(params[:count]).offset(params[:offset])
-    else
-    	@sales = Sale.includes(:media_channel, :retailer, :product).where(where).order("sale_date DESC")
-    end
+  	@sales = Sale.includes(:media_channel, :retailer, :product).where(where).order("sale_date DESC").limit(@count).offset(@offset)
   end
 
   def ver
