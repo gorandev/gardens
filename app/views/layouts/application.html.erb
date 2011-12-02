@@ -9,6 +9,10 @@
 <%= stylesheet_link_tag "estilos", "modalbox", "prototip", "lightbox", "chosen", "jquery-ui-1.8.14.custom","jquery-datepicker.css" %>
 <%= yield :stylesheet %>
 
+<script type="text/javascript">
+var global_hostname = '<%=@hostname%>';
+</script>
+
 <%= javascript_include_tag "https://ajax.googleapis.com/ajax/libs/prototype/1.7.0.0/prototype.js", "https://ajax.googleapis.com/ajax/libs/scriptaculous/1.9.0/scriptaculous.js?load=effects,builder,dragdrop", "prototip", "lightbox", "modalbox", "idashboard", "rails" %>
 
 <%= yield :javascript %>
@@ -17,7 +21,7 @@
 <script type="text/javascript">
 
   var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', '<%= google_analytics_key %>']);
+  _gaq.push(['_setAccount', '<%= @google_analytics_key %>']);
   _gaq.push(['_trackPageview']);
   
   _gaq.push(['_setCustomVar',

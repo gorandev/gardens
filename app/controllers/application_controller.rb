@@ -3,7 +3,7 @@ class ApplicationController < ActionController::Base
   rescue_from ActiveRecord::RecordNotFound, :with => :record_not_found
 
   before_filter :authenticate_user!, :set_globales
-  
+
   def create_item(params)
     property_values = Array.new
     if params.has_key?(:property_values)
@@ -70,5 +70,6 @@ class ApplicationController < ActionController::Base
     end
     @country_id = session[:country_id]
     @currency_id = Country.find(@country_id).currency.id
+    @hostname = Settings['host']
   end
 end

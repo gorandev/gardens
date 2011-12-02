@@ -18,8 +18,9 @@ function get_productos() {
 	}
 
 	jQuery.ajax({
-		url: "/products/search",
+		url: "http://api.<%=@hostname%>/products/search",
 		data: data,
+		dataType: 'jsonp',
 		cache: false,
 		statusCode: {
 			200: function(data) {
@@ -121,9 +122,9 @@ function graficar(id) {
 	chart.showLoading();
 
 	jQuery.ajax({
-		url: "/prices/search",
+		url: "http://api.<%=@hostname%>/prices/search",
 		data: query_string,
-		cache: false,
+		dataType: 'jsonp',
 		statusCode: {
 			200: function(data) {
 				data_graficos[id] = data;

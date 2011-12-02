@@ -329,11 +329,10 @@ class ProductsController < ApplicationController
 
   def get_dates
     dates = _get_dates(params[:product], @currency_id)
-
-    render :json => {
+    @fechas = OpenStruct.new({
       :date_from => dates[0],
       :date_to => dates[1]
-    }
+    })
   end
 
   def inicializar_memstore

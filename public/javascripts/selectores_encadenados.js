@@ -47,8 +47,9 @@ function dibujar_pulldown_productos(obj) {
 	data += '&country=' + country_id + '&fast=yeah';
 
 	jQuery.ajax({
-		url: "/products/search",
+		url: "http://api." + global_hostname + "/products/search",
 		data: data,
+		dataType: 'jsonp',
 		cache: false,
 		statusCode: {
 			200: function(data) {
@@ -75,8 +76,9 @@ function llenar_pulldown_productos(indice, data) {
 	global_ids_productos = ids_productos;
 
 	jQuery.ajax({
-		url: "/property_values/search",
+		url: "http://api." + global_hostname + "/property_values/search",
 		data: 'products=' + ids_productos.join(','),
+		dataType: 'jsonp',
 		cache: false,
 		statusCode: {
 			200: function(data) {
@@ -96,8 +98,9 @@ function llenar_pulldowns_propiedades(indice, data, ids_productos) {
 
 		if (campo == 'retailer') {
 			jQuery.ajax({
-				url: "/retailers/search",
+				url: "http://api." + global_hostname + "/retailers/search",
 				data: 'products=' + ids_productos.join(',') + '&country=' + country_id ,
+				dataType: 'jsonp',
 				cache: false,
 				statusCode: {
 					200: function(data) {

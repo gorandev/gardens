@@ -92,8 +92,9 @@ function get_promos() {
 	globalSubmitData = data;
 
 	jQuery.ajax({
-		url: "/sales/search",
+		url: "http://api.<%=@hostname%>/sales/search",
 		data: data,
+		dataType: 'jsonp',
 		cache: false,
 		statusCode: {
 			200: function(data) {
@@ -143,8 +144,9 @@ function llenar_tabla_promos(data) {
 	data.getcount = 1;
 
 	jQuery.ajax({
-		url: "/sales/search",
+		url: "http://api.<%=@hostname%>/sales/search",
 		data: data,
+		dataType: 'jsonp',
 		cache: false,
 		statusCode: {
 			200: function(data) {
@@ -282,7 +284,9 @@ jQuery(window).load(function() {
 	dibujar_pulldown_productos('start_up');
 	jQuery("#fecha_desde").datepicker();
 	jQuery("#fecha_hasta").datepicker();
+	<% if @id_producto != 0 %>
 	jQuery.when(llenar_pulldown()).then(get_promos());
+	<% end %>
 });
 </script>
 <%= javascript_include_tag "jquery-ui-1.8.14.custom.min", "jquery-ui-datepicker-es" %>

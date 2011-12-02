@@ -42,17 +42,12 @@ function get_promos(id) {
 	}
 
 	jQuery.ajax({
-		url: "/sales/search",
+		url: "http://api." + global_hostname + "/sales/search",
 		data: querystring,
-		cache: false,
-		statusCode: {
-			200: function(data) {
-				data_promos_graficos[id] = data;
-				dibujar_data(opts);
-			},
-			400: function() {
-				alert('Error 400!');
-			}
+		dataType: 'jsonp',
+		success: function(data) {
+			data_promos_graficos[id] = data;
+			dibujar_data(opts);
 		}
 	});	
 }

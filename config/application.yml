@@ -28,10 +28,12 @@
     ]
 
 development:
+  host: "gardens.virtualbox"
   <<: *defaults
 
 test:
   <<: *defaults
 
 production:
+  host: "idashboard.la"
   <<: *defaults

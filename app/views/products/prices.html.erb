@@ -90,8 +90,9 @@ function graficar(id) {
 	chart.showLoading();
 
 	jQuery.ajax({
-		url: "/prices/search",
+		url: "http://api.<%=@hostname%>/prices/search",
 		data: query_string,
+		dataType: 'jsonp',
 		cache: false,
 		statusCode: {
 			200: function(data) {
@@ -149,8 +150,8 @@ function set_max_min_date() {
 	}
 
 	jQuery.ajax({
-		url: '/products/get_dates?product=' + objs.join(','),
-		cache: false,
+		url: 'http://api.<%=@hostname%>/products/get_dates?product=' + objs.join(','),
+		dataType: 'jsonp',
 		statusCode: {
 			200: function(data) {
 				var fecha_min = data.date_from.split('-');
