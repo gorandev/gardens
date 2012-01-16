@@ -28,7 +28,7 @@
     ]
 
 development:
-  host: "gardens.virtualbox"
+  host: "idashboard.local"
   <<: *defaults
 
 test:

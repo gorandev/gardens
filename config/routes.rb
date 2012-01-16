@@ -3,8 +3,9 @@ Gardens::Application.routes.draw do
 
   constraints(:subdomain => "rails") do
     root :to => 'products#prices'
-    get 'products/prices'        
+    get 'products/prices'      
     match 'products/pagina_producto(/:id)' => 'products#pagina_producto', :as => 'pagina_producto'
+    match 'products/categorias' => 'products#categorias', :as => 'pagina_categorias'
     get 'saved_reports/show_all'  
     get 'sales/ver'
 
@@ -37,6 +38,8 @@ Gardens::Application.routes.draw do
 
     match 'products/get_dates' => 'products#get_dates', :defaults => { :format => :json }
     match 'products/search' => 'products#search', :defaults => { :format => :json }
+
+    match 'products/get_avg_prices' => 'products#get_avg_prices', :defaults => { :format => :json }
 
     get 'products/inicializar_memstore'
 

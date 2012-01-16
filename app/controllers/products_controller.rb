@@ -366,6 +366,79 @@ class ProductsController < ApplicationController
     end
   end
 
+  def categorias
+    @pagina = 'Categorias'
+  end
+
+  def get_avg_prices
+    query_sql = <<'SQL'
+SELECT 
+  r.id AS id, 
+  r.name AS name, 
+  r.country_id AS country_id, 
+  r.created_at AS created_at, 
+  r.updated_at AS updated_at, 
+  r.color AS color, 
+  AVG(pr.price) AS average_price, 
+  pr.price_date AS price_date, 
+  pv.id AS property_value_id,
+  pv.value AS property_value_value,
+  pv2.id AS property_value_2_id,
+  pv2.value AS property_value_2_value
+FROM prices pr
+LEFT OUTER JOIN items i ON i.id = pr.item_id
+LEFT OUTER JOIN retailers r ON r.id = i.retailer_id
+LEFT OUTER JOIN countries c ON c.id = r.country_id
+LEFT OUTER JOIN products p ON p.id = i.product_id
+LEFT OUTER JOIN products_property_values ppv ON ppv.product_id = p.id
+LEFT OUTER JOIN property_values pv ON pv.id = ppv.property_value_id
+LEFT OUTER JOIN products_property_values ppv2 ON ppv2.product_id = p.id
+LEFT OUTER JOIN property_values pv2 ON pv2.id = ppv2.property_value_id
+WHERE c.id = ? AND pv.property_id = ? AND pv2.property_id = ?
+SQL
+    query_params = [ session[:country_id], 1, 4 ]
+
+    if params.has_key?(:fecha_desde)
+      query_sql += ' AND pr.price_date >= ? '
+      query_params.push(params[:fecha_desde])
+    end
+
+    if params.has_key?(:fecha_hasta)
+      query_sql += ' AND pr.price_date <= ? '
+      query_params.push(params[:fecha_hasta])
+    end
+
+    if params.has_key?(:categoria)
+      query_sql += " AND pv.id IN (#{params[:categoria]}) "
+    end
+    if params.has_key?(:marca)
+      query_sql += " AND pv2.id IN (#{params[:marca]}) "
+    end
+
+    if params.has_key?(:retailer)
+      query_sql += " AND r.id IN (#{params[:retailer]}) "
+    end
+
+    query_sql += <<'SQL'
+GROUP BY 
+  pr.price_date, 
+  r.id, r.name, r.country_id, r.created_at, r.updated_at, r.color, 
+  pv.id, pv.value,
+  pv2.id, pv2.value
+ORDER BY pr.price_date
+SQL
+    @avgs = Array.new
+    avgs = Retailer.find_by_sql([query_sql, *query_params]).each do |p|
+      @avgs.push(OpenStruct.new({
+        :x => p.price_date.to_time.to_i * 1000,
+        :y => p.average_price.to_f.round,
+        :retailer_name => p.name,
+        :property_value_name => p.property_value_value,
+        :property_value_2_name => p.property_value_2_value
+      }))
+    end
+  end
+
   private
 
   def _get_dates(product_ids, currency)

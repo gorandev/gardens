@@ -1,0 +1,209 @@
+<% content_for :titulo_pagina do %>Categorias<% end %>
+<% content_for :javascript do %>
+<%= javascript_include_tag "http://code.jquery.com/jquery-1.7.min.js" %>
+<script type="text/javascript">jQuery.noConflict();</script>
+<%= javascript_include_tag "highcharts", "modules/exporting", "chosen.jquery.min", "tooltipsy.min", "highcharts_graficar" %>
+<script type="text/javascript">
+function agregar_tooltips() {
+	jQuery('div[id^="tooltipsy"]').remove()
+	jQuery('li.search-choice > span').each(function(i) {
+		jQuery(this).tooltipsy({
+			content: jQuery(this).parent().parent().parent().siblings().first().attr('title'),
+			alignTo: 'cursor',
+			offset: [10, 10]
+		});
+	});
+}
+
+var spinner = '<%= image_tag "ajax-bar-loader.gif", :size => "238x30" %>';
+var country_id = <%=@country_id%>;
+
+var globalchart;
+var globaldata;
+
+function crear_query_string() {
+	var query_string = '';
+
+	if (jQuery('#categoria_pulldown').val()) {
+		query_string += '&categoria=' + jQuery('#categoria_pulldown').val().join(',');
+	}
+
+	if (jQuery('#retailer_pulldown').val()) {
+		query_string += '&retailer=' + jQuery('#retailer_pulldown').val().join(',');
+	}
+
+	if (jQuery('#marca_pulldown').val()) {
+		query_string += '&marca=' + jQuery('#marca_pulldown').val().join(',');
+	}
+
+	if (jQuery('#fecha_desde').val()) {
+		query_string += '&fecha_desde=' + jQuery('#fecha_desde').val();
+	}
+
+	if (jQuery('#fecha_hasta').val()) {
+		query_string += '&fecha_hasta=' + jQuery('#fecha_hasta').val();
+	}
+
+	return query_string;
+}
+
+function graficar() {
+	globalchart = new Highcharts.Chart({
+		chart: {
+			renderTo: 'chart'
+		},
+		title: { 
+			text: null 
+		},
+		credits: {
+			enabled: false
+		},
+		exporting: {
+			enabled: false
+		},
+		xAxis: {
+			type: 'datetime'
+		},
+		yAxis: {
+			title: {
+				text: 'Precio promedio'
+			},
+			labels: {
+				formatter: function() {
+					return Highcharts.numberFormat(this.value, 0, ',', '.');
+				}
+			}
+		},
+		plotOptions: {
+			series: {
+				marker: {
+					enabled: true,
+					symbol: 'url(/images/blank.png)'
+				}
+			}
+		}
+	});
+	globalchart.showLoading();
+	jQuery('#boton_ver').attr('disabled', true);
+
+	jQuery.ajax({
+		url: "http://api.<%=@hostname%>/products/get_avg_prices",
+		data: crear_query_string(),
+		dataType: 'jsonp',
+		statusCode: {
+			200: function(data) {
+				globaldata = data;
+				dibujar();				
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
+}
+
+function dibujar() {
+	var data = globaldata;
+
+	var series = {};
+	jQuery.each(data, function(i,v) {
+		if (!series.hasOwnProperty(v.property_value_name)) {
+			series[v.property_value_name] = {};
+			series[v.property_value_name][v.x] = [v.y];
+		} else {
+			if (!series[v.property_value_name].hasOwnProperty(v.x)) {
+				series[v.property_value_name][v.x] = [v.y];
+			} else {
+				series[v.property_value_name][v.x].push(v.y);
+			}
+			
+		}
+	});
+
+	jQuery.each(series, function(i,v) {
+		var tmp = { name: i };
+		tmp['data'] = new Array;
+		jQuery.each(v, function(j,w) {
+			var total = 0;
+			for (var k = 0; k < w.length; k++) {
+				total += w[k];
+			}
+			var point = {};
+			point['x'] = parseInt(j);
+			point['y'] = Math.round(total/w.length);
+			tmp['data'].push(point);
+		})
+		globalchart.addSeries(tmp);
+	});
+
+	globalchart.hideLoading();
+	jQuery('#boton_ver').removeAttr('disabled');
+}
+
+jQuery(window).load(function() {
+	jQuery(".chzn-select").chosen();
+	jQuery("#fecha_desde").datepicker();
+	jQuery("#fecha_hasta").datepicker();
+	jQuery('.pulldown_selector').bind('change', agregar_tooltips);
+});
+</script>
+<%= javascript_include_tag "jquery-ui-1.8.14.custom.min", "jquery-ui-datepicker-es" %>
+<% end %>
+
+<style type="text/css">
+.pulldown_selector {
+	font-size: 12px;
+	width: 160px;
+}
+</style>
+
+<div style="position: relative; height: 100px;">
+
+<div style="position: absolute; left: 0px;">
+<span class="pulldown_span" id="span_categoria_pulldown">
+<select name="categoria" id="categoria_pulldown" class="pulldown_selector chzn-select" size="4" multiple title="Categoria" data-placeholder="Categoria">
+<option></option>
+<% PropertyValue.where(:property_id => 1).order(:value).each do |r| %>
+<option value="<%=r.id%>"><%=r.value%></option>
+<% end %>
+</select>
+</span>
+</div>
+
+<div style="position: absolute; left: 165px;">
+<span class="pulldown_span" id="span_retailer_pulldown">
+<select name="retailer" id="retailer_pulldown" class="pulldown_selector chzn-select" size="4" multiple title="Retailer" data-placeholder="Retailer">
+<option></option>
+<% Retailer.where(:country_id => @country_id).order(:name).each do |r| %>
+<option value="<%=r.id%>"><%=r.name%></option>
+<% end %>
+</select>
+</span>
+</div>
+
+<div style="position: absolute; left: 330px;">
+<span class="pulldown_span" id="span_marca_pulldown">
+<select name="marca" id="marca_pulldown" class="pulldown_selector chzn-select" size="4" multiple title="Marca" data-placeholder="Marca">
+<option></option>
+<% PropertyValue.where(:property_id => 4).order(:value).each do |r| %>
+<option value="<%=r.id%>"><%=r.value%></option>
+<% end %>
+</select>
+</span>
+</div>
+
+<div style="position: absolute; left: 510px;" class="date_div">
+Desde:
+<input type="text" readonly class="date_input" name="fecha_desde" id="fecha_desde" size="8"/> 
+</div>
+
+<div style="position: absolute; left: 620px;" class="date_div">
+Hasta:
+<input type="text" readonly class="date_input" name="fecha_hasta" id="fecha_hasta" size="8"/> 
+</div>
+
+<input type="button" class="control" onClick="graficar();" id="boton_ver" value="Ver" style="position: absolute; left: 730px; top: 3px;"/>
+
+</div>
+
+<div id="chart" style="height: 400px; width: 800px;"></div>

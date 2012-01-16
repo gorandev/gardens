@@ -95,7 +95,7 @@ var global_hostname = '<%=@hostname%>';
 						<div class="esteticaMenuSupIzq"></div>
 						</div>
 						<% end %>
-						<a href="/saved_reports/show_all">&nbsp;MIS REPORTES</a>
+						<%= link_to "MIS REPORTES", saved_reports_show_all_path %>
 						<% if defined?@pagina and @pagina == 'Reportes' %>
 						<div class="esteticaMenuInf">
 						<div class="esteticaMenuInfIzq"></div>
@@ -111,7 +111,7 @@ var global_hostname = '<%=@hostname%>';
 						<div class="esteticaMenuSupIzq"></div>
 						</div>
 						<% end %>
-						<a href="/products/prices">&nbsp;PRECIOS</a>
+						<%= link_to "PRECIOS", products_prices_path %>
 						<% if defined?@pagina and @pagina == 'Precios' %>
 						<div class="esteticaMenuInf">
 						<div class="esteticaMenuInfIzq"></div>
@@ -120,7 +120,6 @@ var global_hostname = '<%=@hostname%>';
 						<% end %>
 						</li>
 
-						<!--
 						<li class="menuPrices">
 						<% if defined?@pagina and @pagina == 'Categorias' %>
 						<div class="esteticaMenu">
@@ -128,7 +127,7 @@ var global_hostname = '<%=@hostname%>';
 						<div class="esteticaMenuSupIzq"></div>
 						</div>
 						<% end %>
-						<a href="/dashboard/categorias">&nbsp;CATEGOR&Iacute;AS</a>
+						<%= link_to 'CATEGORÍAS', pagina_categorias_path %>
 						<% if defined?@pagina and @pagina == 'Categorias' %>
 						<div class="esteticaMenuInf">
 						<div class="esteticaMenuInfIzq"></div>
@@ -136,7 +135,6 @@ var global_hostname = '<%=@hostname%>';
 						</div>
 						<% end %>
 						</li>
-						-->
 						
 						<% if defined?@usuario_tabs %>
 						<li class="menuProduct">
@@ -179,7 +177,7 @@ var global_hostname = '<%=@hostname%>';
 						<div class="esteticaMenuSupIzq"></div>
 						</div>
 						<% end %>
-						<a href="/products/pagina_producto">&nbsp;PRODUCTOS</a>
+						<%= link_to "PRODUCTOS", pagina_producto_path %>
 						<% if defined?@pagina and @pagina == 'Productos' %>
 						<div class="esteticaMenuInf">
 						<div class="esteticaMenuInfIzq"></div>
@@ -195,7 +193,7 @@ var global_hostname = '<%=@hostname%>';
 						<div class="esteticaMenuSupIzq"></div>
 						</div>
 						<% end %>
-						<a href="/sales/ver">&nbsp;PUBLICACIONES</a>
+						<%= link_to "PUBLICACIONES", sales_ver_path %>
 						<% if defined?@pagina and @pagina == 'Publicaciones' %>
 						<div class="esteticaMenuInf">
 						<div class="esteticaMenuInfIzq"></div>

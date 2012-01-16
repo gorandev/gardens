@@ -6,7 +6,7 @@ html{
 body{
 	margin:0;padding:0;
 	text-align:center;font-family:Verdana, Arial, Helvetica, sans-serif;font-size:62.5%;color:#666;
-	background-color:#fff;
+	background-color:#eee;
 	}
 abbr{
 	text-decoration:none;border:0;
@@ -142,12 +142,12 @@ abbr{
 	margin-left:1em;
 	}
 #menu a, #menu a:link, #menu a:visited{
-	color:#666;text-decoration:none;
+	color:#666;text-decoration:none;margin-left: 5px;
 	}
 #menu a:hover{
 	color:#009899;
 	}
-	
+
 /* CONTENIDO _________________________________________________________________________*/
 
 #contenido{
