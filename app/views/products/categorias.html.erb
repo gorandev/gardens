@@ -19,7 +19,11 @@ var spinner = '<%= image_tag "ajax-bar-loader.gif", :size => "238x30" %>';
 var country_id = <%=@country_id%>;
 
 var globalchart;
-var globaldata;
+var globalcat = {};
+var globalret = {};
+var globalmar = {};
+var global_cat_selected = null;
+var global_querystring = null;
 
 function crear_query_string() {
 	var query_string = '';
@@ -47,10 +51,11 @@ function crear_query_string() {
 	return query_string;
 }
 
-function graficar() {
+function init_chart() {
 	globalchart = new Highcharts.Chart({
 		chart: {
-			renderTo: 'chart'
+			renderTo: 'chart',
+			zoomType: 'x'
 		},
 		title: { 
 			text: null 
@@ -59,10 +64,11 @@ function graficar() {
 			enabled: false
 		},
 		exporting: {
-			enabled: false
+			enabled: true
 		},
 		xAxis: {
-			type: 'datetime'
+			type: 'datetime',
+        	maxZoom: 604800000
 		},
 		yAxis: {
 			title: {
@@ -83,17 +89,35 @@ function graficar() {
 			}
 		}
 	});
+}
+
+function graficar() {
+	init_chart();
 	globalchart.showLoading();
 	jQuery('#boton_ver').attr('disabled', true);
-
+	var querystring = crear_query_string();
+	if (querystring == global_querystring) {
+		dibujar({});
+		return;
+	} else {
+		global_querystring = querystring;
+	}
 	jQuery.ajax({
 		url: "http://api.<%=@hostname%>/products/get_avg_prices",
-		data: crear_query_string(),
+		data: global_querystring,
 		dataType: 'jsonp',
 		statusCode: {
 			200: function(data) {
-				globaldata = data;
-				dibujar();				
+				global_cat_selected = null;
+				globalcat = {};
+				globalret = {};
+				globalmar = {};
+				jQuery.each(data, function(i,v) {
+					add_valor_cat(v.property_value_name, v.x, v.y);
+					add_valor_ret(v.property_value_name, v.retailer_name, v.x, v.y);
+					add_valor_mar(v.property_value_name, v.retailer_name, v.property_value_2_name, v.x, v.y);
+				});
+				dibujar({});
 			},
 			400: function() {
 				alert('Error 400!');
@@ -102,36 +126,90 @@ function graficar() {
 	});
 }
 
-function dibujar() {
-	var data = globaldata;
+function add_valor_cat(cat, fecha, valor) {
+	if (!globalcat.hasOwnProperty(cat)) {
+		globalcat[cat] = {};
+	}
+	if (!globalcat[cat].hasOwnProperty(fecha)) {
+		globalcat[cat][fecha] = [];
+	}
+	globalcat[cat][fecha].push(valor);
+}
 
-	var series = {};
-	jQuery.each(data, function(i,v) {
-		if (!series.hasOwnProperty(v.property_value_name)) {
-			series[v.property_value_name] = {};
-			series[v.property_value_name][v.x] = [v.y];
+function add_valor_ret(cat, ret, fecha, valor) {
+	if (!globalret.hasOwnProperty(cat)) {
+		globalret[cat] = {};
+	}
+	if (!globalret[cat].hasOwnProperty(ret)) {
+		globalret[cat][ret] = {};
+	}
+	if (!globalret[cat][ret].hasOwnProperty(fecha)) {
+		globalret[cat][ret][fecha] = [];
+	}
+	globalret[cat][ret][fecha].push(valor);	
+}
+
+function add_valor_mar(cat, ret, mar, fecha, valor) {
+	if (!globalmar.hasOwnProperty(cat)) {
+		globalmar[cat] = {};
+	}
+	if (!globalmar[cat].hasOwnProperty(ret)) {
+		globalmar[cat][ret] = {};
+	}
+	if (!globalmar[cat][ret].hasOwnProperty(mar)) {
+		globalmar[cat][ret][mar] = {};
+	}
+	if (!globalmar[cat][ret].hasOwnProperty(fecha)) {
+		globalmar[cat][ret][mar][fecha] = [];
+	}
+	globalmar[cat][ret][mar][fecha].push(valor);	
+}
+
+function dibujar(params) {
+	var data;
+	if (params.hasOwnProperty('categoria')) {
+		if (params.hasOwnProperty('retailer')) {
+			data = globalmar[params['categoria']][params['retailer']];
 		} else {
-			if (!series[v.property_value_name].hasOwnProperty(v.x)) {
-				series[v.property_value_name][v.x] = [v.y];
-			} else {
-				series[v.property_value_name][v.x].push(v.y);
-			}
-			
+			data = globalret[params['categoria']];
 		}
-	});
+	} else {
+		data = globalcat;
+	}
 
-	jQuery.each(series, function(i,v) {
-		var tmp = { name: i };
-		tmp['data'] = new Array;
+	jQuery.each(data, function(i,v) {
+		var tmp = { 
+			name: i, 
+			data: new Array,
+			events: {
+				click: function() {
+					if (globalret.hasOwnProperty(this.name)) {
+						global_cat_selected = this.name;
+						init_chart();
+						globalchart.showLoading();
+						dibujar({categoria: this.name});
+					}
+					if (
+						globalmar.hasOwnProperty(global_cat_selected)
+						&&
+						globalmar[global_cat_selected].hasOwnProperty(this.name)
+					) {
+						init_chart();
+						globalchart.showLoading();
+						dibujar({categoria: global_cat_selected, retailer: this.name});
+					}
+				}
+			}
+		};
 		jQuery.each(v, function(j,w) {
 			var total = 0;
 			for (var k = 0; k < w.length; k++) {
 				total += w[k];
 			}
-			var point = {};
-			point['x'] = parseInt(j);
-			point['y'] = Math.round(total/w.length);
-			tmp['data'].push(point);
+			tmp['data'].push({
+				x: parseInt(j),
+				y: Math.round(total/w.length)
+			});
 		})
 		globalchart.addSeries(tmp);
 	});
@@ -142,9 +220,21 @@ function dibujar() {
 
 jQuery(window).load(function() {
 	jQuery(".chzn-select").chosen();
-	jQuery("#fecha_desde").datepicker();
-	jQuery("#fecha_hasta").datepicker();
 	jQuery('.pulldown_selector').bind('change', agregar_tooltips);
+	jQuery(function() {
+		var dates = jQuery( "#fecha_desde, #fecha_hasta" ).datepicker({
+			changeMonth: true,
+			onSelect: function( selectedDate ) {
+				var option = this.id == "fecha_desde" ? "minDate" : "maxDate",
+					instance = jQuery( this ).data( "datepicker" ),
+					date = jQuery.datepicker.parseDate(
+						instance.settings.dateFormat ||
+						jQuery.datepicker._defaults.dateFormat,
+						selectedDate, instance.settings );
+				dates.not( this ).datepicker( "option", option, date );
+			}
+		});
+	});
 });
 </script>
 <%= javascript_include_tag "jquery-ui-1.8.14.custom.min", "jquery-ui-datepicker-es" %>
