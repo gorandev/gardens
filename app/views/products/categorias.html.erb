@@ -51,20 +51,20 @@ function crear_query_string() {
 	return query_string;
 }
 
-function init_chart() {
-	globalchart = new Highcharts.Chart({
+function init_chart(params) {
+	var options = {
 		chart: {
 			renderTo: 'chart',
 			zoomType: 'x'
 		},
 		title: { 
-			text: null 
+			text: ( params.hasOwnProperty('title') ? params['title'] : null )
+		},
+		subtitle: {
+			text: ( params.hasOwnProperty('subtitle') ? params['subtitle'] : null )
 		},
 		credits: {
 			enabled: false
-		},
-		exporting: {
-			enabled: true
 		},
 		xAxis: {
 			type: 'datetime',
@@ -72,7 +72,7 @@ function init_chart() {
 		},
 		yAxis: {
 			title: {
-				text: 'Precio promedio'
+				text: 'Precio promedio en pesos'
 			},
 			labels: {
 				formatter: function() {
@@ -82,17 +82,44 @@ function init_chart() {
 		},
 		plotOptions: {
 			series: {
+				animation: false,
 				marker: {
 					enabled: true,
 					symbol: 'url(/images/blank.png)'
 				}
 			}
-		}
-	});
+		},
+		exporting: {
+			buttons: {
+				exportButton: {
+					menuItems: [ {}, {}, {}, {} ]
+				}
+			}
+		} 
+	};
+
+	if ( params.hasOwnProperty('backButton') ) {
+		options.exporting.buttons.backButton = {
+			_titleKey: 'backButtonTitle',
+			x: -62,
+			symbol: 'square',
+			onclick: function() {
+				if ( globalret.hasOwnProperty(params['backButton']) ) {
+					init_chart({title: params['backButton'], backButton: 'Categorias'});
+					dibujar({ categoria: params['backButton'] });
+				} else {
+					init_chart({title: params['backButton']});
+					dibujar({});	
+				}
+			}
+		};
+	}
+
+	globalchart = new Highcharts.Chart(options);
 }
 
 function graficar() {
-	init_chart();
+	init_chart({title: 'Categorías'});
 	globalchart.showLoading();
 	jQuery('#boton_ver').attr('disabled', true);
 	var querystring = crear_query_string();
@@ -180,12 +207,13 @@ function dibujar(params) {
 	jQuery.each(data, function(i,v) {
 		var tmp = { 
 			name: i, 
+			connectNulls: true,
 			data: new Array,
 			events: {
 				click: function() {
 					if (globalret.hasOwnProperty(this.name)) {
 						global_cat_selected = this.name;
-						init_chart();
+						init_chart({title: this.name, backButton: 'Categorias'});
 						globalchart.showLoading();
 						dibujar({categoria: this.name});
 					}
@@ -194,7 +222,7 @@ function dibujar(params) {
 						&&
 						globalmar[global_cat_selected].hasOwnProperty(this.name)
 					) {
-						init_chart();
+						init_chart({title: global_cat_selected, subtitle: this.name, backButton: global_cat_selected});
 						globalchart.showLoading();
 						dibujar({categoria: global_cat_selected, retailer: this.name});
 					}
