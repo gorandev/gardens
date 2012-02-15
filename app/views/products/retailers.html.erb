@@ -18,12 +18,12 @@ function agregar_tooltips() {
 function crear_query_string() {
 	var query_string = 'currency=<%=@currency_id%>';
 
-	var pvs = new Array;
-	pvs.push(jQuery('#marca_pulldown').val());
-	pvs.push(jQuery('#categoria_pulldown').val());
+	if (jQuery('#retailer_pulldown').val()) {
+		query_string += '&retailer=' + jQuery('#retailer_pulldown').val();
+	}
 
-	if (pvs.join(',') != ',') {
-		query_string += '&property_values=' + pvs.join(',');
+	if (jQuery('#categoria_pulldown').val()) {
+		query_string += '&property_values=' + jQuery('#categoria_pulldown').val();
 	}
 
 	if (jQuery('#fecha_desde').val()) {
@@ -92,7 +92,7 @@ function init_chart(params) {
 var graficos = [
 	[ 'pricebands', 'publicaciones' ],
 	[ 'pricebands', 'publicaciones' ],
-	[ 'pie_chart', 'retailer' ],
+	[ 'pie_chart', 'marca' ],
 	[ 'pie_chart', 'medio' ],
 	[ 'pie_chart', 'os' ],
 	[ 'pie_chart', 'memoria' ],
@@ -182,11 +182,6 @@ function hacer_pie_chart(obj, data) {
 		total += v;
 	}
 
-	//jQuery.each(data['pie_chart'], function(i, v) {
-	//	tmp['data'].push([decode_html(i),v]);
-		//total += v;
-	//});
-
 	var titulo = graficos_obj[obj.grafico].options.title.text + ' (' + total + ')';
 	graficos_obj[obj.grafico].setTitle({ text: titulo });
 	graficos_obj[obj.grafico].addSeries(tmp);
@@ -261,10 +256,10 @@ jQuery(window).load(function() {
 
 <div class="selector" style="position: absolute; left: 0px;">
 <span class="pulldown_span" id="span_marca_pulldown">
-<select name="marca" id="marca_pulldown" class="pulldown_selector chzn-select" size="4" title="Marca" data-placeholder="Todas las marcas">
+<select name="retailer" id="retailer_pulldown" class="pulldown_selector chzn-select" size="4" title="Retailer" data-placeholder="Todos los retailers">
 <option></option>
-<% PropertyValue.select('property_values.id, property_values.value').joins(:products => :retailers).where(:property_id => 4, :products => { :retailers => { :country_id => @country_id } } ).order(:value).group('property_values.id, property_values.value').each do |pv| %>
-<option value="<%=pv.id%>"><%=pv.value%></option>
+<% Retailer.where(:country_id => @country_id).order(:name).each do |r| %>
+<option value="<%=r.id%>"><%=r.name%></option>
 <% end %>
 </select>
 </span>

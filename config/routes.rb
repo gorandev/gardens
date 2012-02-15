@@ -7,6 +7,7 @@ Gardens::Application.routes.draw do
     match 'products/pagina_producto(/:id)' => 'products#pagina_producto', :as => 'pagina_producto'
     match 'products/categorias' => 'products#categorias', :as => 'pagina_categorias'
     match 'products/vendors' => 'products#vendors', :as => 'pagina_vendors'
+    match 'products/retailers' => 'products#retailers', :as => 'pagina_retailers'
     get 'saved_reports/show_all'  
     get 'sales/ver'
 

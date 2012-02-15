@@ -447,6 +447,10 @@ SQL
     @pagina = 'Vendors'
   end
 
+  def retailers
+    @pagina = 'Retailers'
+  end
+
   private
 
   def _get_dates(product_ids, currency)

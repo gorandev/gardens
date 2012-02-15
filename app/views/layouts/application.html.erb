@@ -152,7 +152,6 @@ var global_hostname = '<%=@hostname%>';
 						<% end %>
 						</li>
 
-						<!--
 						<li class="menuProduct">
 						<% if defined?@pagina and @pagina == 'Retailers' %>
 						<div class="esteticaMenu">
@@ -160,7 +159,7 @@ var global_hostname = '<%=@hostname%>';
 						<div class="esteticaMenuSupIzq"></div>
 						</div>
 						<% end %>
-						<a href="/dashboard/retailers">&nbsp;RETAILERS</a>
+						<%= link_to 'RETAILERS', pagina_retailers_path %>
 						<% if defined?@pagina and @pagina == 'Retailers' %>
 						<div class="esteticaMenuInf">
 						<div class="esteticaMenuInfIzq"></div>
@@ -168,7 +167,6 @@ var global_hostname = '<%=@hostname%>';
 						</div>
 						<% end %>
 						</li>
-						-->
 						
 						<li class="menuProduct">
 						<% if defined?@pagina and @pagina == 'Productos' %>
