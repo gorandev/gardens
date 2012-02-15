@@ -56,12 +56,16 @@ class Product < ActiveRecord::Base
   end
 
   def marca
-    marca = String.new
+    return get_property_value('marca')
+  end
+
+  def get_property_value(property)
+    propv = String.new
     self.property_values.each do |pv|
-      if pv.property.name == 'marca'
-        marca = pv.value
+      if pv.property.name == property
+        propv = pv.value
       end
     end
-    return marca
+    return propv
   end
 end

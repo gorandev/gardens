@@ -52,7 +52,6 @@ class SalesController < ApplicationController
     end
 
     where = Hash.new
-    join = Array.new
 
     if params.has_key?(:currency)
       unless Currency.exists?(params[:currency])
@@ -66,6 +65,11 @@ class SalesController < ApplicationController
         params[:product] = params[:product].split(',')
       end
       where[:product_id] = params[:product]
+    elsif params.has_key?(:property_values)
+      unless params[:property_values].is_a?Array
+        params[:property_values] = params[:property_values].split(',')
+      end
+      where[:product_id] = REDIS.sinter(*params[:property_values].collect {|pv| 'property_value:' + pv.to_s})
     end
     
     if params.has_key?(:media_channel)
@@ -94,7 +98,34 @@ class SalesController < ApplicationController
     	render 'getcount' and return
     end
 
-  	@sales = Sale.includes(:media_channel, :retailer, :product).where(where).order("sale_date DESC").limit(@count).offset(@offset)
+    if params.has_key?(:getall) or params.has_key?(:pricebands) or params.has_key?(:pie_chart)
+      @count = nil
+      @offset = nil
+    end
+
+  	@sales = Sale.includes(:media_channel, :retailer, :product, :currency).where(where).order("sale_date DESC").limit(@count).offset(@offset)
+
+    if params.has_key?(:pie_chart)
+      if params[:pie_chart] == 'medio' or params[:pie_chart] == 'retailer'
+        return make_pie_chart_sales(@sales, params[:pie_chart])
+      end
+
+      products = Array.new
+      @sales.each do |s|
+        products.push(s.product)
+      end
+      return make_pie_chart(
+        products,
+        params[:pie_chart]
+      )
+    end
+
+    if params.has_key?(:pricebands)
+      return make_priceband(
+        Settings['computadoras']['pricebands'][Currency.find(params[:currency]).country.iso_code],
+        @sales
+      )
+    end
   end
 
   def ver

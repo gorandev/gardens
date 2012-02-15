@@ -51,6 +51,79 @@ class ApplicationController < ActionController::Base
     return item
   end
 
+  def make_priceband(pricebands, objects)
+    result_pricebands = Array.new
+    pricebands.each do |p|
+      result_pricebands.push(0)
+    end
+    objects.each do |o|
+      pricebands.each_with_index do |p, i|
+        unless p[0].nil? and p[1].nil?
+          if p[0].nil? and o.price < p[1]
+            result_pricebands[i] += 1
+          end
+          if p[1].nil? and o.price > p[0]
+            result_pricebands[i] += 1
+          end
+          unless p[0].nil? or p[1].nil?
+            if (o.price > p[0] && o.price < p[1])
+              result_pricebands[i] += 1
+            end
+          end
+        end
+      end
+    end
+
+    @resultado = OpenStruct.new({
+      :pricebands => pricebands,
+      :result_pricebands => result_pricebands
+    })
+
+    render 'layouts/pricebands'
+  end
+
+  def make_pie_chart(products, property)
+    valores = Hash.new
+
+    products.each do |p|
+      pv = p.get_property_value(property)
+      unless valores.has_key?(pv)
+        valores[pv] = 1
+      else
+        valores[pv] += 1
+      end
+    end
+
+    @resultado = OpenStruct.new({
+      :pie_chart => valores
+    })
+
+    render 'layouts/pie_charts'
+  end
+
+  def make_pie_chart_sales(sales, property)
+    valores = Hash.new
+
+    sales.each do |s|
+      if property == 'medio'
+        valor = s.media_channel.name
+      elsif property == 'retailer'
+        valor = s.retailer.name
+      end
+      unless valores.has_key?(valor)
+        valores[valor] = 1
+      else
+        valores[valor] += 1
+      end
+    end
+
+    @resultado = OpenStruct.new({
+      :pie_chart => valores
+    })
+
+    render 'layouts/pie_charts'
+  end
+
   private
  
   def record_not_found

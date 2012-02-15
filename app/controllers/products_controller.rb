@@ -364,6 +364,10 @@ class ProductsController < ApplicationController
       REDIS.set "descripcion.retailer:#{r.id}", r.name
       REDIS.sadd "retailers_country:#{r.country.id}", r.id
     end
+
+    Sale.all.each do |s|
+      REDIS.sadd "producto_sale:#{s.producto.id}", s.id
+    end
   end
 
   def categorias
@@ -437,6 +441,10 @@ SQL
         :property_value_2_name => p.property_value_2_value
       }))
     end
+  end
+
+  def vendors
+    @pagina = 'Vendors'
   end
 
   private

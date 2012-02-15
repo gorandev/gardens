@@ -263,6 +263,11 @@ jQuery(window).load(function() {
 			}
 		});
 	});
+	jQuery("#fecha_desde").datepicker( "setDate", '<%=(Date.today - 1.month).strftime('%d/%m/%Y')%>' );
+	jQuery("#fecha_hasta").datepicker( "setDate", '<%=Date.today.strftime('%d/%m/%Y')%>' );
+
+	jQuery("#fecha_desde").datepicker( "option", "maxDate", '<%=Date.today.strftime('%d/%m/%Y')%>' );
+	jQuery("#fecha_hasta").datepicker( "option", "minDate", '<%=(Date.today - 1.month).strftime('%d/%m/%Y')%>' );
 });
 </script>
 <%= javascript_include_tag "jquery-ui-1.8.14.custom.min", "jquery-ui-datepicker-es" %>
