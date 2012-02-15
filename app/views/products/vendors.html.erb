@@ -155,7 +155,8 @@ function graficar() {
 	}
 }
 
-function decode_html(text) {
+function decode_html(t) {
+	var text = new String(t);
 	text = text.gsub('&aacute;', String.fromCharCode(225));
 	text = text.gsub('&eacute;', String.fromCharCode(233));
 	text = text.gsub('&iacute;', String.fromCharCode(237));
@@ -165,10 +166,29 @@ function decode_html(text) {
 }
 
 function hacer_pie_chart(obj, data) {
+	var total = 0;
 	var tmp = { data: new Array };
+
+	var keys = new Array;
 	jQuery.each(data['pie_chart'], function(i, v) {
-		tmp['data'].push([decode_html(i),v]);
+		keys.push(i);
 	});
+	keys.sort();
+
+	for (var j = 0; j < keys.length; j++) {
+		var i = keys[j];
+		var v = data['pie_chart'][i];
+		tmp['data'].push([decode_html(i), v]);
+		total =+ v;
+	}
+
+	//jQuery.each(data['pie_chart'], function(i, v) {
+	//	tmp['data'].push([decode_html(i),v]);
+		//total += v;
+	//});
+
+	var titulo = graficos_obj[obj.grafico].options.title.text + ' (' + total + ')';
+	graficos_obj[obj.grafico].setTitle({ text: titulo });
 	graficos_obj[obj.grafico].addSeries(tmp);
 	graficos_obj[obj.grafico].hideLoading();
 }
