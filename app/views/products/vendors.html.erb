@@ -155,10 +155,19 @@ function graficar() {
 	}
 }
 
+function decode_html(text) {
+	text = text.gsub('&aacute;', String.fromCharCode(225));
+	text = text.gsub('&eacute;', String.fromCharCode(233));
+	text = text.gsub('&iacute;', String.fromCharCode(237));
+	text = text.gsub('&oacute;', String.fromCharCode(243));
+	text = text.gsub('&uacute;', String.fromCharCode(250));
+	return text;
+}
+
 function hacer_pie_chart(obj, data) {
 	var tmp = { data: new Array };
 	jQuery.each(data['pie_chart'], function(i, v) {
-		tmp['data'].push([i,v]);
+		tmp['data'].push([decode_html(i),v]);
 	});
 	graficos_obj[obj.grafico].addSeries(tmp);
 	graficos_obj[obj.grafico].hideLoading();
