@@ -22,20 +22,18 @@ Highcharts.setOptions({
 	}
 });
 
-var data_graficos = {};
-var data_promos_graficos = {};
+var data_graficos = new Array;
+var data_promos_graficos = new Array;
 
 var promos = {};
 var promos_por_producto = {};
 
-function get_promos(id) {
-	var querystring;
-	if (arguments[1]) {
-		querystring = arguments[1];
-	} else {
-		querystring = prices_last_query_string_sent[id];
-	}
+var global_prods = {};
 
+var graficos_obj = new Array;
+var graficos_url = new Array;
+
+function get_promos(id, querystring) {
 	var opts = { id: id };
 	if (arguments[2]) {
 		opts.no_save_button = true;
@@ -51,8 +49,6 @@ function get_promos(id) {
 		}
 	});	
 }
-
-var global_prods = {};
 
 function dibujar_data(params) {
 	var id = params['id'];
@@ -405,7 +401,7 @@ function dibujar_data(params) {
 		};
 	}
 
-	var chart = new Highcharts.Chart(options);
+	graficos_obj[id] = new Highcharts.Chart(options);
 	
 	if (Object.keys(prods).length == 1) {
 		var opts_dblclick = { id: id };
@@ -414,7 +410,7 @@ function dibujar_data(params) {
 		if (params.hasOwnProperty('no_save_button')) { opts_dblclick.no_save_button = true; }
 		if (id_producto) { opts_dblclick.id_producto = id_producto; }
 
-		jQuery(chart.container).dblclick(function() {
+		jQuery(graficos_obj[id].container).dblclick(function() {
 			dibujar_data(opts_dblclick);
 		});
 	}
@@ -526,4 +522,216 @@ function mostrar_promos(params) {
 			height: 600
 		}
 	);
+}
+
+function decode_html(t) {
+	var text = new String(t);
+	text = text.gsub('&aacute;', String.fromCharCode(225));
+	text = text.gsub('&eacute;', String.fromCharCode(233));
+	text = text.gsub('&iacute;', String.fromCharCode(237));
+	text = text.gsub('&oacute;', String.fromCharCode(243));
+	text = text.gsub('&uacute;', String.fromCharCode(250));
+	return text;
+}
+
+function init_chart(params) {
+	var options = {
+		chart: {
+			renderTo: 'chart_' + params['grafico'],
+			type: ( params.hasOwnProperty('type') ? params['type'] : 'bar' )
+		},
+		title: { 
+			text: ( params.hasOwnProperty('title') ? params['title'] : null )
+		},
+		subtitle: {
+			text: ( params.hasOwnProperty('subtitle') ? params['subtitle'] : null )
+		},
+		credits: {
+			enabled: false
+		},
+		plotOptions: {
+			series: {
+				animation: false
+			}
+		},
+		exporting: {
+			buttons: {
+				exportButton: {
+					menuItems: [ {}, {}, {}, {} ]
+				}
+			}
+		}
+	};
+
+	if (params.hasOwnProperty('type') && params['type'] == 'bar') {
+		options.legend = { enabled: false };
+		options.xAxis = { reversed: false };
+		options.yAxis = { title: { text: false } };
+		options.chart.inverted = true;
+		options.tooltip = {
+			formatter: function() {
+				return '<b>' + this.x +'</b><br/>'+ Highcharts.numberFormat((this.series.name * (this.y/100) ), 0, ',', '.') + ' (' + Highcharts.numberFormat(this.y, 2, ',', '.') + '%)';
+			}
+		};
+	}
+
+	if (params.hasOwnProperty('type') && params['type'] == 'pie') {
+		options.tooltip = {
+			formatter: function() {
+				return '<b>' + this.point.name +'</b><br/>'+ this.y +' (' + Highcharts.numberFormat(this.percentage, 2, ',', '.') + '%)';
+			}
+		};
+	}
+
+	options.exporting.buttons.exportButton.menuItems.push({
+		text: 'Salvar reporte',
+		onclick: function() {
+			salvar_reporte(params['grafico']);
+		}
+	});
+
+	graficos_obj[params['grafico']] = new Highcharts.Chart(options);
+}
+
+function hacer_pie_chart(obj, data) {
+	var total = 0;
+	var tmp = { data: new Array };
+
+	var keys = new Array;
+	jQuery.each(data['pie_chart'], function(i, v) {
+		keys.push(i);
+	});
+	keys.sort();
+
+	for (var j = 0; j < keys.length; j++) {
+		var i = keys[j];
+		var v = data['pie_chart'][i];
+		tmp['data'].push([decode_html(i), v]);
+		total += v;
+	}
+
+	var titulo = graficos_obj[obj.grafico].options.title.text + ' (' + total + ')';
+	graficos_obj[obj.grafico].setTitle({ text: titulo });
+	graficos_obj[obj.grafico].addSeries(tmp);
+	graficos_obj[obj.grafico].hideLoading();
+}
+
+function hacer_pricebands(obj, data) {
+	var cats = new Array;
+	var total = 0;
+	for (var j = 0; j < data['result_pricebands'].length; j++) {
+		total += data['result_pricebands'][j];
+	}
+	var tmp = { data: new Array, name: total };
+
+	jQuery.each(data['pricebands'], function(i, v) {
+		var name = new String;
+		if (v[0] == null || v[1] == null) {
+			if (v[0] == null) {
+				name = 'menos de ' + v[1];
+			} else {
+				name = 'mas de ' + v[0];
+			}
+		} else {
+			name = v[0] + ' - ' + v[1];
+		}
+		cats.push(name);
+		tmp['data'].push(data['result_pricebands'][i] * 100 / total);
+	});
+	var titulo = graficos_obj[obj.grafico].options.title.text + ' (' + total + ')';
+	graficos_obj[obj.grafico].setTitle({ text: titulo });
+	graficos_obj[obj.grafico].addSeries(tmp);
+	graficos_obj[obj.grafico].xAxis[0].setCategories(cats);
+	graficos_obj[obj.grafico].hideLoading();	
+}
+
+function hacer_grafico(id, url, querystring) {
+	if (/prices\/search/.test(url)) {
+		graficos_obj[id] = new Highcharts.Chart({
+			chart: {
+				renderTo: 'chart_' + id 
+			},
+			title: { 
+				text: null 
+			},
+			credits: {
+				enabled: false
+			},
+			exporting: {
+				enabled: false
+			}
+		});
+
+		graficos_obj[id].showLoading();
+
+		jQuery.ajax({
+			url: url,
+			data: querystring,
+			dataType: 'jsonp',
+			cache: false,
+			statusCode: {
+				200: function(data) {
+					data_graficos[id] = data;
+					get_promos(id, querystring);
+				},
+				400: function() {
+					alert('Error 400!');
+				}
+			}
+		});
+	}
+
+	if ( /products\/search/.test(url) || /sales\/search/.test(url) ) {
+		hacer_pie_chart_o_priceband(id, url, querystring);
+	}
+}
+
+function hacer_pie_chart_o_priceband(id, url, querystring) {
+	var type = new String;
+	var title = new String;
+
+	if (/pricebands/.test(querystring)) {
+		type = 'bar';
+		if (/sales/.test(url)) {
+			title = 'Promociones por priceband';
+		}
+		if (/products/.test(url)) {
+			title = 'Productos por priceband';
+		}
+	}
+
+	var res = /pie_chart=(.+?)&/.exec(querystring);
+	if (res) {
+		type = 'pie';
+		if (/sales/.test(url)) {
+			title = 'Promociones por ' + res[1];
+		}
+	}
+
+	init_chart({
+		grafico: id,
+		type: type,
+		title: title
+	});
+
+	jQuery.ajax({
+		url: url,
+		data: querystring,
+		dataType: 'jsonp',
+		context: { grafico: id },
+		statusCode: {
+			200: function(data) {
+				if (data.hasOwnProperty('pie_chart')) {
+					hacer_pie_chart(this, data);
+				}
+
+				if (data.hasOwnProperty('pricebands')) {
+					hacer_pricebands(this, data);
+				}
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
 }

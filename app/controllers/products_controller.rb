@@ -36,6 +36,7 @@ class ProductsController < ApplicationController
         :properties => { :name => Settings['computadoras']['productos_similares'] }).each do |pv|
           pv_similares_ids.push("property_value:#{pv.id}")
       end
+
       @productos_similares = Product.find_all_by_id(REDIS.sinter(*pv_similares_ids, "country:#{@country_id}")).sort! { |a, b| a.descripcion <=> b.descripcion }
 
       @available_countries = Array.new

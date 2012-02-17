@@ -12,7 +12,8 @@ class SavedReportsController < ApplicationController
 		end
 
 		saved_report = SavedReport.new( 
-			:querystring => params[:querystring], 
+			:url => params[:url],
+			:querystring => params[:querystring],
 			:user => current_user,
 			:orden => last_orden
 		)

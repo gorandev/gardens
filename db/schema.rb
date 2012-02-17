@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111031170916) do
+ActiveRecord::Schema.define(:version => 20120217221610) do
 
   create_table "countries", :force => true do |t|
     t.string   "iso_code"
@@ -195,6 +195,7 @@ ActiveRecord::Schema.define(:version => 20111031170916) do
     t.integer  "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.text     "url"
   end
 
   add_index "saved_reports", ["user_id"], :name => "index_saved_reports_on_user_id"

@@ -4,40 +4,10 @@
 <script type="text/javascript">jQuery.noConflict();</script>
 <%= javascript_include_tag "highcharts", "modules/exporting", "highcharts_graficar" %>
 <script type="text/javascript">
-
-function graficar(id, query_string) {
-	var chart = new Highcharts.Chart({
-		chart: {
-			renderTo: 'chart_' + id 
-		},
-		title: { 
-			text: null 
-		},
-		credits: {
-			enabled: false
-		},
-		exporting: {
-			enabled: false
-		}
-	});
-	
-	chart.showLoading();
-
-	jQuery.ajax({
-		url: "http://api.<%=@hostname%>/prices/search",
-		data: query_string,
-		dataType: 'jsonp',
-		success: function(data) {
-			data_graficos[id] = data;
-			get_promos(id, query_string, true);
-		}
-	});
-}
-
 jQuery(window).load(function() {
 	<% @saved_reports.each_with_index do |sr, i| %>
 	<% next unless sr.querystring.include?('currency=' + @currency_id.to_s) %>
-		graficar(<%=i%>, '<%=sr.querystring%>');
+		hacer_grafico(<%=i%>, '<%=sr.url%>', '<%=sr.querystring%>'.gsub('&amp;', '&'));
 	<% end %>
 });
 </script>

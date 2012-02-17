@@ -61,53 +61,11 @@ function crear_query_string(params) {
 }
 
 function graficar(id) {
-	var query_string = crear_query_string({});
-
-	if (
-		prices_last_query_string_sent.hasOwnProperty(id) && 
-		query_string == prices_last_query_string_sent[id]
-	) {
-		return dibujar_data(id);
-	} else {
-		prices_last_query_string_sent[id] = query_string;
-	}
-
-	var chart = new Highcharts.Chart({
-		chart: {
-			renderTo: 'chart_' + id 
-		},
-		title: { 
-			text: null 
-		},
-		credits: {
-			enabled: false
-		},
-		exporting: {
-			enabled: false
-		}
-	});
-
-	chart.showLoading();
-
-	jQuery.ajax({
-		url: "http://api.<%=@hostname%>/prices/search",
-		data: query_string,
-		dataType: 'jsonp',
-		cache: false,
-		statusCode: {
-			200: function(data) {
-				data_graficos[id] = data;
-				get_promos(id);
-			},
-			400: function() {
-				alert('Error 400!');
-			}
-		}
-	});
+	hacer_grafico(id, "http://api.<%=@hostname%>/prices/search", crear_query_string({}));
 }
 
 function salvar_reporte(params) {
-	var qs;
+	var qs = new String;
 
 	if (params.hasOwnProperty('id_producto')) {
 		qs = crear_query_string({ id_producto: params['id_producto'], for_saving: true });
@@ -116,6 +74,7 @@ function salvar_reporte(params) {
 	}
 
 	var data = {
+		url: 'http://api.<%=@hostname%>/prices/search',
 		querystring: qs
 	};
 
@@ -227,8 +186,6 @@ span.error {
 </span>
 <br/>
 <br/>
-<%= render "shared/periodo_pulldown" %>
-<br/>
 <div class="date_div" style="display: inline; float: left">
 Desde:
 <input class="date_input" type="text" name="fecha_desde" id="fecha_desde" size="8" value="<%= (Date.current - 1.month).strftime("%d/%m/%Y") %>"/>
@@ -254,7 +211,3 @@ Hasta:
 </p>
 </div>
 </div>
-
-<script type="text/javascript">
-
-</script>

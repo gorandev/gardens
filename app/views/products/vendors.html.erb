@@ -37,56 +37,44 @@ function crear_query_string() {
 	return query_string;
 }
 
-function init_chart(params) {
-	var options = {
-		chart: {
-			renderTo: 'grafico' + (params['grafico'] + 1),
-			type: ( params.hasOwnProperty('type') ? params['type'] : 'bar' )
-		},
-		title: { 
-			text: ( params.hasOwnProperty('title') ? params['title'] : null )
-		},
-		subtitle: {
-			text: ( params.hasOwnProperty('subtitle') ? params['subtitle'] : null )
-		},
-		credits: {
-			enabled: false
-		},
-		plotOptions: {
-			series: {
-				animation: false
-			}
-		},
-		exporting: {
-			buttons: {
-				exportButton: {
-					menuItems: [ {}, {}, {}, {} ]
-				}
+function crear_url(grafico, propiedad) {
+	var query_string = new String;
+	var controller = 'sales';
+
+	if (grafico == 'pricebands') {
+		if (propiedad == 'productos') {
+			controller = 'products';
+		}
+		query_string += 'pricebands=_';
+		type = 'bar';
+	}
+
+	if (grafico == 'pie_chart') {
+		query_string += 'pie_chart=' + propiedad;
+	}
+
+	return [
+		"http://api.<%=@hostname%>/" + controller + "/search",
+		query_string + '&' + crear_query_string()
+	];
+}
+
+function salvar_reporte(num) {
+	var g = graficos_url[num].split('?');
+	jQuery.ajax({
+		url: '/saved_reports',
+		type: 'POST',
+		data: { url: g[0], querystring: g[1] },
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				alert('Reporte salvado.');
+			},
+			400: function() {
+				alert('Error 400!');
 			}
 		}
-	};
-
-	if (params.hasOwnProperty('type') && params['type'] == 'bar') {
-		options.legend = { enabled: false };
-		options.xAxis = { reversed: false };
-		options.yAxis = { title: { text: false } };
-		options.chart.inverted = true;
-		options.tooltip = {
-			formatter: function() {
-				return '<b>' + this.x +'</b><br/>'+ Highcharts.numberFormat((this.series.name * (this.y/100) ), 0, ',', '.') + ' (' + Highcharts.numberFormat(this.y, 2, ',', '.') + '%)';
-			}
-		};
-	}
-
-	if (params.hasOwnProperty('type') && params['type'] == 'pie') {
-		options.tooltip = {
-			formatter: function() {
-				return '<b>' + this.point.name +'</b><br/>'+ this.y +' (' + Highcharts.numberFormat(this.percentage, 2, ',', '.') + '%)';
-			}
-		};
-	}
-
-	graficos_obj[params['grafico']] = new Highcharts.Chart(options);
+	});	
 }
 
 var graficos = [
@@ -102,124 +90,12 @@ var graficos = [
 	[ 'pie_chart', 'modelo_procesador' ]
 ];
 
-var graficos_obj = new Array(graficos.length);
-
 function graficar() {
 	for (var i = 0; i < graficos.length; i++) {
-		var grafico = graficos[i][0];
-		var propiedad = graficos[i][1];
-
-		var controller = 'sales';
-		var query_string = '';
-		var type = 'pie';
-		var title = 'Publicaciones por ' + propiedad;
-		if (grafico == 'pricebands') {
-			if (propiedad == 'productos') {
-				controller = 'products';
-			}
-			query_string += 'pricebands=_';
-			type = 'bar';
-			title = propiedad + ' por priceband';
-		}
-		if (grafico == 'pie_chart') {
-			query_string += 'pie_chart=' + propiedad;
-		}
-
-		init_chart({
-			grafico: i,
-			type: type,
-			title: title
-		});
-		graficos_obj[i].showLoading();
-
-		jQuery.ajax({
-			url: 'http://api.<%=@hostname%>/' + controller + '/search',
-			data: query_string + '&' + crear_query_string(),
-			dataType: 'jsonp',
-			context: { grafico: i, propiedad: propiedad },
-			statusCode: {
-				200: function(data) {
-					if (data.hasOwnProperty('pie_chart')) {
-						hacer_pie_chart(this, data);
-					}
-
-					if (data.hasOwnProperty('pricebands')) {
-						hacer_pricebands(this, data);
-					}
-				},
-				400: function() {
-					alert('Error 400!');
-				}
-			}
-		});
+		var g = crear_url(graficos[i][0], graficos[i][1]);
+		graficos_url[i] = g[0] + '?' + g[1];
+		hacer_grafico(i, g[0], g[1]);
 	}
-}
-
-function decode_html(t) {
-	var text = new String(t);
-	text = text.gsub('&aacute;', String.fromCharCode(225));
-	text = text.gsub('&eacute;', String.fromCharCode(233));
-	text = text.gsub('&iacute;', String.fromCharCode(237));
-	text = text.gsub('&oacute;', String.fromCharCode(243));
-	text = text.gsub('&uacute;', String.fromCharCode(250));
-	return text;
-}
-
-function hacer_pie_chart(obj, data) {
-	var total = 0;
-	var tmp = { data: new Array };
-
-	var keys = new Array;
-	jQuery.each(data['pie_chart'], function(i, v) {
-		keys.push(i);
-	});
-	keys.sort();
-
-	for (var j = 0; j < keys.length; j++) {
-		var i = keys[j];
-		var v = data['pie_chart'][i];
-		tmp['data'].push([decode_html(i), v]);
-		total += v;
-	}
-
-	//jQuery.each(data['pie_chart'], function(i, v) {
-	//	tmp['data'].push([decode_html(i),v]);
-		//total += v;
-	//});
-
-	var titulo = graficos_obj[obj.grafico].options.title.text + ' (' + total + ')';
-	graficos_obj[obj.grafico].setTitle({ text: titulo });
-	graficos_obj[obj.grafico].addSeries(tmp);
-	graficos_obj[obj.grafico].hideLoading();
-}
-
-function hacer_pricebands(obj, data) {
-	var cats = new Array;
-	var total = 0;
-	for (var j = 0; j < data['result_pricebands'].length; j++) {
-		total += data['result_pricebands'][j];
-	}
-	var tmp = { data: new Array, name: total };
-
-	jQuery.each(data['pricebands'], function(i, v) {
-		var name = new String;
-		if (v[0] == null || v[1] == null) {
-			if (v[0] == null) {
-				name = 'menos de ' + v[1];
-			} else {
-				name = 'mas de ' + v[0];
-			}
-		} else {
-			name = v[0] + ' - ' + v[1];
-		}
-		cats.push(name);
-		tmp['data'].push(data['result_pricebands'][i] * 100 / total);
-	});
-	var titulo = graficos_obj[obj.grafico].options.title.text + ' (' + total + ')';
-	graficos_obj[obj.grafico].setTitle({ text: titulo });
-	graficos_obj[obj.grafico].addSeries(tmp);
-	graficos_obj[obj.grafico].xAxis[0].setCategories(cats);
-	graficos_obj[obj.grafico].hideLoading();	
 }
 
 jQuery(window).load(function() {
