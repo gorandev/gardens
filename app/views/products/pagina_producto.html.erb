@@ -2,8 +2,7 @@
 <% content_for :javascript do %>
 <%= javascript_include_tag "http://code.jquery.com/jquery-1.7.min.js" %>
 <script type="text/javascript">jQuery.noConflict();</script>
-<%= javascript_include_tag "highcharts", "modules/exporting", "chosen.jquery.min", "highcharts_graficar" %>
-<%= javascript_include_tag "jquery-ui-1.8.14.custom.min", "jquery-ui-datepicker-es" %>
+<%= include_javascripts :pagina_producto %>
 <script type="text/javascript">
 
 function get_productos() {

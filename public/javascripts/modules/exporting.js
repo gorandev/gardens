@@ -1,22 +1,734 @@
-/*
- Highcharts JS v2.1.8 (2011-11-05)
- Exporting module
+/**
+ * @license Highcharts JS v2.2.0 (2012-02-16)
+ * Exporting module
+ *
+ * (c) 2010-2011 Torstein Hønsi
+ *
+ * License: www.highcharts.com/license
+ */
 
- (c) 2010-2011 Torstein H?nsi
+// JSLint options:
+/*global Highcharts, document, window, Math, setTimeout */
 
- License: www.highcharts.com/license
-*/
-(function(){var n=Highcharts,z=n.Chart,C=n.addEvent,t=n.createElement,A=n.discardElement,u=n.css,w=n.merge,p=n.each,q=n.extend,D=Math.max,s=document,E=window,B=s.documentElement.ontouchstart!==undefined,x=n.getOptions();q(x.lang,{downloadPNG:"Download PNG image",downloadJPEG:"Download JPEG image",downloadPDF:"Download PDF document",downloadSVG:"Download SVG vector image",exportButtonTitle:"Export to raster or vector image",printButtonTitle:"Print the chart"});x.navigation={menuStyle:{border:"1px solid #A0A0A0",
-background:"#FFFFFF"},menuItemStyle:{padding:"0 5px",background:"none",color:"#303030",fontSize:B?"14px":"11px"},menuItemHoverStyle:{background:"#4572A5",color:"#FFFFFF"},buttonOptions:{align:"right",backgroundColor:{linearGradient:[0,0,0,20],stops:[[0.4,"#F7F7F7"],[0.6,"#E3E3E3"]]},borderColor:"#B0B0B0",borderRadius:3,borderWidth:1,height:20,hoverBorderColor:"#909090",hoverSymbolFill:"#81A7CF",hoverSymbolStroke:"#4572A5",symbolFill:"#E0E0E0",symbolStroke:"#A0A0A0",symbolX:11.5,symbolY:10.5,verticalAlign:"top",
-width:24,y:10}};x.exporting={type:"image/png",url:"http://export.highcharts.com/",width:800,enableImages:false,buttons:{exportButton:{symbol:"exportIcon",x:-10,symbolFill:"#A8BF77",hoverSymbolFill:"#768F3E",_id:"exportButton",_titleKey:"exportButtonTitle",menuItems:[{textKey:"downloadPNG",onclick:function(){this.exportChart()}},{textKey:"downloadJPEG",onclick:function(){this.exportChart({type:"image/jpeg"})}},{textKey:"downloadPDF",onclick:function(){this.exportChart({type:"application/pdf"})}},{textKey:"downloadSVG",
-onclick:function(){this.exportChart({type:"image/svg+xml"})}}]},printButton:{symbol:"printIcon",x:-36,symbolFill:"#B5C9DF",hoverSymbolFill:"#779ABF",_id:"printButton",_titleKey:"printButtonTitle",onclick:function(){this.print()}}}};q(z.prototype,{getSVG:function(b){var c=this,a,f,d,k,e,j,h=w(c.options,b);if(!s.createElementNS)s.createElementNS=function(i,g){var o=s.createElement(g);o.getBBox=function(){return n.Renderer.prototype.Element.prototype.getBBox.apply({element:o})};return o};b=t("div",null,
-{position:"absolute",top:"-9999em",width:c.chartWidth+"px",height:c.chartHeight+"px"},s.body);q(h.chart,{renderTo:b,forExport:true});h.exporting.enabled=false;if(!h.exporting.enableImages)h.chart.plotBackgroundImage=null;h.series=[];p(c.series,function(i){d=i.options;d.animation=false;d.showCheckbox=false;d.visible=i.visible;if(!h.exporting.enableImages)if(d&&d.marker&&/^url\(/.test(d.marker.symbol))d.marker.symbol="circle";d.data=[];p(i.data,function(g){k=g.config;e={x:g.x,y:g.y,name:g.name};typeof k===
-"object"&&g.config&&k.constructor!==Array&&q(e,k);e.visible=g.visible;d.data.push(e);if(!h.exporting.enableImages)(j=g.config&&g.config.marker)&&/^url\(/.test(j.symbol)&&delete j.symbol});h.series.push(d)});a=new Highcharts.Chart(h);p(["xAxis","yAxis"],function(i){p(c[i],function(g,o){var m=a[i][o],l=g.getExtremes(),r=l.userMin;l=l.userMax;if(r!==void 0||l!==void 0)m.setExtremes(r,l,true,false)})});f=a.container.innerHTML;h=null;a.destroy();A(b);f=f.replace(/zIndex="[^"]+"/g,"").replace(/isShadow="[^"]+"/g,
-"").replace(/symbolName="[^"]+"/g,"").replace(/jQuery[0-9]+="[^"]+"/g,"").replace(/isTracker="[^"]+"/g,"").replace(/url\([^#]+#/g,"url(#").replace(/<svg /,'<svg xmlns:xlink="http://www.w3.org/1999/xlink" ').replace(/ href=/g," xlink:href=").replace(/&nbsp;/g,"\u00a0").replace(/&shy;/g,"\u00ad").replace(/id=([^" >]+)/g,'id="$1"').replace(/class=([^" ]+)/g,'class="$1"').replace(/ transform /g," ").replace(/:(path|rect)/g,"$1").replace(/<img ([^>]*)>/gi,"<image $1 />").replace(/<\/image>/g,"").replace(/<image ([^>]*)([^\/])>/gi,
-"<image $1$2 />").replace(/width=(\d+)/g,'width="$1"').replace(/height=(\d+)/g,'height="$1"').replace(/hc-svg-href="/g,'xlink:href="').replace(/style="([^"]+)"/g,function(i){return i.toLowerCase()});f=f.replace(/(url\(#highcharts-[0-9]+)&quot;/g,"$1").replace(/&quot;/g,"'");if(f.match(/ xmlns="/g).length===2)f=f.replace(/xmlns="[^"]+"/,"");return f},exportChart:function(b,c){var a,f=this.getSVG(c);b=w(this.options.exporting,b);a=t("form",{method:"post",action:b.url},{display:"none"},s.body);p(["filename",
-"type","width","svg"],function(d){t("input",{type:"hidden",name:d,value:{filename:b.filename||"chart",type:b.type,width:b.width,svg:f}[d]},null,a)});a.submit();A(a)},print:function(){var b=this,c=b.container,a=[],f=c.parentNode,d=s.body,k=d.childNodes;if(!b.isPrinting){b.isPrinting=true;p(k,function(e,j){if(e.nodeType===1){a[j]=e.style.display;e.style.display="none"}});d.appendChild(c);E.print();setTimeout(function(){f.appendChild(c);p(k,function(e,j){if(e.nodeType===1)e.style.display=a[j]});b.isPrinting=
-false},1E3)}},contextMenu:function(b,c,a,f,d,k){var e=this,j=e.options.navigation,h=j.menuItemStyle,i=e.chartWidth,g=e.chartHeight,o="cache-"+b,m=e[o],l=D(d,k),r,y;if(!m){e[o]=m=t("div",{className:"highcharts-"+b},{position:"absolute",zIndex:1E3,padding:l+"px"},e.container);r=t("div",null,q({MozBoxShadow:"3px 3px 10px #888",WebkitBoxShadow:"3px 3px 10px #888",boxShadow:"3px 3px 10px #888"},j.menuStyle),m);y=function(){u(m,{display:"none"})};C(m,"mouseleave",y);p(c,function(v){if(v)t("div",{onmouseover:function(){u(this,
-j.menuItemHoverStyle)},onmouseout:function(){u(this,h)},innerHTML:v.text||e.options.lang[v.textKey]},q({cursor:"pointer"},h),r)[B?"ontouchstart":"onclick"]=function(){y();v.onclick.apply(e,arguments)}});e.exportMenuWidth=m.offsetWidth;e.exportMenuHeight=m.offsetHeight}b={display:"block"};if(a+e.exportMenuWidth>i)b.right=i-a-d-l+"px";else b.left=a-l+"px";if(f+k+e.exportMenuHeight>g)b.bottom=g-f-l+"px";else b.top=f+k-l+"px";u(m,b)},addButton:function(b){function c(){g.attr(l);i.attr(m)}var a=this,f=
-a.renderer,d=w(a.options.navigation.buttonOptions,b),k=d.onclick,e=d.menuItems,j=d.width,h=d.height,i,g,o;b=d.borderWidth;var m={stroke:d.borderColor},l={stroke:d.symbolStroke,fill:d.symbolFill};if(d.enabled!==false){i=f.rect(0,0,j,h,d.borderRadius,b).align(d,true).attr(q({fill:d.backgroundColor,"stroke-width":b,zIndex:19},m)).add();o=f.rect(0,0,j,h,0).align(d).attr({id:d._id,fill:"rgba(255, 255, 255, 0.001)",title:a.options.lang[d._titleKey],zIndex:21}).css({cursor:"pointer"}).on("mouseover",function(){g.attr({stroke:d.hoverSymbolStroke,
-fill:d.hoverSymbolFill});i.attr({stroke:d.hoverBorderColor})}).on("mouseout",c).on("click",c).add();if(e)k=function(){c();var r=o.getBBox();a.contextMenu("export-menu",e,r.x,r.y,j,h)};o.on("click",function(){k.apply(a,arguments)});g=f.symbol(d.symbol,d.symbolX,d.symbolY,(d.symbolSize||12)/2).align(d,true).attr(q(l,{"stroke-width":d.symbolStrokeWidth||1,zIndex:20})).add()}}});n.Renderer.prototype.symbols.exportIcon=function(b,c,a){return["M",b-a,c+a,"L",b+a,c+a,b+a,c+a*0.5,b-a,c+a*0.5,"Z","M",b,c+
-a*0.5,"L",b-a*0.5,c-a/3,b-a/6,c-a/3,b-a/6,c-a,b+a/6,c-a,b+a/6,c-a/3,b+a*0.5,c-a/3,"Z"]};n.Renderer.prototype.symbols.printIcon=function(b,c,a){return["M",b-a,c+a*0.5,"L",b+a,c+a*0.5,b+a,c-a/3,b-a,c-a/3,"Z","M",b-a*0.5,c-a/3,"L",b-a*0.5,c-a,b+a*0.5,c-a,b+a*0.5,c-a/3,"Z","M",b-a*0.5,c+a*0.5,"L",b-a*0.75,c+a,b+a*0.75,c+a,b+a*0.5,c+a*0.5,"Z"]};z.prototype.callbacks.push(function(b){var c,a=b.options.exporting,f=a.buttons;if(a.enabled!==false)for(c in f)b.addButton(f[c])})})();
+(function () { // encapsulate
+
+// create shortcuts
+var HC = Highcharts,
+	Chart = HC.Chart,
+	addEvent = HC.addEvent,
+	removeEvent = HC.removeEvent,
+	createElement = HC.createElement,
+	discardElement = HC.discardElement,
+	css = HC.css,
+	merge = HC.merge,
+	each = HC.each,
+	extend = HC.extend,
+	math = Math,
+	mathMax = math.max,
+	doc = document,
+	win = window,
+	hasTouch = doc.documentElement.ontouchstart !== undefined,
+	M = 'M',
+	L = 'L',
+	DIV = 'div',
+	HIDDEN = 'hidden',
+	NONE = 'none',
+	PREFIX = 'highcharts-',
+	ABSOLUTE = 'absolute',
+	PX = 'px',
+	UNDEFINED,
+	defaultOptions = HC.getOptions();
+
+	// Add language
+	extend(defaultOptions.lang, {
+		downloadPNG: 'Download PNG image',
+		downloadJPEG: 'Download JPEG image',
+		downloadPDF: 'Download PDF document',
+		downloadSVG: 'Download SVG vector image',
+		exportButtonTitle: 'Export to raster or vector image',
+		printButtonTitle: 'Print the chart'
+	});
+
+// Buttons and menus are collected in a separate config option set called 'navigation'.
+// This can be extended later to add control buttons like zoom and pan right click menus.
+defaultOptions.navigation = {
+	menuStyle: {
+		border: '1px solid #A0A0A0',
+		background: '#FFFFFF'
+	},
+	menuItemStyle: {
+		padding: '0 5px',
+		background: NONE,
+		color: '#303030',
+		fontSize: hasTouch ? '14px' : '11px'
+	},
+	menuItemHoverStyle: {
+		background: '#4572A5',
+		color: '#FFFFFF'
+	},
+
+	buttonOptions: {
+		align: 'right',
+		backgroundColor: {
+			linearGradient: [0, 0, 0, 20],
+			stops: [
+				[0.4, '#F7F7F7'],
+				[0.6, '#E3E3E3']
+			]
+		},
+		borderColor: '#B0B0B0',
+		borderRadius: 3,
+		borderWidth: 1,
+		//enabled: true,
+		height: 20,
+		hoverBorderColor: '#909090',
+		hoverSymbolFill: '#81A7CF',
+		hoverSymbolStroke: '#4572A5',
+		symbolFill: '#E0E0E0',
+		//symbolSize: 12,
+		symbolStroke: '#A0A0A0',
+		//symbolStrokeWidth: 1,
+		symbolX: 11.5,
+		symbolY: 10.5,
+		verticalAlign: 'top',
+		width: 24,
+		y: 10
+	}
+};
+
+
+
+// Add the export related options
+defaultOptions.exporting = {
+	//enabled: true,
+	//filename: 'chart',
+	type: 'image/png',
+	url: 'http://export.highcharts.com/',
+	width: 800,
+	buttons: {
+		exportButton: {
+			//enabled: true,
+			symbol: 'exportIcon',
+			x: -10,
+			symbolFill: '#A8BF77',
+			hoverSymbolFill: '#768F3E',
+			_id: 'exportButton',
+			_titleKey: 'exportButtonTitle',
+			menuItems: [{
+				textKey: 'downloadPNG',
+				onclick: function () {
+					this.exportChart();
+				}
+			}, {
+				textKey: 'downloadJPEG',
+				onclick: function () {
+					this.exportChart({
+						type: 'image/jpeg'
+					});
+				}
+			}, {
+				textKey: 'downloadPDF',
+				onclick: function () {
+					this.exportChart({
+						type: 'application/pdf'
+					});
+				}
+			}, {
+				textKey: 'downloadSVG',
+				onclick: function () {
+					this.exportChart({
+						type: 'image/svg+xml'
+					});
+				}
+			}
+			// Enable this block to add "View SVG" to the dropdown menu
+			/*
+			,{
+
+				text: 'View SVG',
+				onclick: function () {
+					var svg = this.getSVG()
+						.replace(/</g, '\n&lt;')
+						.replace(/>/g, '&gt;');
+
+					doc.body.innerHTML = '<pre>' + svg + '</pre>';
+				}
+			} // */
+			]
+
+		},
+		printButton: {
+			//enabled: true,
+			symbol: 'printIcon',
+			x: -36,
+			symbolFill: '#B5C9DF',
+			hoverSymbolFill: '#779ABF',
+			_id: 'printButton',
+			_titleKey: 'printButtonTitle',
+			onclick: function () {
+				this.print();
+			}
+		}
+	}
+};
+
+
+
+extend(Chart.prototype, {
+	/**
+	 * Return an SVG representation of the chart
+	 *
+	 * @param additionalOptions {Object} Additional chart options for the generated SVG representation
+	 */
+	getSVG: function (additionalOptions) {
+		var chart = this,
+			chartCopy,
+			sandbox,
+			svg,
+			seriesOptions,
+			options = merge(chart.options, additionalOptions); // copy the options and add extra options
+
+		// IE compatibility hack for generating SVG content that it doesn't really understand
+		if (!doc.createElementNS) {
+			/*jslint unparam: true*//* allow unused parameter ns in function below */
+			doc.createElementNS = function (ns, tagName) {
+				var elem = doc.createElement(tagName);
+				elem.getBBox = function () {
+					return HC.Renderer.prototype.Element.prototype.getBBox.apply({ element: elem });
+				};
+				return elem;
+			};
+			/*jslint unparam: false*/
+		}
+
+		// create a sandbox where a new chart will be generated
+		sandbox = createElement(DIV, null, {
+			position: ABSOLUTE,
+			top: '-9999em',
+			width: chart.chartWidth + PX,
+			height: chart.chartHeight + PX
+		}, doc.body);
+
+		// override some options
+		extend(options.chart, {
+			renderTo: sandbox,
+			forExport: true
+		});
+		options.exporting.enabled = false; // hide buttons in print
+		options.chart.plotBackgroundImage = null; // the converter doesn't handle images
+
+		// prepare for replicating the chart
+		options.series = [];
+		each(chart.series, function (serie) {
+			seriesOptions = merge(serie.options, {
+				animation: false, // turn off animation
+				showCheckbox: false,
+				visible: serie.visible
+			});
+
+			if (!seriesOptions.isInternal) { // used for the navigator series that has its own option set
+
+				// remove image markers
+				if (seriesOptions && seriesOptions.marker && /^url\(/.test(seriesOptions.marker.symbol)) {
+					seriesOptions.marker.symbol = 'circle';
+				}
+
+				options.series.push(seriesOptions);
+			}
+		});
+
+		// generate the chart copy
+		chartCopy = new Highcharts.Chart(options);
+
+		// reflect axis extremes in the export
+		each(['xAxis', 'yAxis'], function (axisType) {
+			each(chart[axisType], function (axis, i) {
+				var axisCopy = chartCopy[axisType][i],
+					extremes = axis.getExtremes(),
+					userMin = extremes.userMin,
+					userMax = extremes.userMax;
+
+				if (userMin !== UNDEFINED || userMax !== UNDEFINED) {
+					axisCopy.setExtremes(userMin, userMax, true, false);
+				}
+			});
+		});
+
+		// get the SVG from the container's innerHTML
+		svg = chartCopy.container.innerHTML;
+
+		// free up memory
+		options = null;
+		chartCopy.destroy();
+		discardElement(sandbox);
+
+		// sanitize
+		svg = svg
+			.replace(/zIndex="[^"]+"/g, '')
+			.replace(/isShadow="[^"]+"/g, '')
+			.replace(/symbolName="[^"]+"/g, '')
+			.replace(/jQuery[0-9]+="[^"]+"/g, '')
+			.replace(/isTracker="[^"]+"/g, '')
+			.replace(/url\([^#]+#/g, 'url(#')
+			/*.replace(/<svg /, '<svg xmlns:xlink="http://www.w3.org/1999/xlink" ')
+			.replace(/ href=/, ' xlink:href=')
+			.replace(/preserveAspectRatio="none">/g, 'preserveAspectRatio="none"/>')*/
+			/* This fails in IE < 8
+			.replace(/([0-9]+)\.([0-9]+)/g, function(s1, s2, s3) { // round off to save weight
+				return s2 +'.'+ s3[0];
+			})*/
+
+			// Replace HTML entities, issue #347
+			.replace(/&nbsp;/g, '\u00A0') // no-break space
+			.replace(/&shy;/g,  '\u00AD') // soft hyphen
+
+			// IE specific
+			.replace(/id=([^" >]+)/g, 'id="$1"')
+			.replace(/class=([^" ]+)/g, 'class="$1"')
+			.replace(/ transform /g, ' ')
+			.replace(/:(path|rect)/g, '$1')
+			.replace(/style="([^"]+)"/g, function (s) {
+				return s.toLowerCase();
+			});
+
+		// IE9 beta bugs with innerHTML. Test again with final IE9.
+		svg = svg.replace(/(url\(#highcharts-[0-9]+)&quot;/g, '$1')
+			.replace(/&quot;/g, "'");
+		if (svg.match(/ xmlns="/g).length === 2) {
+			svg = svg.replace(/xmlns="[^"]+"/, '');
+		}
+
+		return svg;
+	},
+
+	/**
+	 * Submit the SVG representation of the chart to the server
+	 * @param {Object} options Exporting options. Possible members are url, type and width.
+	 * @param {Object} chartOptions Additional chart options for the SVG representation of the chart
+	 */
+	exportChart: function (options, chartOptions) {
+		var form,
+			chart = this,
+			svg = chart.getSVG(merge(chart.options.exporting.chartOptions, chartOptions)); // docs
+
+		// merge the options
+		options = merge(chart.options.exporting, options);
+
+		// create the form
+		form = createElement('form', {
+			method: 'post',
+			action: options.url
+		}, {
+			display: NONE
+		}, doc.body);
+
+		// add the values
+		each(['filename', 'type', 'width', 'svg'], function (name) {
+			createElement('input', {
+				type: HIDDEN,
+				name: name,
+				value: {
+					filename: options.filename || 'chart',
+					type: options.type,
+					width: options.width,
+					svg: svg
+				}[name]
+			}, null, form);
+		});
+
+		// submit
+		form.submit();
+
+		// clean up
+		discardElement(form);
+	},
+
+	/**
+	 * Print the chart
+	 */
+	print: function () {
+
+		var chart = this,
+			container = chart.container,
+			origDisplay = [],
+			origParent = container.parentNode,
+			body = doc.body,
+			childNodes = body.childNodes;
+
+		if (chart.isPrinting) { // block the button while in printing mode
+			return;
+		}
+
+		chart.isPrinting = true;
+
+		// hide all body content
+		each(childNodes, function (node, i) {
+			if (node.nodeType === 1) {
+				origDisplay[i] = node.style.display;
+				node.style.display = NONE;
+			}
+		});
+
+		// pull out the chart
+		body.appendChild(container);
+
+		// print
+		win.print();
+
+		// allow the browser to prepare before reverting
+		setTimeout(function () {
+
+			// put the chart back in
+			origParent.appendChild(container);
+
+			// restore all body content
+			each(childNodes, function (node, i) {
+				if (node.nodeType === 1) {
+					node.style.display = origDisplay[i];
+				}
+			});
+
+			chart.isPrinting = false;
+
+		}, 1000);
+
+	},
+
+	/**
+	 * Display a popup menu for choosing the export type
+	 *
+	 * @param {String} name An identifier for the menu
+	 * @param {Array} items A collection with text and onclicks for the items
+	 * @param {Number} x The x position of the opener button
+	 * @param {Number} y The y position of the opener button
+	 * @param {Number} width The width of the opener button
+	 * @param {Number} height The height of the opener button
+	 */
+	contextMenu: function (name, items, x, y, width, height) {
+		var chart = this,
+			navOptions = chart.options.navigation,
+			menuItemStyle = navOptions.menuItemStyle,
+			chartWidth = chart.chartWidth,
+			chartHeight = chart.chartHeight,
+			cacheName = 'cache-' + name,
+			menu = chart[cacheName],
+			menuPadding = mathMax(width, height), // for mouse leave detection
+			boxShadow = '3px 3px 10px #888',
+			innerMenu,
+			hide,
+			menuStyle;
+
+		// create the menu only the first time
+		if (!menu) {
+
+			// create a HTML element above the SVG
+			chart[cacheName] = menu = createElement(DIV, {
+				className: PREFIX + name
+			}, {
+				position: ABSOLUTE,
+				zIndex: 1000,
+				padding: menuPadding + PX
+			}, chart.container);
+
+			innerMenu = createElement(DIV, null,
+				extend({
+					MozBoxShadow: boxShadow,
+					WebkitBoxShadow: boxShadow,
+					boxShadow: boxShadow
+				}, navOptions.menuStyle), menu);
+
+			// hide on mouse out
+			hide = function () {
+				css(menu, { display: NONE });
+			};
+
+			addEvent(menu, 'mouseleave', hide);
+
+
+			// create the items
+			each(items, function (item) {
+				if (item) {
+					var div = createElement(DIV, {
+						onmouseover: function () {
+							css(this, navOptions.menuItemHoverStyle);
+						},
+						onmouseout: function () {
+							css(this, menuItemStyle);
+						},
+						innerHTML: item.text || chart.options.lang[item.textKey]
+					}, extend({
+						cursor: 'pointer'
+					}, menuItemStyle), innerMenu);
+
+					div[hasTouch ? 'ontouchstart' : 'onclick'] = function () {
+						hide();
+						item.onclick.apply(chart, arguments);
+					};
+
+					// Keep references to menu divs to be able to destroy them
+					chart.exportDivElements.push(div);
+				}
+			});
+
+			// Keep references to menu and innerMenu div to be able to destroy them
+			chart.exportDivElements.push(innerMenu, menu);
+
+			chart.exportMenuWidth = menu.offsetWidth;
+			chart.exportMenuHeight = menu.offsetHeight;
+		}
+
+		menuStyle = { display: 'block' };
+
+		// if outside right, right align it
+		if (x + chart.exportMenuWidth > chartWidth) {
+			menuStyle.right = (chartWidth - x - width - menuPadding) + PX;
+		} else {
+			menuStyle.left = (x - menuPadding) + PX;
+		}
+		// if outside bottom, bottom align it
+		if (y + height + chart.exportMenuHeight > chartHeight) {
+			menuStyle.bottom = (chartHeight - y - menuPadding)  + PX;
+		} else {
+			menuStyle.top = (y + height - menuPadding) + PX;
+		}
+
+		css(menu, menuStyle);
+	},
+
+	/**
+	 * Add the export button to the chart
+	 */
+	addButton: function (options) {
+		var chart = this,
+			renderer = chart.renderer,
+			btnOptions = merge(chart.options.navigation.buttonOptions, options),
+			onclick = btnOptions.onclick,
+			menuItems = btnOptions.menuItems,
+			buttonWidth = btnOptions.width,
+			buttonHeight = btnOptions.height,
+			box,
+			symbol,
+			button,
+			borderWidth = btnOptions.borderWidth,
+			boxAttr = {
+				stroke: btnOptions.borderColor
+
+			},
+			symbolAttr = {
+				stroke: btnOptions.symbolStroke,
+				fill: btnOptions.symbolFill
+			},
+			symbolSize = btnOptions.symbolSize || 12;
+
+		// Keeps references to the button elements
+		if (!chart.exportDivElements) {
+			chart.exportDivElements = [];
+			chart.exportSVGElements = [];
+		}
+
+		if (btnOptions.enabled === false) {
+			return;
+		}
+
+		// element to capture the click
+		function revert() {
+			symbol.attr(symbolAttr);
+			box.attr(boxAttr);
+		}
+
+		// the box border
+		box = renderer.rect(
+			0,
+			0,
+			buttonWidth,
+			buttonHeight,
+			btnOptions.borderRadius,
+			borderWidth
+		)
+		//.translate(buttonLeft, buttonTop) // to allow gradients
+		.align(btnOptions, true)
+		.attr(extend({
+			fill: btnOptions.backgroundColor,
+			'stroke-width': borderWidth,
+			zIndex: 19
+		}, boxAttr)).add();
+
+		// the invisible element to track the clicks
+		button = renderer.rect(
+				0,
+				0,
+				buttonWidth,
+				buttonHeight,
+				0
+			)
+			.align(btnOptions)
+			.attr({
+				id: btnOptions._id,
+				fill: 'rgba(255, 255, 255, 0.001)',
+				title: chart.options.lang[btnOptions._titleKey],
+				zIndex: 21
+			}).css({
+				cursor: 'pointer'
+			})
+			.on('mouseover', function () {
+				symbol.attr({
+					stroke: btnOptions.hoverSymbolStroke,
+					fill: btnOptions.hoverSymbolFill
+				});
+				box.attr({
+					stroke: btnOptions.hoverBorderColor
+				});
+			})
+			.on('mouseout', revert)
+			.on('click', revert)
+			.add();
+
+		// add the click event
+		if (menuItems) {
+			onclick = function () {
+				revert();
+				var bBox = button.getBBox();
+				chart.contextMenu('export-menu', menuItems, bBox.x, bBox.y, buttonWidth, buttonHeight);
+			};
+		}
+		/*addEvent(button.element, 'click', function() {
+			onclick.apply(chart, arguments);
+		});*/
+		button.on('click', function () {
+			onclick.apply(chart, arguments);
+		});
+
+		// the icon
+		symbol = renderer.symbol(
+				btnOptions.symbol,
+				btnOptions.symbolX - (symbolSize / 2),
+				btnOptions.symbolY - (symbolSize / 2),
+				symbolSize,				
+				symbolSize
+			)
+			.align(btnOptions, true)
+			.attr(extend(symbolAttr, {
+				'stroke-width': btnOptions.symbolStrokeWidth || 1,
+				zIndex: 20
+			})).add();
+
+		// Keep references to the renderer element so to be able to destroy them later.
+		chart.exportSVGElements.push(box, button, symbol);
+	},
+
+	/**
+	 * Destroy the buttons.
+	 */
+	destroyExport: function () {
+		var i,
+			chart = this,
+			elem;
+
+		// Destroy the extra buttons added
+		for (i = 0; i < chart.exportSVGElements.length; i++) {
+			elem = chart.exportSVGElements[i];
+			// Destroy and null the svg/vml elements
+			elem.onclick = elem.ontouchstart = null;
+			chart.exportSVGElements[i] = elem.destroy();
+		}
+
+		// Destroy the divs for the menu
+		for (i = 0; i < chart.exportDivElements.length; i++) {
+			elem = chart.exportDivElements[i];
+
+			// Remove the event handler
+			removeEvent(elem, 'mouseleave');
+
+			// Remove inline events
+			chart.exportDivElements[i] = elem.onmouseout = elem.onmouseover = elem.ontouchstart = elem.onclick = null;
+
+			// Destroy the div by moving to garbage bin
+			discardElement(elem);
+		}
+	}
+});
+
+/**
+ * Crisp for 1px stroke width, which is default. In the future, consider a smarter,
+ * global function.
+ */
+function crisp(arr) {
+	var i = arr.length;
+	while (i--) {
+		if (typeof arr[i] === 'number') {
+			arr[i] = Math.round(arr[i]) - 0.5;		
+		}
+	}
+	return arr;
+}
+
+// Create the export icon
+HC.Renderer.prototype.symbols.exportIcon = function (x, y, width, height) {
+	return crisp([
+		M, // the disk
+		x, y + width,
+		L,
+		x + width, y + height,
+		x + width, y + height * 0.8,
+		x, y + height * 0.8,
+		'Z',
+		M, // the arrow
+		x + width * 0.5, y + height * 0.8,
+		L,
+		x + width * 0.8, y + height * 0.4,
+		x + width * 0.4, y + height * 0.4,
+		x + width * 0.4, y,
+		x + width * 0.6, y,
+		x + width * 0.6, y + height * 0.4,
+		x + width * 0.2, y + height * 0.4,
+		'Z'
+	]);
+};
+// Create the print icon
+HC.Renderer.prototype.symbols.printIcon = function (x, y, width, height) {
+	return crisp([
+		M, // the printer
+		x, y + height * 0.7,
+		L,
+		x + width, y + height * 0.7,
+		x + width, y + height * 0.4,
+		x, y + height * 0.4,
+		'Z',
+		M, // the upper sheet
+		x + width * 0.2, y + height * 0.4,
+		L,
+		x + width * 0.2, y,
+		x + width * 0.8, y,
+		x + width * 0.8, y + height * 0.4,
+		'Z',
+		M, // the lower sheet
+		x + width * 0.2, y + height * 0.7,
+		L,
+		x, y + height,
+		x + width, y + height,
+		x + width * 0.8, y + height * 0.7,
+		'Z'
+	]);
+};
+
+
+// Add the buttons on chart load
+Chart.prototype.callbacks.push(function (chart) {
+	var n,
+		exportingOptions = chart.options.exporting,
+		buttons = exportingOptions.buttons;
+
+	if (exportingOptions.enabled !== false) {
+
+		for (n in buttons) {
+			chart.addButton(buttons[n]);
+		}
+
+		// Destroy the export elements at chart destroy
+		addEvent(chart, 'destroy', chart.destroyExport);
+	}
+
+});
+
+
+}());

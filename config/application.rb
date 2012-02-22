@@ -40,5 +40,7 @@ module Gardens
     config.filter_parameters += [:password]
 
     config.assets.initialize_on_precompile = false
+
+    config.gem = "jammit"
   end
 end

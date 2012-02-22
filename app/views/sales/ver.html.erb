@@ -2,7 +2,7 @@
 <% content_for :javascript do %>
 <%= javascript_include_tag "http://code.jquery.com/jquery-1.7.min.js" %>
 <script type="text/javascript">jQuery.noConflict();</script>
-<%= javascript_include_tag "highcharts", "chosen.jquery.min", "tooltipsy.min", "selectores_encadenados" %>
+<%= include_javascripts :publicaciones %>
 <script type="text/javascript">
 function agregar_tooltips() {
 	jQuery('div[id^="tooltipsy"]').remove()
@@ -289,7 +289,7 @@ jQuery(window).load(function() {
 	<% end %>
 });
 </script>
-<%= javascript_include_tag "jquery-ui-1.8.14.custom.min", "jquery-ui-datepicker-es" %>
+<%= include_javascripts :jquery_ui %>
 <% end %>
 <style type="text/css">
 .pulldown_selector {

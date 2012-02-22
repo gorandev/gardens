@@ -2,7 +2,7 @@
 <% content_for :javascript do %>
 <%= javascript_include_tag "http://code.jquery.com/jquery-1.7.min.js" %>
 <script type="text/javascript">jQuery.noConflict();</script>
-<%= javascript_include_tag "highcharts", "modules/exporting", "highcharts_graficar" %>
+<%= include_javascripts :mis_reportes %>
 <script type="text/javascript">
 jQuery(window).load(function() {
 	<% @saved_reports.each_with_index do |sr, i| %>

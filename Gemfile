@@ -10,6 +10,7 @@ gem 'settingslogic'
 gem 'thin'
 gem 'redis'
 gem 'devise'
+gem 'jammit'
 
 group :development do
   gem 'rspec-rails'
