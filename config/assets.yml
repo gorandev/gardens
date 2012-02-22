@@ -1,5 +1,5 @@
 embed_assets: on # (on, off, datauri)
-package_assets: always # (on, off, always)
+package_assets: on # (on, off, always)
 javascript_compressor: uglifier
 
 javascripts:
@@ -14,6 +14,7 @@ javascripts:
     - public/javascripts/modules/exporting.js
     - public/javascripts/chosen.jquery.js
     - public/javascripts/highcharts_graficar.js
+    - public/javascripts/modalbox.js
     - public/javascripts/jquery-ui-1.8.14.custom.min.js
     - public/javascripts/jquery-ui-datepicker-es.js
 

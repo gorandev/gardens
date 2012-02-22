@@ -237,24 +237,6 @@ function dibujar_data(params) {
 		titulo = 'Varios productos';
 	}
 
-	var series = new Array;
-	if (titulo == 'Varios productos') {
-		jQuery.each(lineas_promediadas, function(i,v) {
-			series.push({
-			 	name: i,
-			 	data: v
-			 });
-		});
-	} else {
-		jQuery.each(lineas_promediadas, function(i,v) {
-			series.push({
-			 	name: i,
-			 	color: retailers[i],
-			 	data: v
-			 });
-		});
-	}
-
 	var options = {
 		chart: {
 			renderTo: 'chart_' + id,
@@ -302,7 +284,6 @@ function dibujar_data(params) {
 			},
 			shared: true
 		},
-
 		plotOptions: {
 			series: {
 				marker: {
@@ -334,9 +315,6 @@ function dibujar_data(params) {
 				}
 			}	
 		},
-
-		series: series,
-		
 		exporting: {
 			buttons: {
 				exportButton: {
@@ -402,6 +380,23 @@ function dibujar_data(params) {
 	}
 
 	graficos_obj[id] = new Highcharts.Chart(options);
+
+	if (titulo == 'Varios productos') {
+		jQuery.each(lineas_promediadas, function(i,v) {
+			graficos_obj[id].addSeries({
+			 	name: i,
+			 	data: v
+			 });
+		});
+	} else {
+		jQuery.each(lineas_promediadas, function(i,v) {
+			graficos_obj[id].addSeries({
+			 	name: i,
+			 	color: retailers[i],
+			 	data: v
+			 });
+		});
+	}
 	
 	if (Object.keys(prods).length == 1) {
 		var opts_dblclick = { id: id };
