@@ -5,6 +5,7 @@
 <%= include_javascripts :mis_reportes %>
 <script type="text/javascript">
 jQuery(window).load(function() {
+	no_save_buttons = true;
 	<% @saved_reports.each_with_index do |sr, i| %>
 	<% next unless sr.querystring.include?('currency=' + @currency_id.to_s) %>
 		hacer_grafico(<%=i%>, '<%=sr.url%>', '<%=sr.querystring%>'.gsub('&amp;', '&'));

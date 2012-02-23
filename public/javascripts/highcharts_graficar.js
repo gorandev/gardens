@@ -33,6 +33,8 @@ var global_prods = {};
 var graficos_obj = new Array;
 var graficos_url = new Array;
 
+var no_save_buttons = false;
+
 function get_promos(id, querystring) {
 	var opts = { id: id };
 	if (arguments[2]) {
@@ -324,6 +326,10 @@ function dibujar_data(params) {
 		} 
 	};
 
+	if (no_save_buttons) {
+		params['no_save_button'] = true;
+	}
+
 	if (id_producto) {
 		if (!params.hasOwnProperty('no_save_button')) {
 			options.exporting.buttons.backButton = {
@@ -578,12 +584,14 @@ function init_chart(params) {
 		};
 	}
 
-	options.exporting.buttons.exportButton.menuItems.push({
-		text: 'Salvar reporte',
-		onclick: function() {
-			salvar_reporte(params['grafico']);
-		}
-	});
+	if (!no_save_buttons) {
+		options.exporting.buttons.exportButton.menuItems.push({
+			text: 'Salvar reporte',
+			onclick: function() {
+				salvar_reporte(params['grafico']);
+			}
+		});
+	}
 
 	graficos_obj[params['grafico']] = new Highcharts.Chart(options);
 }
