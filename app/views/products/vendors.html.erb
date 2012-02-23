@@ -64,7 +64,7 @@ function salvar_reporte(num) {
 	jQuery.ajax({
 		url: '/saved_reports',
 		type: 'POST',
-		data: { url: g[0], querystring: g[1] },
+		data: { url: g[0], querystring: g[1].replace(/&date_to=[^&]+/, '') },
 		cache: false,
 		statusCode: {
 			200: function(data) {

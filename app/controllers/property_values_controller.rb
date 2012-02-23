@@ -58,7 +58,7 @@ class PropertyValuesController < ApplicationController
       return _search_fast
     end
 
-    if params.slice(:value, :property, :product_type, :word).empty?
+    if params.slice(:value, :property, :product_type, :word, :id).empty?
       return render :json => { :errors => { :property_value => "no search parameters" } }, :status => 400
     end
 
@@ -84,12 +84,16 @@ class PropertyValuesController < ApplicationController
       end
     end
     
+    if params.has_key?(:id) and params[:id].is_a?String
+        params[:id] = params[:id].split(',')
+    end
+
     if params.has_key?(:word)
       join.push(:word)
       params[:words] = { :value => params[:word].upcase }
     end
     
-    @property_values = PropertyValue.joins(join).where(params.slice(:value, :properties, :words))
+    @property_values = PropertyValue.joins(join).where(params.slice(:value, :properties, :words, :id))
     respond_with(@property_values)
   end
   

@@ -542,10 +542,19 @@ function init_chart(params) {
 			type: ( params.hasOwnProperty('type') ? params['type'] : 'bar' )
 		},
 		title: { 
-			text: ( params.hasOwnProperty('title') ? params['title'] : null )
+			text: ( params.hasOwnProperty('title') ? params['title'] : null ),
+			style: {
+				fontFamily: 'Verdana',
+				fontSize: '12px',
+				fontWeight: 'bold'
+			}
 		},
 		subtitle: {
-			text: ( params.hasOwnProperty('subtitle') ? params['subtitle'] : null )
+			text: ( params.hasOwnProperty('subtitle') ? params['subtitle'] : null ),
+			style: {
+				fontFamily: 'Verdana',
+				fontSize: '10px'
+			}
 		},
 		credits: {
 			enabled: false
@@ -596,6 +605,77 @@ function init_chart(params) {
 	graficos_obj[params['grafico']] = new Highcharts.Chart(options);
 }
 
+function get_property_values(id, querystring) {
+	var property_values = /property_values=([\d,]+)/.exec(querystring);
+	if (property_values) {
+		jQuery.ajax({
+			url: "http://api." + global_hostname + "/property_values/search",
+			data: { id: property_values[1] },
+			dataType: 'jsonp',
+			context: { id: id, querystring: querystring },
+			statusCode: {
+				200: function(data) {
+					var id = this.id;
+					var subtitle = graficos_obj[id].options.subtitle.text;
+					jQuery.each(data, function(i, v) {
+						if (!subtitle) {
+							subtitle = v.value;
+						} else {
+							subtitle += ' - ' + v.value;
+						}
+						graficos_obj[id].setTitle(null, { text: subtitle });
+					});
+					get_retailer(this.id, this.querystring, subtitle);
+				},
+				400: function() {
+					alert('Error 400!');
+				}
+			}
+		});
+	} else {
+		get_retailer(id, querystring, null);
+	}
+}
+
+function get_retailer(id, querystring, subtitle) {
+	var retailer = /retailer=(\d+?)/.exec(querystring);
+	if (retailer) {
+		jQuery.ajax({
+			url: "http://api." + global_hostname + "/retailers/" + retailer[1],
+			dataType: 'jsonp',
+			context: { id: id, querystring: querystring },
+			statusCode: {
+				200: function(data) {
+					if (!subtitle) {
+						subtitle = data.name;
+					} else {
+						subtitle += ' - ' + data.name;
+					}
+					graficos_obj[this.id].setTitle(null, { text: subtitle });
+					set_fecha(this.id, this.querystring, subtitle);
+				},
+				400: function() {
+					alert('Error 400!');
+				}
+			}
+		});
+	} else {
+		set_fecha(id, querystring, subtitle);
+	}
+}
+
+function set_fecha(id, querystring, subtitle) {
+	var fecha = /date_from=([^&]+)/.exec(querystring);
+	if (fecha) {
+		if (!subtitle) {
+			subtitle = 'Desde ' + fecha[1];
+		} else {
+			subtitle += ' -  Desde ' + fecha[1];
+		}
+		graficos_obj[id].setTitle(null, { text: subtitle });
+	}
+}
+
 function hacer_pie_chart(obj, data) {
 	var total = 0;
 	var tmp = { data: new Array };
@@ -617,6 +697,8 @@ function hacer_pie_chart(obj, data) {
 	graficos_obj[obj.grafico].setTitle({ text: titulo });
 	graficos_obj[obj.grafico].addSeries(tmp);
 	graficos_obj[obj.grafico].hideLoading();
+
+	get_property_values(obj.grafico, obj.querystring);
 }
 
 function hacer_pricebands(obj, data) {
@@ -645,7 +727,9 @@ function hacer_pricebands(obj, data) {
 	graficos_obj[obj.grafico].setTitle({ text: titulo });
 	graficos_obj[obj.grafico].addSeries(tmp);
 	graficos_obj[obj.grafico].xAxis[0].setCategories(cats);
-	graficos_obj[obj.grafico].hideLoading();	
+	graficos_obj[obj.grafico].hideLoading();
+
+	get_property_values(obj.grafico, obj.querystring);
 }
 
 function hacer_grafico(id, url, querystring) {
@@ -721,7 +805,7 @@ function hacer_pie_chart_o_priceband(id, url, querystring) {
 		url: url,
 		data: querystring,
 		dataType: 'jsonp',
-		context: { grafico: id },
+		context: { grafico: id, querystring: querystring },
 		statusCode: {
 			200: function(data) {
 				if (data.hasOwnProperty('pie_chart')) {

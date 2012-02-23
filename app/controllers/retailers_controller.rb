@@ -58,7 +58,7 @@ class RetailersController < ApplicationController
       return _search_fast
     end
 
-    if params.slice(:name, :country).empty?
+    if params.slice(:name, :country, :id).empty?
       return render :json => { :errors => { :retailer => "no search parameters" } }, :status => 400
     end
 
@@ -69,7 +69,11 @@ class RetailersController < ApplicationController
       params[:country_id] = params[:country]
     end
 
-    @retailers = Retailer.where(params.slice(:name, :country_id))
+    if params.has_key?(:id) and params[:id].is_a?String
+        params[:id] = params[:id].split(',')
+    end
+
+    @retailers = Retailer.where(params.slice(:name, :country_id, :id))
     respond_with(@retailers)
   end
   
