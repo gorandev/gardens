@@ -23,6 +23,7 @@ javascripts:
     - public/javascripts/chosen.jquery.js
     - public/javascripts/tooltipsy.min.js
     - public/javascripts/selectores_encadenados.js
+    - public/javascripts/modalbox.js
 
   graficos_sin_selectores_encadenados:
     - public/javascripts/highcharts.js
@@ -38,6 +39,7 @@ javascripts:
     - public/javascripts/tooltipsy.min.js
     - public/javascripts/highcharts_graficar.js
     - public/javascripts/selectores_encadenados.js
+    - public/javascripts/modalbox.js
 
   jquery_ui:
     - public/javascripts/jquery-ui-1.8.14.custom.min.js
@@ -47,6 +49,7 @@ javascripts:
     - public/javascripts/highcharts.js
     - public/javascripts/modules/exporting.js
     - public/javascripts/highcharts_graficar.js
+    - public/javascripts/modalbox.js
 
 stylesheets:
   basico:
