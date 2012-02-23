@@ -638,7 +638,7 @@ function get_property_values(id, querystring) {
 }
 
 function get_retailer(id, querystring, subtitle) {
-	var retailer = /retailer=(\d+?)/.exec(querystring);
+	var retailer = /retailer=(\d+)/.exec(querystring);
 	if (retailer) {
 		jQuery.ajax({
 			url: "http://api." + global_hostname + "/retailers/" + retailer[1],
@@ -665,15 +665,25 @@ function get_retailer(id, querystring, subtitle) {
 }
 
 function set_fecha(id, querystring, subtitle) {
-	var fecha = /date_from=([^&]+)/.exec(querystring);
-	if (fecha) {
+	var fecha_desde = /date_from=([^&]+)/.exec(querystring);
+	if (fecha_desde) {
 		if (!subtitle) {
-			subtitle = 'Desde ' + fecha[1];
+			subtitle = 'desde ' + fecha_desde[1];
 		} else {
-			subtitle += ' -  Desde ' + fecha[1];
+			subtitle += ' -  desde ' + fecha_desde[1];
 		}
-		graficos_obj[id].setTitle(null, { text: subtitle });
 	}
+
+	var fecha_hasta = /date_to=([^&]+)/.exec(querystring);
+	if (fecha_hasta) {
+		if (!subtitle) {
+			subtitle = ' - hasta ' + fecha_hasta[1];
+		} else {
+			subtitle += ' - hasta ' + fecha_hasta[1];
+		}
+	}
+
+	graficos_obj[id].setTitle(null, { text: subtitle });
 }
 
 function hacer_pie_chart(obj, data) {
@@ -800,6 +810,7 @@ function hacer_pie_chart_o_priceband(id, url, querystring) {
 		type: type,
 		title: title
 	});
+	graficos_obj[id].showLoading();
 
 	jQuery.ajax({
 		url: url,
