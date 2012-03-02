@@ -50,9 +50,21 @@ var global_hostname = '<%=@hostname%>';
 	<div class="contenido_barra_menu">
         <a href="http://www.idashboard.la"><h1>iDashboard</h1></a>
         <ul class="items">
-            <li><%= link_to "Computadoras", "", :id => "link_computadoras", :onClick => "return false;" %></li>
-            <li><%= link_to "Televisores", "", :id => "link_televisores", :onClick => "return false;" %></li>
-            <li><%= link_to "Celulares", "", :id => "link_celulares", :onClick => "return false;" %></li>
+            <li>
+            	<% if @product_type_id.to_i == 1 %>
+            		<%= link_to "Computadoras", url_for(:product_type_id => 1), :id => "link_computadoras", :onClick => 'return false;' %>
+            	<% else %>
+            		<%= link_to "Computadoras", url_for(:product_type_id => 1), :id => "link_computadoras", :style => 'color: #CCC;' %>
+            	<% end %>
+            </li>
+            <li>
+            	<% if @product_type_id.to_i == 2 %>
+            		<%= link_to "Televisores", url_for(:product_type_id => 2), :id => "link_televisores", :onClick => 'return false;' %>
+            	<% else %>
+            		<%= link_to "Televisores", url_for(:product_type_id => 2), :id => "link_televisores", :style => 'color: #CCC;' %>
+            	<% end %>
+        	</li>
+            <li><%= link_to "Celulares", "", :id => "link_celulares", :onClick => "return false;", :style => 'color: #CCC;' %></li>
         </ul>
         <ul class="paises">
         	<% 

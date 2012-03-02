@@ -32,3 +32,4 @@ class Sale < ActiveRecord::Base
 	validates :units_available, :numericality => { :only_integer => true }, :allow_nil => true
 	validates_presence_of :sale_date, :media_channel, :retailer, :product, :currency
 end
+

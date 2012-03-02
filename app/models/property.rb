@@ -1,5 +1,4 @@
 # == Schema Information
-# Schema version: 20110509154638
 #
 # Table name: properties
 #
@@ -15,3 +14,4 @@ class Property < ActiveRecord::Base
   has_many :property_values
   validates_presence_of :name, :product_type
 end
+

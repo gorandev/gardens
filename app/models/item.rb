@@ -28,3 +28,4 @@ class Item < ActiveRecord::Base
   validates_url_format_of :url, :allow_nil => true
   validates_uniqueness_of :url, :allow_nil => true
 end
+

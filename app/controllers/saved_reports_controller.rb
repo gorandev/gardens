@@ -15,7 +15,8 @@ class SavedReportsController < ApplicationController
 			:url => params[:url],
 			:querystring => params[:querystring],
 			:user => current_user,
-			:orden => last_orden
+			:orden => last_orden,
+			:product_type => ProductType.find_by_id(@product_type_id)
 		)
 
 		if saved_report.save
@@ -27,6 +28,6 @@ class SavedReportsController < ApplicationController
 
 	def show_all
 		@pagina = 'Reportes'
-		@saved_reports = SavedReport.where(:user_id => current_user).order('saved_reports.orden ASC')
+		@saved_reports = SavedReport.where(:user_id => current_user, :product_type_id => @product_type_id).order('saved_reports.orden ASC')
 	end
 end

@@ -1,3 +1,19 @@
+# == Schema Information
+#
+# Table name: items
+#
+#  id              :integer         not null, primary key
+#  product_id      :integer
+#  retailer_id     :integer
+#  created_at      :datetime
+#  updated_at      :datetime
+#  source          :string(255)
+#  product_type_id :integer
+#  imagen_id       :integer
+#  url             :string(255)
+#  description     :text
+#
+
 
 require 'spec_helper'
 
@@ -81,19 +97,4 @@ describe Item do
   end
   
 end
-# == Schema Information
-#
-# Table name: items
-#
-#  id              :integer         not null, primary key
-#  product_id      :integer
-#  retailer_id     :integer
-#  created_at      :datetime
-#  updated_at      :datetime
-#  source          :string(255)
-#  product_type_id :integer
-#  imagen_id       :integer
-#  url             :string(255)
-#  description     :text
-#
 

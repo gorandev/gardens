@@ -134,14 +134,22 @@ class ApplicationController < ActionController::Base
 
   def set_globales
     @countries = Country.all
-    if params.has_key?(:country_id) && Country.find_by_id(params[:country_id])
+    if params.has_key?(:country_id) and Country.find_by_id(params[:country_id])
       session[:country_id] = params[:country_id]
     else
-      unless session.has_key?(:country_id) && Country.find_by_id(session[:country_id])
+      unless session.has_key?(:country_id) and Country.find_by_id(session[:country_id])
         session[:country_id] = 1
       end
     end
+    if params.has_key?(:product_type_id) and ProductType.find_by_id(params[:product_type_id])
+      session[:product_type_id] = params[:product_type_id]
+    else
+      unless session.has_key?(:product_type_id) and ProductType.find_by_id(session[:product_type_id])
+        session[:product_type_id] = 1
+      end
+    end
     @country_id = session[:country_id]
+    @product_type_id = session[:product_type_id]
     @currency_id = Country.find(@country_id).currency.id
     @hostname = Settings['host']
 

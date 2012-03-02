@@ -16,3 +16,4 @@ require 'spec_helper'
 describe MediaChannel do
   pending "add some examples to (or delete) #{__FILE__}"
 end
+

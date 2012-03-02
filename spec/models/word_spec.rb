@@ -1,3 +1,13 @@
+# == Schema Information
+#
+# Table name: words
+#
+#  id         :integer         not null, primary key
+#  value      :string(255)
+#  created_at :datetime
+#  updated_at :datetime
+#
+
 # coding: utf-8
 require 'spec_helper'
 
@@ -19,13 +29,4 @@ describe Word do
   end
 end
 
-# == Schema Information
-#
-# Table name: words
-#
-#  id         :integer         not null, primary key
-#  value      :string(255)
-#  created_at :datetime
-#  updated_at :datetime
-#
 

@@ -1,5 +1,6 @@
 ﻿defaults: &defaults
-  computadoras:
+  # computadoras
+  product_type_1:
     precios: [
   		{ "name": "Marca", "field": "marca" },
   		{ "name": "Marca del procesador", "field": "marca_procesador" },
@@ -25,6 +26,49 @@
       "categoria",
       "marca_procesador",
       "modelo_procesador"
+    ]
+
+    pricebands: {
+      "AR": [
+        [ ~, 2000 ],
+        [ 2000, 3000 ],
+        [ 3000, 4000 ],
+        [ 4000, 5000 ],
+        [ 5000, 6000 ],
+        [ 6000, 7000 ],
+        [ 7000, 8000 ],
+        [ 8000, ~ ]
+      ],
+      "CL": [
+        [ ~, 150000 ],
+        [ 150000, 200000 ],
+        [ 200000, 250000 ],
+        [ 250000, 300000 ],
+        [ 300000, 350000 ],
+        [ 350000, 400000 ],
+        [ 400000, 450000 ],
+        [ 450000, 500000 ],
+        [ 500000, 550000 ],
+        [ 550000, 600000 ],
+        [ 650000, 700000 ],
+        [ 700000, ~ ]
+      ]
+    }
+
+  # televisores
+  product_type_2:
+    precios: [
+      { "name": "Marca", "field": "marca" }
+    ]
+
+    pagina_producto: [
+      { "name": "Tamaño de pantalla", "field": "pantalla_size" },
+      { "name": "Tipo de pantalla", "field": "categoria" }
+    ]
+    
+    productos_similares: [
+      "categoria",
+      "pantalla_size"
     ]
 
     pricebands: {

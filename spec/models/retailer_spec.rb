@@ -9,6 +9,18 @@
 #  updated_at :datetime
 #  color      :string(255)
 #
+
+# == Schema Information
+#
+# Table name: retailers
+#
+#  id         :integer         not null, primary key
+#  name       :string(255)
+#  country_id :integer
+#  created_at :datetime
+#  updated_at :datetime
+#  color      :string(255)
+#
 require 'spec_helper'
 
 describe Retailer do
@@ -42,15 +54,4 @@ describe Retailer do
   end
 
 end
-# == Schema Information
-#
-# Table name: retailers
-#
-#  id         :integer         not null, primary key
-#  name       :string(255)
-#  country_id :integer
-#  created_at :datetime
-#  updated_at :datetime
-#  color      :string(255)
-#
 

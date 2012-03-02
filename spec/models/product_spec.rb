@@ -1,3 +1,16 @@
+# == Schema Information
+#
+# Table name: products
+#
+#  id              :integer         not null, primary key
+#  status          :string(255)
+#  product_type_id :integer
+#  show_on_search  :boolean
+#  created_at      :datetime
+#  updated_at      :datetime
+#  imagen_id       :integer
+#
+
 require 'spec_helper'
 
 describe Product do
@@ -26,16 +39,4 @@ describe Product do
   
 end
 
-# == Schema Information
-#
-# Table name: products
-#
-#  id              :integer         not null, primary key
-#  status          :string(255)
-#  product_type_id :integer
-#  show_on_search  :boolean
-#  created_at      :datetime
-#  updated_at      :datetime
-#  imagen_id       :integer
-#
 

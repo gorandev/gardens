@@ -1,5 +1,4 @@
 # == Schema Information
-# Schema version: 20110512233816
 #
 # Table name: currencies
 #
@@ -17,3 +16,4 @@ class Currency < ActiveRecord::Base
   has_many :prices
   has_many :sales
 end
+

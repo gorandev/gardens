@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120217221610) do
+ActiveRecord::Schema.define(:version => 20120225220006) do
 
   create_table "countries", :force => true do |t|
     t.string   "iso_code"
@@ -196,8 +196,10 @@ ActiveRecord::Schema.define(:version => 20120217221610) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "url"
+    t.integer  "product_type_id"
   end
 
+  add_index "saved_reports", ["product_type_id"], :name => "index_saved_reports_on_product_type_id"
   add_index "saved_reports", ["user_id"], :name => "index_saved_reports_on_user_id"
 
   create_table "users", :force => true do |t|

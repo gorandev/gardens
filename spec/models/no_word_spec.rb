@@ -8,16 +8,6 @@
 #  updated_at :datetime
 #
 
-# == Schema Information
-#
-# Table name: no_words
-#
-#  id         :integer         not null, primary key
-#  value      :string(255)
-#  created_at :datetime
-#  updated_at :datetime
-#
-
 require 'spec_helper'
 
 describe NoWord do

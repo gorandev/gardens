@@ -1,3 +1,14 @@
+# == Schema Information
+#
+# Table name: properties
+#
+#  id              :integer         not null, primary key
+#  name            :string(255)
+#  product_type_id :integer
+#  created_at      :datetime
+#  updated_at      :datetime
+#
+
 require 'spec_helper'
 
 describe Property do
@@ -24,14 +35,4 @@ describe Property do
 
 end
 
-# == Schema Information
-#
-# Table name: properties
-#
-#  id              :integer         not null, primary key
-#  name            :string(255)
-#  product_type_id :integer
-#  created_at      :datetime
-#  updated_at      :datetime
-#
 

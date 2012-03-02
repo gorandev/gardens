@@ -1,5 +1,4 @@
 # == Schema Information
-# Schema version: 20110509154638
 #
 # Table name: product_types
 #
@@ -11,5 +10,7 @@
 
 class ProductType < ActiveRecord::Base
   has_many :properties
+  has_many :saved_reports
   validates_presence_of :name  
 end
+

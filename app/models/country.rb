@@ -1,5 +1,4 @@
 # == Schema Information
-# Schema version: 20110513000634
 #
 # Table name: countries
 #
@@ -23,3 +22,4 @@ class Country < ActiveRecord::Base
   has_many :media_channels
   validates_presence_of :name, :iso_code, :locale, :time_zone, :currency  
 end
+

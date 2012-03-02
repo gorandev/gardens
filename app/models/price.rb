@@ -18,3 +18,4 @@ class Price < ActiveRecord::Base
   validates_presence_of :item, :currency, :price, :price_date
   validates_uniqueness_of :price_date, :scope => :item_id
 end
+

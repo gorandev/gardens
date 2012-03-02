@@ -12,3 +12,4 @@ class NoWord < ActiveRecord::Base
   validates_presence_of :value
   validates_uniqueness_of :value, :case_sensitive => false
 end
+

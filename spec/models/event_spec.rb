@@ -64,3 +64,4 @@ describe Event do
     event.should be_valid
   end
 end
+

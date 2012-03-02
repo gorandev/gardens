@@ -19,3 +19,4 @@ class MediaChannel < ActiveRecord::Base
 
 	validates_presence_of :name, :media_channel_type
 end
+

@@ -44,7 +44,7 @@ function dibujar_pulldown_productos(obj) {
 		data += 'property_values=' + filtros.join(',');	
 	}
 	
-	data += '&country=' + country_id + '&fast=yeah';
+	data += '&country=' + country_id + '&product_type=' + product_type_id + '&fast=yeah';
 
 	jQuery.ajax({
 		url: "http://api." + global_hostname + "/products/search",

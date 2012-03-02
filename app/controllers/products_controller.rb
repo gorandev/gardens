@@ -11,17 +11,19 @@ class ProductsController < ApplicationController
     @product = Product.find_by_id(params[:id])
     @pagina = 'Productos'
 
-    @marcas = PropertyValue.find_all_by_id(REDIS.smembers"marcas_por_country:#{@country_id}").sort! { |a, b| a.value <=> b.value }
+    @marcas = PropertyValue.find_all_by_id(REDIS.sinter "marcas_por_country:#{@country_id}", "marcas_por_product_type:#{@product_type_id}").sort! { |a, b| a.value <=> b.value }
   
     @properties = Array.new
     if !@product.nil?
-      Settings['computadoras']['pagina_producto'].each do |p|
-        next if (@product.property_values.find_by_property_id(Property.find_by_name(p["field"]).nil?))
-        next if (@product.property_values.find_by_property_id(Property.find_by_name(p["field"]).id).nil?)
-        value = @product.property_values.find_by_property_id(Property.find_by_name(p["field"]).id).value
+      Settings["product_type_#{@product_type_id}"]['pagina_producto'].each do |p|
+        next if @product.property_values.find_by_property_id(Property.find_by_name_and_product_type_id(p["field"], @product_type_id).nil?)
+        next if @product.property_values.find_by_property_id(Property.find_by_name_and_product_type_id(p["field"], @product_type_id).id).nil?
+
+        value = @product.property_values.find_by_property_id(Property.find_by_name_and_product_type_id(p["field"], @product_type_id).id).value
+        
         unless p["boolean"].nil?
           value = (
-            @product.property_values.find_by_property_id(Property.find_by_name(p["field"]).id).value.to_i > 0 ? 
+            @product.property_values.find_by_property_id(Property.find_by_name_and_product_type_id(p["field"], @product_type_id).id).value.to_i > 0 ? 
             'Si' : 'No'
           );
         end
@@ -33,7 +35,7 @@ class ProductsController < ApplicationController
 
       pv_similares_ids = Array.new
       @product.property_values.joins(:property).where(
-        :properties => { :name => Settings['computadoras']['productos_similares'] }).each do |pv|
+        :properties => { :name => Settings["product_type_#{@product_type_id}"]['productos_similares'] }).each do |pv|
           pv_similares_ids.push("property_value:#{pv.id}")
       end
 
@@ -313,7 +315,7 @@ class ProductsController < ApplicationController
     @pagina = 'Precios'
 
     @properties = Array.new
-    Settings['computadoras']['precios'].each do |p|
+    Settings['product_type_' + @product_type_id.to_s]['precios'].each do |p|
       @properties.push({
         :name => p["name"],
         :field => p["field"],
@@ -334,10 +336,17 @@ class ProductsController < ApplicationController
     REDIS.flushall
 
     marcas_por_country = Hash.new
+    marcas_por_product_type = Hash.new
     Product.all.each do |p|
       REDIS.set "obj.product:#{p.id}", Marshal.dump(p)
       REDIS.sadd "descripcion.product:#{p.id}", "#{p.id}|#{p.descripcion}"
       REDIS.sadd "product_type:#{p.product_type.id}", p.id
+
+      unless marcas_por_product_type.has_key?(p.id)
+        marcas_por_product_type[p.id] = Hash.new
+      end
+      marcas_por_product_type[p.product_type.id][p.property_values.joins(:property).where(:properties => { :name => 'marca' }).first.id] = 1;
+
       p.active_in_countries.each do |c|
         REDIS.sadd "country:#{c.id}", p.id
         unless marcas_por_country.has_key?(c.id)
@@ -352,6 +361,12 @@ class ProductsController < ApplicationController
       p.property_values.all.each do |pv|
         REDIS.sadd "property_value:#{pv.id}", p.id
         REDIS.sadd "pvs_product:#{p.id}", "#{pv.id}|#{pv.value}|#{pv.property.name}"
+      end
+    end
+
+    marcas_por_product_type.keys.each do |pt|
+      marcas_por_product_type[pt].keys.each do |m|
+        REDIS.sadd "marcas_por_product_type:#{pt}", m
       end
     end
 

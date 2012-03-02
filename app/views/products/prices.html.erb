@@ -18,6 +18,7 @@ function agregar_tooltips() {
 
 var spinner = '<%= image_tag "ajax-bar-loader.gif", :size => "238x30" %>';
 var country_id = <%=@country_id%>;
+var product_type_id = <%=@product_type_id%>;
 var pulldowns_ok = [
 	{ 
 		name: "Categoria",
@@ -43,7 +44,7 @@ function crear_query_string(params) {
 		query_string += jQuery('#producto_pulldown').val().join(',');	
 	}
 
-	query_string +='&currency=<%=@currency_id%>';
+	query_string +='&currency=<%=@currency_id%>&product_type_id=<%=@product_type_id%>';
 
 	if (jQuery('#fecha_desde').val()) {
 		query_string += '&date_from=' + jQuery('#fecha_desde').val();

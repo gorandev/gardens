@@ -89,3 +89,4 @@ describe Price do
   end
   
 end
+

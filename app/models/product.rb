@@ -1,5 +1,4 @@
 # == Schema Information
-# Schema version: 20110618000754
 #
 # Table name: products
 #
@@ -69,3 +68,4 @@ class Product < ActiveRecord::Base
     return propv
   end
 end
+

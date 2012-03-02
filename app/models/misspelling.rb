@@ -1,7 +1,3 @@
-class Misspelling < ActiveRecord::Base
-  belongs_to :word
-  validates_presence_of :value, :word
-end
 # == Schema Information
 #
 # Table name: misspellings
@@ -12,4 +8,9 @@ end
 #  created_at :datetime
 #  updated_at :datetime
 #
+
+class Misspelling < ActiveRecord::Base
+  belongs_to :word
+  validates_presence_of :value, :word
+end
 
