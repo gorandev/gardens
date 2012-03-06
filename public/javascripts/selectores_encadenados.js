@@ -117,7 +117,7 @@ function llenar_pulldowns_propiedades(indice, data, ids_productos) {
 		var valores = [];
 
 		jQuery.each(data, function(i,v) {
-			if (v.descripcion_property == campo) {
+			if (v.descripcion_property == campo && v.value != 'CRT') { // hardcode para Televisores
 				valores.push({ id: v.id, value: v.value });
 			}
 		})
