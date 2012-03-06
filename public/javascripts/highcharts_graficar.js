@@ -318,9 +318,22 @@ function dibujar_data(params) {
 			}	
 		},
 		exporting: {
+			url: 'http://export.idashboard.com.ar',
+			filename: 'idashboard',
 			buttons: {
 				exportButton: {
-					menuItems: [ {}, {}, {}, {} ]
+					menuItems: [
+						{
+							text: 'Descargar PNG',
+							onclick: function() {
+								this.exportChart(null,{
+									subtitle: {
+										text: null
+									}
+								});
+							}
+						}, null, null, null
+					]
 				}
 			}
 		} 
@@ -330,50 +343,29 @@ function dibujar_data(params) {
 		params['no_save_button'] = true;
 	}
 
-	if (id_producto) {
-		if (!params.hasOwnProperty('no_save_button')) {
-			options.exporting.buttons.backButton = {
-				_titleKey: 'backButtonTitle',
-				x: -62,
-				symbol: 'square',
-				onclick: function() {
-					dibujar_data({id: id});
-				}
-			};
-			options.exporting.buttons.exportButton.menuItems.push({
-				text: 'Salvar reporte',
-				onclick: function() {
-					salvar_reporte({id_producto: id_producto});
-				}
-			});
-		} else {
-			options.exporting.buttons.backButton = {
-				_titleKey: 'backButtonTitle',
-				x: -62,
-				symbol: 'square',
-				onclick: function() {
-					dibujar_data({id: id, no_save_button: true});
-				}
-			};
-		}
-	} else {
-		if (!params.hasOwnProperty('no_save_button')) {
-			options.exporting.buttons.exportButton.menuItems.push({
-				text: 'Salvar reporte',
-				onclick: function() {
-					salvar_reporte({});
-				}
-			});
-		}
+	if (id_producto && !params.hasOwnProperty('no_save_button')) {
+		options.exporting.buttons.exportButton.menuItems.push({
+			text: 'Salvar reporte',
+			onclick: function() {
+				salvar_reporte({id_producto: id_producto});
+			}
+		});
+	} else if (!params.hasOwnProperty('no_save_button')) {
+		options.exporting.buttons.exportButton.menuItems.push({
+			text: 'Salvar reporte',
+			onclick: function() {
+				salvar_reporte({});
+			}
+		});
 	}
 
 	if (Object.keys(prods).length == 1) {
 		var subtitulo;
 
 		if (!params.hasOwnProperty('no_sales')) {
-			subtitulo = '(con publicaciones)';
+			subtitulo = '(doble click para ver sin publicaciones)';
 		} else {
-			subtitulo = '(sin publicaciones)';
+			subtitulo = '(doble click para ver con publicaciones)';
 		}
 
 		options.subtitle = {
@@ -385,7 +377,29 @@ function dibujar_data(params) {
 		};
 	}
 
-	graficos_obj[id] = new Highcharts.Chart(options);
+	if (id_producto && !params.hasOwnProperty('no_save_button')) {
+		graficos_obj[id] = new Highcharts.Chart(options, function() {
+			var img = this.renderer.image('/images/icono_back.png', this.chartWidth-87, 9, 26, 22);
+			img.add();
+		    img.css({'cursor':'pointer'});
+    		img.attr({'title':'Volver atrás'});
+    		img.on('click',function(){
+            	dibujar_data({id: id});
+    		});
+		});
+	} else if (id_producto) {
+		graficos_obj[id] = new Highcharts.Chart(options, function() {
+			var img = this.renderer.image('/images/icono_back.png', this.chartWidth-87, 9, 26, 22);
+			img.add();
+		    img.css({'cursor':'pointer'});
+    		img.attr({'title':'Volver atrás'});
+    		img.on('click',function(){
+            	dibujar_data({id: id, no_save_button: true});
+    		});
+		});
+	} else {
+		graficos_obj[id] = new Highcharts.Chart(options);
+	}
 
 	if (titulo == 'Varios productos') {
 		jQuery.each(lineas_promediadas, function(i,v) {
