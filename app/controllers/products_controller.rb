@@ -9,6 +9,7 @@ class ProductsController < ApplicationController
   
   def pagina_producto
     @product = Product.find_by_id(params[:id])
+    @product_type_id = @product.product_type.id
     @pagina = 'Productos'
 
     @marcas = PropertyValue.find_all_by_id(REDIS.sinter "marcas_por_country:#{@country_id}", "marcas_por_product_type:#{@product_type_id}").sort! { |a, b| a.value <=> b.value }
@@ -35,7 +36,7 @@ class ProductsController < ApplicationController
 
       pv_similares_ids = Array.new
       @product.property_values.joins(:property).where(
-        :properties => { :name => Settings["product_type_#{@product_type_id}"]['productos_similares'] }).each do |pv|
+        :properties => { :product_type_id => @product_type_id, :name => Settings["product_type_#{@product_type_id}"]['productos_similares'] }).each do |pv|
           pv_similares_ids.push("property_value:#{pv.id}")
       end
 
@@ -46,6 +47,7 @@ class ProductsController < ApplicationController
         @available_countries.push(c.id)
       end
 
+      @url_imagen_producto = Settings["product_type_#{@product_type_id}"]['url_imagen_producto']
       @dates = _get_dates(@product.id, @currency_id)
       @sales = @product.sales.where(:currency_id => @currency_id).order('sale_date DESC').limit(5)
     end

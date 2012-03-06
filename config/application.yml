@@ -55,6 +55,8 @@
       ]
     }
 
+    url_imagen_producto: "http://computadoras.idashboard.com.ar/images/productos"
+
   # televisores
   product_type_2:
     precios: [
@@ -97,6 +99,8 @@
         [ 700000, ~ ]
       ]
     }
+
+    url_imagen_producto: "http://televisores.idashboard.com.ar/images/productos"
 
 development:
   host: "idashboard.local"

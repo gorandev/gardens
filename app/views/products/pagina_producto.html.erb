@@ -164,19 +164,19 @@ jQuery(window).load(function() {
 		if ( /\.png$/.test(jQuery("#imagen_producto").attr('src')) ) {
 			jQuery("#imagen_producto").attr(
 				'src',
-				'http://computadoras.idashboard.com.ar/images/productos/<%=@product.imagen_id%>_med.jpg'
+				'<%=@url_imagen_producto%>/<%=@product.imagen_id%>_med.jpg'
 			);
 		} else {
 			jQuery("#imagen_producto").attr(
 				'src',
-				'http://computadoras.idashboard.com.ar/images/productos/notfound.jpg'
+				'<%=@url_imagen_producto%>/notfound.jpg'
 			);
 		}
 	});
 
 	jQuery("#imagen_producto").attr(
 		'src',
-		'http://computadoras.idashboard.com.ar/images/productos/<%=@product.imagen_id%>_med.png'
+		'<%=@url_imagen_producto%>/<%=@product.imagen_id%>_med.png'
 	);
 
 	jQuery("#fecha_desde").datepicker();
@@ -329,11 +329,15 @@ jQuery(window).load(function() {
 		</div>
 	<div class="cuerpoPublicaciones" id="cuerpoPublicaciones">
 	<% @sales.each do |s| %>
-	<% if @country_id.to_i == 1 %>
-	<img class="imagen_promo" src="http://computadoras.idashboard.com.ar/uploaded_images/promocion-<%=s.imagen_id%>_thumb.png" onClick="mostrar_promos({promo: <%=s.id%>});">
-	<% elsif @country_id.to_i == 2 %>
-	<img class="imagen_promo" src="http://chile.computadoras.idashboard.com.ar/uploaded_images/promocion-<%=s.imagen_id%>_thumb.png" onClick="mostrar_promos({promo: <%=s.id%>});">
-	<% end %>
+		<% if @product_type_id.to_i == 1 %>
+			<% if @country_id.to_i == 1 %>
+				<img class="imagen_promo" src="http://computadoras.idashboard.com.ar/uploaded_images/promocion-<%=s.imagen_id%>_thumb.png" onClick="mostrar_promos({promo: <%=s.id%>});">
+			<% elsif @country_id.to_i == 2 %>
+				<img class="imagen_promo" src="http://chile.computadoras.idashboard.com.ar/uploaded_images/promocion-<%=s.imagen_id%>_thumb.png" onClick="mostrar_promos({promo: <%=s.id%>});">
+			<% end %>
+		<% elsif @product_type_id.to_i == 2 %>
+				<img class="imagen_promo" src="http://televisores.idashboard.com.ar/uploaded_images/promocion-<%=s.imagen_id%>_thumb.png" onClick="mostrar_promos({promo: <%=s.id%>});">
+		<% end %>
 	<% end %>
 	<br/><br/><br/><br/><br/><br/><br/>
 	<a href="/sales/ver?id_producto=<%=@product.id%>">ver m&aacute;s...</a>
@@ -373,7 +377,7 @@ jQuery(window).load(function() {
 <% next if ps.id == @product.id %>
 <tr id="producto_<%= ps.id %>" class="tr_producto_relacionado" align="center">
 	<td class="td_producto_relacionado" width="100" style="padding: 0px;">
-		<%= link_to image_tag("http://computadoras.idashboard.com.ar/images/productos/#{ps.imagen_id}_thumb.png", :class => "imagen_producto_relacionado", :border => 0), pagina_producto_path(ps) %>
+		<%= link_to image_tag(@url_imagen_producto + "/#{ps.imagen_id}_thumb.png", :class => "imagen_producto_relacionado", :border => 0), pagina_producto_path(ps) %>
 	</td>
 	<td class="td_producto_relacionado"><%= link_to ps.descripcion, pagina_producto_path(ps) %></td>
 	<td class="td_producto_relacionado"><%= !Price.includes(:currency, :item => [ :retailer, :product ]).joins(:item).where(:currency_id => @currency_id, :items => { :product_id => ps.id }).order("price_date DESC").empty? ? number_with_delimiter(Price.includes(:currency, :item => [ :retailer, :product ]).joins(:item).where(:currency_id => @currency_id, :items => { :product_id => ps.id }).order("price_date DESC").first.price, :delimiter => '.', :separator => ',') : 'N/A' %></td>
