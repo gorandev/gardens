@@ -84,6 +84,8 @@ var global_hostname = '<%=@hostname%>';
 
 <br/><br/>
 
+<% unless defined?@layout_grande %>
+
 <div id="wrapper">
 	<div id="contenedor">
 		<!--Cuerpo=Menu + Contenido-->
@@ -296,5 +298,9 @@ var global_hostname = '<%=@hostname%>';
 		</div>
 	</div>
 </div>
+
+<% else %>
+<%= yield %>
+<% end %>
 </body>
 </html>

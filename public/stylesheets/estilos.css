@@ -660,7 +660,7 @@ div#barra_menu ul li:last-child{
 }
 div#barra_menu{
 	padding:0px 0 10px;
-	background:url(http://img.idashboard.la/bg-menu.png) repeat-x;
+	background:url(/images/bg-menu.png) repeat-x;
 	position:fixed;
 	width:100%;
 	top:0;
@@ -670,7 +670,7 @@ div#barra_menu{
 	z-index: 9999;
 }
 div#barra_menu h1{
-	background:url(http://img.idashboard.la/idashboard.png) no-repeat;
+	background:url(/images/idashboard.png) no-repeat;
 	width:420px;
 	height:38px;
 	display:block;
@@ -699,7 +699,7 @@ div#barra_menu ul.paises li img{
 	cursor:pointer;
 }
 div#barra_menu ul.items li a, div#footer div.links a{
-	background:url(http://img.idashboard.la/sep.gif) no-repeat right 3px;
+	background:url(/images/sep.gif) no-repeat right 3px;
 	display:block;
 	padding-right:8px	
 }

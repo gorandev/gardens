@@ -1,0 +1,186 @@
+<% content_for :titulo_pagina do %>Productizador<% end %>
+<% content_for :javascript do %>
+<%= javascript_include_tag "http://code.jquery.com/jquery-1.7.min.js" %>
+<script type="text/javascript">jQuery.noConflict();</script>
+<script type="text/javascript">
+
+var count = 5;
+var offset = 0;
+var data_items = new Array;
+var items = {};
+
+function get_items_sin_enlazar(offset, count) {
+	var query_string = 'product=nil&product_type=<%=@product_type_id%>&currency=<%=@currency_id%>';
+	query_string += '&offset=' + offset;
+	query_string += '&count=' + (count*2);
+
+	if (jQuery('#retailer').val() != 0) {
+		query_string += '&retailer=' + jQuery('#retailer').val();
+	}
+
+	jQuery('.filas_tabla').remove();
+	jQuery('#tabla_datos').append('<tr class="filas_tabla"><td colspan="4">Cargando...</td></tr>');
+
+	if (data_items.length != 0) {
+		llenar_tabla(data_items);
+	}
+
+	jQuery.ajax({
+		url: "http://api.<%=@hostname%>/items/search",
+		type: 'POST',
+		dataType: 'jsonp',
+		data: query_string,
+		statusCode: {
+			200: function(data) {
+				if (data_items.length == 0) {
+					var filas = 0;
+					var la_data = new Array;
+					jQuery.each(data, function(i,v) {
+						if (filas++ > 4) { 
+							data_items.push(v);
+						} else {
+							la_data.push(v);
+						}
+					});
+					llenar_tabla(la_data);
+				} else {
+					var filas = 0;
+					data_items = new Array;
+					jQuery.each(data, function(i,v) {
+						if (filas++ > 4) { 
+							data_items.push(v);
+						}
+					});
+				}
+				add_paginador();
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
+}
+
+function llenar_tabla(data) {
+	jQuery('.filas_tabla').remove();
+	items = {};
+
+	jQuery.each(data, function(i,v) {
+		var html = '<tr id="item_' + v.id + '" class="filas_tabla" height="29px;" style="cursor: pointer;" onClick="mostrar_item(' + v.id + ');">';
+		html += '<td>' + v.id + '</td>';
+		html += '<td>' + v.retailer + '</td>';
+		html += '<td>' + 'SKU' + '</td>';
+		html += '<td>' + v.description.substr(0, 250) + (v.description.length > 250 ? '...' : '') + '</td>';
+		html += '</tr>';
+		jQuery('#tabla_datos').append(html);
+
+		items[v.id] = {
+			imagen_id: v.imagen_id,
+			description: v.description,
+			property_values: []
+		};
+
+		jQuery.each(v.property_values, function(j,w) {
+			items[v.id].property_values.push({
+				id: w.id,
+				value: w.value,
+				property_name: w.property_name
+			});
+		})
+
+	});
+
+	if (data.length == 0) {
+		jQuery('#tabla_datos').append('<tr class="filas_tabla"><td colspan="4" align="center">No hay ítems sin asociar.</td></tr>');
+	}
+}
+
+function add_paginador() {
+	if (offset != 0) {
+		if (data_items.length != 0) {
+			jQuery('#tabla_datos').append('<tr class="filas_tabla"><td><span style="cursor: pointer;" onClick="return pagina_anterior();"><<<</span></td><td colspan="3" align="right"><span style="cursor: pointer;" onClick="return pagina_siguiente();">>>></span></td></tr>');
+		} else {
+			jQuery('#tabla_datos').append('<tr class="filas_tabla"><td colspan="4" align="left"><span style="cursor: pointer;" onClick="return pagina_anterior();"><<<</span></td></tr>');
+		}
+	} else {
+		if (data_items.length != 0) {
+			jQuery('#tabla_datos').append('<tr class="filas_tabla"><td colspan="4" align="right"><span style="cursor: pointer;" onClick="return pagina_siguiente();">>>></span></td></tr>');
+		}
+	}	
+}
+
+function pagina_anterior() {
+	offset -= 5;
+	data_items = new Array;
+	get_items_sin_enlazar(offset, count);
+	return false;
+}
+
+function pagina_siguiente() {
+	offset += 5;
+	get_items_sin_enlazar(offset, count);
+	return false;
+}
+
+function reset_tabla() {
+	data_items = new Array;
+	offset = 0;
+	get_items_sin_enlazar(offset, count);
+}
+
+function mostrar_item(id) {
+	jQuery('.filas_tabla').css('background-color', '');
+	jQuery('#item_' + id).css('background-color', 'lightblue');
+
+	jQuery('#imagen_item').attr('src', '');
+	jQuery('#imagen_item').attr('src', '<%=@url_imagen_item%>/' + items[id].imagen_id + '.jpg');
+	jQuery('#descripcion_item').html(items[id].description);
+
+	jQuery('.fila_pv').remove();
+	jQuery.each(items[id].property_values, function(i, v) {
+		jQuery('#tabla_pvs').append('<tr class="fila_pv"><td>' + v.property_name + '</td><td>' + v.value + '</td></tr>');
+	});
+	jQuery('#div_tabla_pvs').css('display', '');
+}
+
+jQuery(window).load(function() {
+	get_items_sin_enlazar(0, count);
+});
+
+</script>
+<% end %>
+<div style="position: relative; top: 10px; margin: 0px auto; height: 300px; border: 2px dotted blue;">
+	<div style="position: relative; top: 50px; height: 200px; width: 200px; float: left;">
+		<img height="200" width="200" id="imagen_item"/>
+	</div>
+	<div style="position: relative; top: 50px; height: 200px; width: 300px; overflow-y: auto; float: left;">
+		<span id="descripcion_item"></span>
+	</div>
+	<div style="position: relative; top: 50px; height: 220px; width: 350px; display: none; overflow-y: auto; float: left;" id="div_tabla_pvs">
+		<table border="1" align="center" width="80%" id="tabla_pvs">
+			<tr>
+				<th>Propiedad</th>
+				<th>Valor</th>
+			</tr>
+		</table>
+	</div>
+</div>
+<div style="position: relative; top: 15px; margin: 0px auto; height: 300px; border: 2px dotted blue; overflow-y: auto;">
+	<br/>
+	<table border="1" align="center" width="80%" id="tabla_datos">
+	<tr>
+		<th width="34px;">ID</th>
+		<th width="126px;">
+			Retailer
+			<select id="retailer" onChange="reset_tabla();">
+				<option value="0" selected>Todos</option>
+			<% Retailer.where(:country_id => @country_id).each do |r| %>
+				<option value="<%=r.id%>"><%=r.name%></option>
+			<% end %>
+			</select>
+		</th>
+		<th width="34px;">SKU</th>
+		<th>Descripción</th>
+	</tr>
+	</table>
+</div>

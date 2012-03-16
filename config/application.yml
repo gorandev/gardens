@@ -56,6 +56,7 @@
     }
 
     url_imagen_producto: "http://computadoras.idashboard.com.ar/images/productos"
+    url_imagen_item: "http://computadoras.idashboard.com.ar/images/items"
 
   # televisores
   product_type_2:
@@ -101,6 +102,7 @@
     }
 
     url_imagen_producto: "http://televisores.idashboard.com.ar/images/productos"
+    url_imagen_item: "http://televisores.idashboard.com.ar/images/items"
 
 development:
   host: "idashboard.local"

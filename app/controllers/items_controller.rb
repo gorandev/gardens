@@ -93,21 +93,30 @@ class ItemsController < ApplicationController
   end
   
   def search    
-    if params.slice(:retailer, :product, :product_type, :property_values, :source, :url).empty?
+    if params.slice(:product, :product_type, :property_values, :source, :url).empty?
       return render :json => { :errors => { :item => "no search parameters" } }, :status => 400
     end
 
+    join = Array.new
+
+    join.push(:retailer)
     if params.has_key?(:retailer)
       if Retailer.find_by_id(params[:retailer])
-        params[:retailer_id] = params[:retailer]
+        params[:retailers] = { :id => params[:retailer] }
       else
         return render :json => { :errors => { :retailer => "not found" } }, :status => 400
       end
+    elsif params.has_key?(:country)
+        params[:retailers] = { :country_id => params[:country] }
+    else
+        params[:retailers] = { :country_id => @country_id }
     end
 
     if params.has_key?(:product)
       if Product.find_by_id(params[:product])
         params[:product_id] = params[:product]
+      elsif params[:product] == 'nil'
+        params[:product_id] = nil
       else
         return render :json => { :errors => { :product => "not found" } }, :status => 400
       end
@@ -115,13 +124,12 @@ class ItemsController < ApplicationController
 
     if params.has_key?(:product_type)
       if ProductType.find_by_id(params[:product_type])
-        params[:product_type_id] = params[:product]
+        params[:product_type_id] = params[:product_type]
       else
         return render :json => { :errors => { :product_type => "not found" } }, :status => 400
       end
     end
     
-    join = Array.new
     if params.has_key?(:property_values)
       if params[:property_values].is_a?String
         unless params[:property_values].split(',').size > 0 && PropertyValue.find_all_by_id(params[:property_values].split(',')).size == params[:property_values].split(',').size
@@ -140,7 +148,7 @@ class ItemsController < ApplicationController
       join.push(:property_values)
     end
 
-    @items = Item.joins(join).where(params.slice(:retailer_id, :product_id, :product_type_id, :property_values, :source, :url)).group(:id).limit(@count).offset(@offset)
+    @items = Item.joins(join).where(params.slice(:retailers, :product_id, :product_type_id, :property_values, :source, :url)).limit(@count).offset(@offset).order(:id)
     respond_with(@items)
   end
   
@@ -150,5 +158,10 @@ class ItemsController < ApplicationController
     end
     item.destroy
     render :json => "OK"
+  end
+
+  def productizador
+    @layout_grande = true
+    @url_imagen_item = Settings["product_type_#{@product_type_id}"]['url_imagen_item']
   end
 end

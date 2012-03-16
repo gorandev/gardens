@@ -10,6 +10,8 @@ Gardens::Application.routes.draw do
     match 'products/retailers' => 'products#retailers', :as => 'pagina_retailers'
     get 'saved_reports/show_all'  
     get 'sales/ver'
+    
+    match 'items/productizador' => 'items#productizador', :as => 'pagina_productizador'
 
     resources :saved_reports, :defaults => { :format => :json }
   end
