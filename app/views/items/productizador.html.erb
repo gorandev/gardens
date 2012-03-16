@@ -9,6 +9,8 @@ var offset = 0;
 var data_items = new Array;
 var items = {};
 
+var selected_item_id = 0;
+
 function get_items_sin_enlazar(offset, count) {
 	var query_string = 'product=nil&product_type=<%=@product_type_id%>&currency=<%=@currency_id%>';
 	query_string += '&offset=' + offset;
@@ -74,9 +76,14 @@ function llenar_tabla(data) {
 		html += '</tr>';
 		jQuery('#tabla_datos').append(html);
 
+		if (v.id == selected_item_id) {
+			jQuery('#item_' + v.id).css('background-color', 'lightblue');
+		}
+
 		items[v.id] = {
 			imagen_id: v.imagen_id,
 			description: v.description,
+			retailer: v.retailer,
 			property_values: []
 		};
 
@@ -129,11 +136,14 @@ function reset_tabla() {
 }
 
 function mostrar_item(id) {
+	selected_item_id = id;
+
 	jQuery('.filas_tabla').css('background-color', '');
 	jQuery('#item_' + id).css('background-color', 'lightblue');
 
 	jQuery('#imagen_item').attr('src', '');
 	jQuery('#imagen_item').attr('src', '<%=@url_imagen_item%>/' + items[id].imagen_id + '.jpg');
+	jQuery('#retailer_item').html(items[id].retailer);
 	jQuery('#descripcion_item').html(items[id].description);
 
 	jQuery('.fila_pv').remove();
@@ -154,6 +164,8 @@ jQuery(window).load(function() {
 		<img height="200" width="200" id="imagen_item"/>
 	</div>
 	<div style="position: relative; top: 50px; height: 200px; width: 300px; overflow-y: auto; float: left;">
+		<span id="retailer_item" style="font-weight: bold;"></span>
+		<br/>
 		<span id="descripcion_item"></span>
 	</div>
 	<div style="position: relative; top: 50px; height: 220px; width: 350px; display: none; overflow-y: auto; float: left;" id="div_tabla_pvs">
