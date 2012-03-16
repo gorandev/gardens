@@ -1,4 +1,4 @@
-embed_assets: on # (on, off, datauri)
+embed_assets: datauri # (on, off, datauri)
 package_assets: on # (on, off, always)
 javascript_compressor: uglifier
 
