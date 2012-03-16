@@ -112,6 +112,7 @@ function llenar_tabla(data) {
 			imagen_id: v.imagen_id,
 			description: v.description,
 			retailer: v.retailer,
+			url: v.url,
 			property_values: []
 		};
 
@@ -172,14 +173,23 @@ function mostrar_item(id) {
 
 	jQuery('#imagen_item').attr('src', '');
 	jQuery('#imagen_item').attr('src', '<%=@url_imagen_item%>/' + items[id].imagen_id + '.jpg');
-	jQuery('#retailer_item').html(items[id].retailer);
+	jQuery('#retailer_item').html('<a target="_blank" href="' + items[id].url + '">' + items[id].retailer + '</a>');
 	jQuery('#descripcion_item').html(items[id].description);
 
 	jQuery('.fila_pv').remove();
+	var properties = {};
 	jQuery.each(items[id].property_values, function(i, v) {
+		properties[v.property_name] = {
+			id: v.id,
+			property_id: v.property_id
+		};
+	});
+
+	jQuery.each(Object.keys(properties).sort(), function(i, v) {
+		var o = properties[v];
 		var html = '<tr class="fila_pv">';
-		html += '<td>' + v.property_name + '</td>';
-		html += '<td>' + hacer_pulldown(id, v.property_id, v.value) + '</td>';
+		html += '<td>' + v + '</td>';
+		html += '<td>' + hacer_pulldown(id, o.property_id, o.id) + '</td>';
 		html += '</tr>';
 		jQuery('#tabla_pvs').append(html);
 	});
@@ -189,13 +199,14 @@ function mostrar_item(id) {
 
 function hacer_pulldown(item, property, property_value) {
 	var pulldown = '<select style="font-size: 10px; width: 150px;" id="item_' + item + '">';
+	var options = {};
 	jQuery.each(properties[property]['values'], function(i, v) {
+		options[v] = i;
+	})
+	jQuery.each(Object.keys(options).sort(), function(i,v) {
 		var selected = '';
-		if (i == property_value) {
-			selected = ' selected';
-		}
-
-		pulldown += '<option value="' + i + '"' + selected + ">" + v + "</option>";
+		if (options[v] == property_value) { selected = ' selected'; }
+		pulldown += '<option value="' + options[v] + '"' + selected + '>' + v + '</option>';
 	})
 	pulldown += '</select>';
 	return pulldown;
