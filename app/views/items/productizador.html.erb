@@ -11,6 +11,34 @@ var items = {};
 
 var selected_item_id = 0;
 
+var properties = {};
+
+function init_properties() {
+	jQuery.ajax({
+		url: "http://api.<%=@hostname%>/properties/search",
+		type: 'POST',
+		dataType: 'jsonp',
+		data: 'product_type=<%=@product_type_id%>',
+		statusCode: {
+			200: function(data) {
+				jQuery.each(data, function(i, v) {
+					var values = {};
+					jQuery.each(v.possible_values, function(j, w) {
+						values[w.id] = w.value;
+					});
+					properties[v.id] = {
+						name: v.name,
+						values: values
+					};
+				});
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
+}
+
 function get_items_sin_enlazar(offset, count) {
 	var query_string = 'product=nil&product_type=<%=@product_type_id%>&currency=<%=@currency_id%>';
 	query_string += '&offset=' + offset;
@@ -91,7 +119,8 @@ function llenar_tabla(data) {
 			items[v.id].property_values.push({
 				id: w.id,
 				value: w.value,
-				property_name: w.property_name
+				property_name: w.property_name,
+				property_id: w.property_id
 			});
 		})
 
@@ -148,13 +177,33 @@ function mostrar_item(id) {
 
 	jQuery('.fila_pv').remove();
 	jQuery.each(items[id].property_values, function(i, v) {
-		jQuery('#tabla_pvs').append('<tr class="fila_pv"><td>' + v.property_name + '</td><td>' + v.value + '</td></tr>');
+		var html = '<tr class="fila_pv">';
+		html += '<td>' + v.property_name + '</td>';
+		html += '<td>' + hacer_pulldown(id, v.property_id, v.value) + '</td>';
+		html += '</tr>';
+		jQuery('#tabla_pvs').append(html);
 	});
 	jQuery('#div_tabla_pvs').css('display', '');
+	jQuery('#div_tabla_prods').css('display', '');
+}
+
+function hacer_pulldown(item, property, property_value) {
+	var pulldown = '<select style="font-size: 10px; width: 150px;" id="item_' + item + '">';
+	jQuery.each(properties[property]['values'], function(i, v) {
+		var selected = '';
+		if (i == property_value) {
+			selected = ' selected';
+		}
+
+		pulldown += '<option value="' + i + '"' + selected + ">" + v + "</option>";
+	})
+	pulldown += '</select>';
+	return pulldown;
 }
 
 jQuery(window).load(function() {
 	get_items_sin_enlazar(0, count);
+	init_properties();
 });
 
 </script>
@@ -176,6 +225,16 @@ jQuery(window).load(function() {
 			</tr>
 		</table>
 	</div>
+	<div style="position: relative; top: 50px; height: 220px; width: 350px; display: none; overflow-y: auto; float: left;" id="div_tabla_prods">
+		<table border="1" align="center" width="80%" id="tabla_prods">
+			<tr>
+				<th>Posibles productos</th>
+			</tr>
+			<tr class="fila_prod">
+				<td>Cargando...</td>
+			</tr>
+		</table>
+	</div>
 </div>
 <div style="position: relative; top: 15px; margin: 0px auto; height: 300px; border: 2px dotted blue; overflow-y: auto;">
 	<br/>
@@ -184,7 +243,7 @@ jQuery(window).load(function() {
 		<th width="34px;">ID</th>
 		<th width="126px;">
 			Retailer
-			<select id="retailer" onChange="reset_tabla();">
+			<select style="font-size: 10px;" id="retailer" onChange="reset_tabla();">
 				<option value="0" selected>Todos</option>
 			<% Retailer.where(:country_id => @country_id).each do |r| %>
 				<option value="<%=r.id%>"><%=r.name%></option>
