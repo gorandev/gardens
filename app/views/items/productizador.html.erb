@@ -12,6 +12,7 @@ var items = {};
 var selected_item_id = 0;
 
 var properties = {};
+var properties_sorted = new Array;
 
 function init_properties() {
 	jQuery.ajax({
@@ -26,11 +27,13 @@ function init_properties() {
 					jQuery.each(v.possible_values, function(j, w) {
 						values[w.id] = w.value;
 					});
-					properties[v.id] = {
-						name: v.name,
+					properties[v.name] = {
+						id: v.id,
 						values: values
 					};
+					properties_sorted.push(v.name);
 				});
+				properties_sorted = properties_sorted.sort();
 			},
 			400: function() {
 				alert('Error 400!');
@@ -113,17 +116,14 @@ function llenar_tabla(data) {
 			description: v.description,
 			retailer: v.retailer,
 			url: v.url,
-			property_values: []
+			property_values: {}
 		};
 
-		jQuery.each(v.property_values, function(j,w) {
-			items[v.id].property_values.push({
-				id: w.id,
-				value: w.value,
-				property_name: w.property_name,
-				property_id: w.property_id
+		if (v.hasOwnProperty('property_values')) {
+			jQuery.each(v.property_values, function(j,w) {
+				items[v.id].property_values[w.property_id] = w.id;
 			});
-		})
+		}
 
 	});
 
@@ -177,35 +177,37 @@ function mostrar_item(id) {
 	jQuery('#descripcion_item').html(items[id].description);
 
 	jQuery('.fila_pv').remove();
-	var properties = {};
-	jQuery.each(items[id].property_values, function(i, v) {
-		properties[v.property_name] = {
-			id: v.id,
-			property_id: v.property_id
-		};
-	});
 
-	jQuery.each(Object.keys(properties).sort(), function(i, v) {
-		var o = properties[v];
+	for (var i = 0; i < properties_sorted.length; i++) {
 		var html = '<tr class="fila_pv">';
-		html += '<td>' + v + '</td>';
-		html += '<td>' + hacer_pulldown(id, o.property_id, o.id) + '</td>';
+		var property = properties[properties_sorted[i]].id;
+		var value = false;
+		if (items[id].property_values.hasOwnProperty(property)) {
+			value = items[id].property_values[property];
+		}
+
+		html += '<td>' + properties_sorted[i] + '</td>';
+		html += '<td>' + hacer_pulldown(id, properties_sorted[i], value) + '</td>';
 		html += '</tr>';
 		jQuery('#tabla_pvs').append(html);
-	});
+	}
+
 	jQuery('#div_tabla_pvs').css('display', '');
 	jQuery('#div_tabla_prods').css('display', '');
 }
 
 function hacer_pulldown(item, property, property_value) {
-	var pulldown = '<select style="font-size: 10px; width: 150px;" id="item_' + item + '">';
+	var pulldown = '<select style="font-size: 10px; width: 150px;">';
+	if (property_value == false) {
+		pulldown += '<option selected>---</option>';
+	}
 	var options = {};
 	jQuery.each(properties[property]['values'], function(i, v) {
 		options[v] = i;
 	})
 	jQuery.each(Object.keys(options).sort(), function(i,v) {
 		var selected = '';
-		if (options[v] == property_value) { selected = ' selected'; }
+		if (property_value && options[v] == property_value) { selected = ' selected'; }
 		pulldown += '<option value="' + options[v] + '"' + selected + '>' + v + '</option>';
 	})
 	pulldown += '</select>';
@@ -219,7 +221,7 @@ jQuery(window).load(function() {
 
 </script>
 <% end %>
-<div style="position: relative; top: 10px; margin: 0px auto; height: 300px; border: 2px dotted blue;">
+<div style="position: relative; top: 10px; margin: 0px auto; height: 350px; border: 2px dotted blue;">
 	<div style="position: relative; top: 50px; height: 200px; width: 200px; float: left;">
 		<img height="200" width="200" id="imagen_item"/>
 	</div>
@@ -228,7 +230,7 @@ jQuery(window).load(function() {
 		<br/>
 		<span id="descripcion_item"></span>
 	</div>
-	<div style="position: relative; top: 50px; height: 220px; width: 350px; display: none; overflow-y: auto; float: left;" id="div_tabla_pvs">
+	<div style="position: relative; top: 20px; height: 300px; width: 350px; display: none; overflow-y: auto; float: left;" id="div_tabla_pvs">
 		<table border="1" align="center" width="80%" id="tabla_pvs">
 			<tr>
 				<th>Propiedad</th>
@@ -247,7 +249,7 @@ jQuery(window).load(function() {
 		</table>
 	</div>
 </div>
-<div style="position: relative; top: 15px; margin: 0px auto; height: 300px; border: 2px dotted blue; overflow-y: auto;">
+<div style="position: relative; top: 15px; margin: 0px auto; height: 250px; border: 2px dotted blue; overflow-y: auto;">
 	<br/>
 	<table border="1" align="center" width="80%" id="tabla_datos">
 	<tr>
