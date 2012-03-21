@@ -9,6 +9,9 @@ javascripts:
     - public/javascripts/idashboard.js
     - public/javascripts/rails.js
 
+  chosen:
+    - public/javascripts/chosen.jquery.js
+
   pagina_producto:
     - public/javascripts/highcharts.js
     - public/javascripts/modules/exporting.js
@@ -60,3 +63,5 @@ stylesheets:
     - public/stylesheets/chosen.css
     - public/stylesheets/jquery-ui-1.8.14.custom.css
     - public/stylesheets/jquery-datepicker.css
+  chosen_productizador:
+    - public/stylesheets/chosen-productizador.css

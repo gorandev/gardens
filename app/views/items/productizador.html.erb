@@ -1,7 +1,11 @@
 <% content_for :titulo_pagina do %>Productizador<% end %>
+<% content_for :stylesheet do %>
+<%= include_stylesheets :chosen_productizador, :media => 'all' %>
+<% end %>
 <% content_for :javascript do %>
 <%= javascript_include_tag "http://code.jquery.com/jquery-1.7.min.js" %>
 <script type="text/javascript">jQuery.noConflict();</script>
+<%= include_javascripts :chosen %>
 <script type="text/javascript">
 
 var count = 5;
@@ -194,10 +198,17 @@ function mostrar_item(id) {
 
 	jQuery('#div_tabla_pvs').css('display', '');
 	jQuery('#div_tabla_prods').css('display', '');
+
+	jQuery(".chzn-select").chosen({no_results_text: 'Sin resultados para'});
+    jQuery('.chzn-single').focus(function(e){
+        e.preventDefault();
+    });
+	jQuery('div.chzn-container ul').attr("tabindex",-1);
+	jQuery('#pv_' + properties[properties_sorted[0]].id + '_chzn a.chzn-single').focus();
 }
 
 function hacer_pulldown(item, property, property_value) {
-	var pulldown = '<select style="font-size: 10px; width: 150px;">';
+	var pulldown = '<select id="pv_' + properties[property].id + '" style="font-size: 10px; width: 150px;" class="chzn-select">';
 	if (property_value == false) {
 		pulldown += '<option selected>---</option>';
 	}
