@@ -42,6 +42,7 @@ Gardens::Application.routes.draw do
 
     match 'products/get_dates' => 'products#get_dates', :defaults => { :format => :json }
     match 'products/search' => 'products#search', :defaults => { :format => :json }
+    match 'products/search_productizador' => 'products#search_productizador', :defaults => { :format => :json }
 
     match 'products/get_avg_prices' => 'products#get_avg_prices', :defaults => { :format => :json }
 

@@ -123,8 +123,7 @@ class PricesController < ApplicationController
     if params.has_key?(:no_limit)
       @prices = Price.includes(:currency, :item => [ :retailer, :product ]).joins(join).where(where).order("price_date DESC")
     else
-      limit = params[:limit] || 10
-      @prices = Price.includes(:currency, :item => [ :retailer, :product ]).joins(join).where(where).limit(limit).order("price_date DESC")
+      @prices = Price.includes(:currency, :item => [ :retailer, :product ]).joins(join).where(where).limit(@count).offset(@offset).order("price_date DESC")
     end
   end
 end

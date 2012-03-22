@@ -5,7 +5,7 @@
 <% content_for :javascript do %>
 <%= javascript_include_tag "http://code.jquery.com/jquery-1.7.min.js" %>
 <script type="text/javascript">jQuery.noConflict();</script>
-<%= include_javascripts :chosen %>
+<%= include_javascripts :chosen, :flip %>
 <script type="text/javascript">
 
 var count = 5;
@@ -17,6 +17,9 @@ var selected_item_id = 0;
 
 var properties = {};
 var properties_sorted = new Array;
+
+var country_id = <%=@country_id%>;
+var product_type_id = <%=@product_type_id%>;
 
 function init_properties() {
 	jQuery.ajax({
@@ -180,6 +183,7 @@ function mostrar_item(id) {
 	jQuery('#retailer_item').html('<a target="_blank" href="' + items[id].url + '">' + items[id].retailer + '</a>');
 	jQuery('#descripcion_item').html(items[id].description);
 
+	jQuery('#ultimo_precio_registrado').html('');
 	jQuery('.fila_pv').remove();
 
 	for (var i = 0; i < properties_sorted.length; i++) {
@@ -205,10 +209,13 @@ function mostrar_item(id) {
     });
 	jQuery('div.chzn-container ul').attr("tabindex",-1);
 	jQuery('#pv_' + properties[properties_sorted[0]].id + '_chzn a.chzn-single').focus();
+
+	buscar_productos();
+	buscar_ultimo_precio_registrado(id);
 }
 
 function hacer_pulldown(item, property, property_value) {
-	var pulldown = '<select id="pv_' + properties[property].id + '" style="font-size: 10px; width: 150px;" class="chzn-select">';
+	var pulldown = '<select id="pv_' + properties[property].id + '" style="font-size: 10px; width: 150px;" class="chzn-select item_pvalues" onChange="buscar_productos();">';
 	if (property_value == false) {
 		pulldown += '<option selected>---</option>';
 	}
@@ -225,6 +232,129 @@ function hacer_pulldown(item, property, property_value) {
 	return pulldown;
 }
 
+function buscar_productos() {
+	var pvalues = new Array;
+	jQuery('.item_pvalues').each(function(i) {
+		if (jQuery(this).val() != '---') {
+			pvalues.push(jQuery(this).val());
+		}
+	});
+
+	jQuery('.fila_prod').remove();
+	jQuery('#tabla_prods').append('<tr class="fila_prod"><td>Buscando...</td></tr>');
+
+	var data = 'property_values=' + pvalues.join(',');
+	data += '&country=' + country_id + '&fast=yeah';
+	data += '&marca=' + jQuery('#pv_' + properties['marca'].id).val();
+
+	jQuery.ajax({
+		url: "http://api." + global_hostname + "/products/search_productizador",
+		data: data,
+		dataType: 'jsonp',
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				mostrar_match_productos(data);
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
+}
+
+function mostrar_match_productos(data) {
+	jQuery('.fila_prod').remove();
+
+	if (data.length > 0) {
+		jQuery.each(data, function (i,v) {
+			var html = '<tr class="fila_prod">';
+			html += '<td><span onClick="flip_producto(' + v.id + ');" style="cursor: pointer;">' + v.descripcion + '</span></td></tr>';
+			jQuery('#tabla_prods').append(html);
+		});
+	} else {
+		jQuery('#tabla_prods').append('<tr class="fila_prod"><td>No se encontró ninguno.</td></tr>');
+	}
+}
+
+function flip_producto(id) {
+	jQuery("body").css("cursor", "progress");
+	jQuery.ajax({
+		url: "http://api." + global_hostname + "/products/" + id,
+		dataType: 'jsonp',
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				jQuery("body").css("cursor", "auto");
+				_do_flip(data);
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
+}
+
+function _do_flip(data) {
+	var contenido = data.descripcion;
+	contenido += '<br/>';
+	contenido += '<image height="200" width="200" src="<%=@url_imagen_producto%>/' + data.imagen_id + '_med.jpg"/><br/>';
+	contenido += '<span id="ultimo_precio_registrado_prod"></span><br/>';
+	contenido += '<span style="cursor: pointer;" onClick="revert_flip();">volver</span>';
+
+	jQuery('#div_tabla_prods').flip({
+		direction: 'rl',
+		content: contenido,
+		speed: 150,
+		color: '#eee',
+		onEnd: function() {
+			ultimo_precio_prod(data.id);
+		}
+	});
+}
+
+function revert_flip() {
+	jQuery('#div_tabla_prods').revertFlip();
+}
+
+function ultimo_precio_prod(id) {
+	jQuery.ajax({
+		url: "http://api." + global_hostname + "/prices/search",
+		data: 'product=' + id + '&count=1',
+		dataType: 'jsonp',
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				if (data.length != 0) {
+					jQuery('#ultimo_precio_registrado_prod').html('<b>$ ' + data[0].price + '</b> (' + data[0].price_date.split('-').reverse().join('/') + ')');
+				}
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});	
+}
+
+function buscar_ultimo_precio_registrado(id) {
+	jQuery.ajax({
+		url: "http://api." + global_hostname + "/prices/search",
+		data: 'item=' + id + '&count=1',
+		dataType: 'jsonp',
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				if (data.length != 0) {
+					jQuery('#ultimo_precio_registrado').html('<b>$ ' + data[0].price + '</b> (' + data[0].price_date.split('-').reverse().join('/') + ')');
+				}
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
+}
+
 jQuery(window).load(function() {
 	get_items_sin_enlazar(0, count);
 	init_properties();
@@ -234,7 +364,8 @@ jQuery(window).load(function() {
 <% end %>
 <div style="position: relative; top: 10px; margin: 0px auto; height: 350px; border: 2px dotted blue;">
 	<div style="position: relative; top: 50px; height: 200px; width: 200px; float: left;">
-		<img height="200" width="200" id="imagen_item"/>
+		<img height="200" width="200" id="imagen_item"/><br/>
+		<span id="ultimo_precio_registrado"></span>
 	</div>
 	<div style="position: relative; top: 50px; height: 200px; width: 300px; overflow-y: auto; float: left;">
 		<span id="retailer_item" style="font-weight: bold;"></span>
@@ -249,13 +380,13 @@ jQuery(window).load(function() {
 			</tr>
 		</table>
 	</div>
-	<div style="position: relative; top: 50px; height: 220px; width: 350px; display: none; overflow-y: auto; float: left;" id="div_tabla_prods">
+	<div style="background-color: #eee; position: relative; top: 50px; height: 300px; width: 350px; display: none; overflow-y: auto; float: left;" id="div_tabla_prods">
 		<table border="1" align="center" width="80%" id="tabla_prods">
 			<tr>
 				<th>Posibles productos</th>
 			</tr>
 			<tr class="fila_prod">
-				<td>Cargando...</td>
+				<td>(click en 'buscar')</td>
 			</tr>
 		</table>
 	</div>

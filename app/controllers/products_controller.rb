@@ -9,13 +9,13 @@ class ProductsController < ApplicationController
   
   def pagina_producto
     @product = Product.find_by_id(params[:id])
-    @product_type_id = @product.product_type.id
     @pagina = 'Productos'
 
     @marcas = PropertyValue.find_all_by_id(REDIS.sinter "marcas_por_country:#{@country_id}", "marcas_por_product_type:#{@product_type_id}").sort! { |a, b| a.value <=> b.value }
   
     @properties = Array.new
     if !@product.nil?
+      @product_type_id = @product.product_type.id
       Settings["product_type_#{@product_type_id}"]['pagina_producto'].each do |p|
         next if @product.property_values.find_by_property_id(Property.find_by_name_and_product_type_id(p["field"], @product_type_id).nil?)
         next if @product.property_values.find_by_property_id(Property.find_by_name_and_product_type_id(p["field"], @product_type_id).id).nil?
@@ -182,6 +182,93 @@ class ProductsController < ApplicationController
     render :json => "OK"
   end
   
+  def search_productizador
+    if params.slice(:property_values, :country).empty?
+      return render :json => { :errors => { :product => "no search parameters" } }, :status => 400
+    end
+
+    product_ids = Array.new
+
+    if params.has_key?(:property_values)
+      if params[:property_values].is_a?String
+        unless params[:property_values].split(',').size > 0 && PropertyValue.find_all_by_id(params[:property_values].split(',')).size == params[:property_values].split(',').size
+          return render :json => { :errors => { :property_values => "not found" } }, :status => 400
+        end
+        params[:property_values] = params[:property_values].split(',')
+      elsif params[:property_values].is_a?Array
+        unless params[:property_values].size > 0 && PropertyValue.find_all_by_id(params[:property_values]).size == params[:property_values].size
+          return render :json => { :errors => { :property_values => "not found" } }, :status => 400
+        end
+      else
+        return render :json => { :errors => { :property_values => "must be comma-separated string or JSON array" } }, :status => 400
+      end    
+
+      params[:property_values].each do |pv|
+        tmp_product_ids = REDIS.smembers('property_value:' + pv.to_s)
+        next unless tmp_product_ids.is_a?Array
+        unless product_ids.empty?
+          product_ids = product_ids | tmp_product_ids
+        else
+          product_ids = tmp_product_ids
+        end
+      end
+    end
+
+    if params.has_key?(:country)
+      unless Country.find_by_id(params[:country])
+        return render :json => { :errors => { :country => "not found" } }, :status => 400
+      end
+
+      unless product_ids.empty?
+        product_ids = product_ids & REDIS.smembers('country:' + params[:country].to_s)
+      else
+        product_ids = REDIS.smembers('country:' + params[:country].to_s)
+      end
+    end
+
+    if params.has_key?(:marca)
+      tmp_product_ids = REDIS.smembers('property_value:' + params[:marca])
+      if tmp_product_ids.is_a?Array
+        product_ids = product_ids & tmp_product_ids
+      end
+    end    
+
+    products_scores = Hash.new
+    product_ids.each do |p|
+      products_scores[p] = 0
+      params[:property_values].each do |pv|
+        if REDIS.sismember('property_value:' + pv.to_s, p)
+          products_scores[p] += 1
+        end
+      end
+    end
+
+    products_scores.each do |k, v|
+      unless v > 6
+        product_ids.delete(k)
+      end
+    end
+
+    if product_ids.empty?
+      render "search" and return
+    end
+
+    Product.class
+    ProductType.class
+    Item.class
+    Country.class
+    Retailer.class
+    PropertyValue.class
+    Property.class
+
+    @products = Array.new
+    product_ids.each do |id|
+      @products.push(Marshal.load(REDIS.get 'obj.product:' + id.to_s))
+    end
+
+    render "search"
+  end
+
   def search    
     if params.slice(:product_type, :property_values, :retailers, :country).empty?
       return render :json => { :errors => { :product => "no search parameters" } }, :status => 400
@@ -276,10 +363,9 @@ class ProductsController < ApplicationController
       end
 
       properties.keys.each do |p|
-        unless product_ids.empty?
-          product_ids = product_ids & REDIS.sunion(*properties[p])
-        else
-          product_ids = REDIS.sunion(*properties[p])
+        tmp_product_ids = REDIS.sunion(*properties[p])
+        if tmp_product_ids and product_ids
+            product_ids = product_ids & tmp_product_ids
         end
       end
     end
