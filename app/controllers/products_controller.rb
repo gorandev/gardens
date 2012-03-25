@@ -250,7 +250,7 @@ class ProductsController < ApplicationController
     end
 
     if product_ids.empty?
-      render "search" and return
+      return
     end
 
     Product.class
@@ -263,10 +263,20 @@ class ProductsController < ApplicationController
 
     @products = Array.new
     product_ids.each do |id|
-      @products.push(Marshal.load(REDIS.get 'obj.product:' + id.to_s))
-    end
+      next unless p = Product.find_by_id(id)
 
-    render "search"
+      pr = Price.joins(:item).where(:currency_id => Country.find_by_id(params[:country]).currency.id, :items => {:product_id => p} ).order(:price_date).last
+      unless pr.nil?
+        pr = pr.price
+      end
+
+      @products.push(OpenStruct.new({
+        :id => id,
+        :descripcion => p.descripcion,
+        :imagen_id => p.imagen_id,
+        :ultimo_precio_registrado => pr
+      }))
+    end
   end
 
   def search    

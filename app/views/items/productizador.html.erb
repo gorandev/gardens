@@ -172,6 +172,16 @@ function reset_tabla() {
 	get_items_sin_enlazar(offset, count);
 }
 
+function reset_item() {
+	jQuery('#imagen_item').attr('src', '');	
+	jQuery('#retailer_item').html('');
+	jQuery('#descripcion_item').html('');
+	jQuery('#ultimo_precio_registrado').html('');
+	jQuery('.fila_pv').remove();
+	jQuery('#div_tabla_pvs').css('display', 'none');
+	jQuery('#div_tabla_prods').css('display', 'none');
+}
+
 function mostrar_item(id) {
 	selected_item_id = id;
 
@@ -215,10 +225,8 @@ function mostrar_item(id) {
 }
 
 function hacer_pulldown(item, property, property_value) {
-	var pulldown = '<select id="pv_' + properties[property].id + '" style="font-size: 10px; width: 150px;" class="chzn-select item_pvalues" onChange="buscar_productos();">';
-	if (property_value == false) {
-		pulldown += '<option selected>---</option>';
-	}
+	var pulldown = '<select data-placeholder="elegir... "id="pv_' + properties[property].id + '" style="font-size: 10px; width: 150px;" class="chzn-select item_pvalues" onChange="buscar_productos();">';
+	pulldown += '<option></option>';
 	var options = {};
 	jQuery.each(properties[property]['values'], function(i, v) {
 		options[v] = i;
@@ -235,7 +243,7 @@ function hacer_pulldown(item, property, property_value) {
 function buscar_productos() {
 	var pvalues = new Array;
 	jQuery('.item_pvalues').each(function(i) {
-		if (jQuery(this).val() != '---') {
+		if (jQuery(this).val()) {
 			pvalues.push(jQuery(this).val());
 		}
 	});
@@ -269,71 +277,41 @@ function mostrar_match_productos(data) {
 	if (data.length > 0) {
 		jQuery.each(data, function (i,v) {
 			var html = '<tr class="fila_prod">';
-			html += '<td><span onClick="flip_producto(' + v.id + ');" style="cursor: pointer;">' + v.descripcion + '</span></td></tr>';
+
+			html += '<td><span onClick="flip_producto({id: ' + v.id + ',descripcion: \'' + v.descripcion + '\', imagen_id: ' + v.imagen_id + '});" style="cursor: pointer;">';
+
+			html += v.descripcion;
+			if (v.ultimo_precio_registrado) {
+				html += (' <b>$' + v.ultimo_precio_registrado + '</b>');
+			}
+
+			html += '</span></td></tr>';
 			jQuery('#tabla_prods').append(html);
 		});
 	} else {
 		jQuery('#tabla_prods').append('<tr class="fila_prod"><td>No se encontró ninguno.</td></tr>');
 	}
+	jQuery('#tabla_prods').append('<tr class="fila_prod"><td>(crear nuevo producto)</td></tr>');
 }
 
-function flip_producto(id) {
-	jQuery("body").css("cursor", "progress");
-	jQuery.ajax({
-		url: "http://api." + global_hostname + "/products/" + id,
-		dataType: 'jsonp',
-		cache: false,
-		statusCode: {
-			200: function(data) {
-				jQuery("body").css("cursor", "auto");
-				_do_flip(data);
-			},
-			400: function() {
-				alert('Error 400!');
-			}
-		}
-	});
-}
-
-function _do_flip(data) {
-	var contenido = data.descripcion;
+function flip_producto(params) {
+	var contenido = params.descripcion;
 	contenido += '<br/>';
-	contenido += '<image height="200" width="200" src="<%=@url_imagen_producto%>/' + data.imagen_id + '_med.jpg"/><br/>';
+	contenido += '<image height="200" width="200" src="<%=@url_imagen_producto%>/' + params.imagen_id + '_med.jpg"/><br/>';
 	contenido += '<span id="ultimo_precio_registrado_prod"></span><br/>';
+	contenido += '<span style="cursor: pointer;" onClick="enlazar(' + params.id + ');">enlazar</span><br/>';
 	contenido += '<span style="cursor: pointer;" onClick="revert_flip();">volver</span>';
 
 	jQuery('#div_tabla_prods').flip({
 		direction: 'rl',
 		content: contenido,
 		speed: 150,
-		color: '#eee',
-		onEnd: function() {
-			ultimo_precio_prod(data.id);
-		}
+		color: '#eee'
 	});
 }
 
 function revert_flip() {
 	jQuery('#div_tabla_prods').revertFlip();
-}
-
-function ultimo_precio_prod(id) {
-	jQuery.ajax({
-		url: "http://api." + global_hostname + "/prices/search",
-		data: 'product=' + id + '&count=1',
-		dataType: 'jsonp',
-		cache: false,
-		statusCode: {
-			200: function(data) {
-				if (data.length != 0) {
-					jQuery('#ultimo_precio_registrado_prod').html('<b>$ ' + data[0].price + '</b> (' + data[0].price_date.split('-').reverse().join('/') + ')');
-				}
-			},
-			400: function() {
-				alert('Error 400!');
-			}
-		}
-	});	
 }
 
 function buscar_ultimo_precio_registrado(id) {
@@ -355,9 +333,34 @@ function buscar_ultimo_precio_registrado(id) {
 	});
 }
 
+function enlazar(product_id) {
+	if (confirm('Enlazar?')) {
+
+		jQuery.ajax({
+			url: 'http://api.' + global_hostname + '/items/link_product',
+			data: { item: selected_item_id, product: product_id },
+			dataType: 'jsonp',
+			cache: false,
+			statusCode: {
+				200: function() {
+					revert_flip()
+					reset_item();
+					jQuery('#item_' + selected_item_id).remove();
+					selected_item_id = 0;
+				},
+				400: function() {
+					alert('Error 400!');
+				}
+			}
+		});
+
+	}
+}
+
 jQuery(window).load(function() {
 	get_items_sin_enlazar(0, count);
 	init_properties();
+	FlyJSONP.init();
 });
 
 </script>

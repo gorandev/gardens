@@ -24,7 +24,22 @@ class ItemsController < ApplicationController
       render :json => { :errors => item.errors }, :status => 400
     end
   end
-  
+
+  def link_product
+    unless item = Item.find_by_id(params[:item])
+      return render :json => { :errors => { :item => "must be valid" } }, :status => 400
+    end
+
+    unless product = Product.find_by_id(params[:product])
+      return render :json => { :errors => { :product => "must be valid" } }, :status => 400
+    end
+
+    item.product = product
+    item.save
+
+    render :json => 'ok', :status => 200
+  end
+
   def update
     unless item = Item.find_by_id(params[:id])
       return render :json => { :errors => { :id => "must be valid" } }, :status => 400
@@ -86,7 +101,7 @@ class ItemsController < ApplicationController
     end
     
     if item.save
-      render :json => "OK"
+      render :json => 'ok', :status => 200
     else
       render :json => { :errors => item.errors }, :status => 400
     end
