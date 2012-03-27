@@ -440,7 +440,7 @@ class ProductsController < ApplicationController
       REDIS.sadd "descripcion.product:#{p.id}", "#{p.id}|#{p.descripcion}"
       REDIS.sadd "product_type:#{p.product_type.id}", p.id
 
-      unless marcas_por_product_type.has_key?(p.product_type-id)
+      unless marcas_por_product_type.has_key?(p.product_type.id)
         marcas_por_product_type[p.product_type.id] = Hash.new
       end
       marcas_por_product_type[p.product_type.id][p.property_values.joins(:property).where(:properties => { :name => 'marca' }).first.id] = 1;
