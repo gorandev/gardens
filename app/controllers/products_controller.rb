@@ -440,8 +440,8 @@ class ProductsController < ApplicationController
       REDIS.sadd "descripcion.product:#{p.id}", "#{p.id}|#{p.descripcion}"
       REDIS.sadd "product_type:#{p.product_type.id}", p.id
 
-      unless marcas_por_product_type.has_key?(p.id)
-        marcas_por_product_type[p.id] = Hash.new
+      unless marcas_por_product_type.has_key?(p.product_type-id)
+        marcas_por_product_type[p.product_type.id] = Hash.new
       end
       marcas_por_product_type[p.product_type.id][p.property_values.joins(:property).where(:properties => { :name => 'marca' }).first.id] = 1;
 
@@ -565,6 +565,44 @@ SQL
     @pagina = 'Retailers'
   end
 
+  def create_productizador
+    if params.slice(:item, :property_values, :product_type).empty?
+      return render :json => { :errors => { :product => "parameters missing" } }, :status => 400
+    end
+
+    unless item = Item.find_by_id(params[:item])
+      return render :json => { :errors => { :item => "must be valid" } }, :status => 400
+    end
+
+    property_values = Array.new
+    params[:property_values].split(',').each do |pv|
+      if (m = /^(.+)\|(.+)$/.match(pv))
+        ppv = PropertyValue.new(
+          :value => m[1],
+          :property => Property.find_by_id(m[2])
+        )
+        ppv.save
+        property_values.push(ppv)
+      else
+        if (ppv = PropertyValue.find_by_id(pv))
+          property_values.push(ppv)
+        end
+      end
+    end
+
+    product = Product.new(
+      :product_type => ProductType.find_by_id(params[:product_type]),
+      :property_values => property_values
+    )
+    product.save
+
+    item.product = product
+    item.save
+
+    agregar_producto_a_memstore(product)
+    render :json => "OK" 
+  end
+
   private
 
   def _get_dates(product_ids, currency)
@@ -595,5 +633,47 @@ SQL
       }))
     end
     render "search_fast"
+  end
+
+  def agregar_producto_a_memstore(p)
+    marcas_por_country = Hash.new
+    marcas_por_product_type = Hash.new
+
+    REDIS.set "obj.product:#{p.id}", Marshal.dump(p)
+    REDIS.sadd "descripcion.product:#{p.id}", "#{p.id}|#{p.descripcion}"
+    REDIS.sadd "product_type:#{p.product_type.id}", p.id
+
+    unless marcas_por_product_type.has_key?(p.product_type.id)
+      marcas_por_product_type[p.product_type.id] = Hash.new
+    end
+    marcas_por_product_type[p.product_type.id][p.property_values.joins(:property).where(:properties => { :name => 'marca' }).first.id] = 1;
+
+    p.active_in_countries.each do |c|
+      REDIS.sadd "country:#{c.id}", p.id
+      unless marcas_por_country.has_key?(c.id)
+        marcas_por_country[c.id] = Hash.new
+      end
+      marcas_por_country[c.id][p.property_values.joins(:property).where(:properties => { :name => 'marca' }).first.id] = 1;
+    end
+    p.active_in_retailers.each do |r|
+      REDIS.sadd "retailer:#{r.id}", p.id
+      REDIS.sadd "retailers.product:#{p.id}", r.id
+    end
+    p.property_values.all.each do |pv|
+      REDIS.sadd "property_value:#{pv.id}", p.id
+      REDIS.sadd "pvs_product:#{p.id}", "#{pv.id}|#{pv.value}|#{pv.property.name}"
+    end
+
+    marcas_por_product_type.keys.each do |pt|
+      marcas_por_product_type[pt].keys.each do |m|
+        REDIS.sadd "marcas_por_product_type:#{pt}", m
+      end
+    end
+
+    marcas_por_country.keys.each do |c|
+      marcas_por_country[c].keys.each do |m|
+        REDIS.sadd "marcas_por_country:#{c}", m
+      end
+    end
   end
 end

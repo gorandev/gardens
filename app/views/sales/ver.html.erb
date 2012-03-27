@@ -17,6 +17,7 @@ function agregar_tooltips() {
 
 var spinner = '<%= image_tag "ajax-bar-loader.gif", :size => "200x30" %>';
 var country_id = <%=@country_id%>;
+var product_type_id = <%=@product_type_id%>;
 var pulldowns_ok = [
 	{ 
 		name: "Marca",
@@ -284,9 +285,6 @@ jQuery(window).load(function() {
 	dibujar_pulldown_productos('start_up');
 	jQuery("#fecha_desde").datepicker();
 	jQuery("#fecha_hasta").datepicker();
-	<% if @id_producto != 0 %>
-	jQuery.when(llenar_pulldown()).then(get_promos());
-	<% end %>
 });
 </script>
 <%= include_javascripts :jquery_ui %>

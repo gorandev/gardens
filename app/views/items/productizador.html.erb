@@ -14,6 +14,7 @@ var data_items = new Array;
 var items = {};
 
 var selected_item_id = 0;
+var flip = false;
 
 var properties = {};
 var properties_sorted = new Array;
@@ -109,7 +110,6 @@ function llenar_tabla(data) {
 		var html = '<tr id="item_' + v.id + '" class="filas_tabla" height="29px;" style="cursor: pointer;" onClick="mostrar_item(' + v.id + ');">';
 		html += '<td>' + v.id + '</td>';
 		html += '<td>' + v.retailer + '</td>';
-		html += '<td>' + 'SKU' + '</td>';
 		html += '<td>' + v.description.substr(0, 250) + (v.description.length > 250 ? '...' : '') + '</td>';
 		html += '</tr>';
 		jQuery('#tabla_datos').append(html);
@@ -180,9 +180,18 @@ function reset_item() {
 	jQuery('.fila_pv').remove();
 	jQuery('#div_tabla_pvs').css('display', 'none');
 	jQuery('#div_tabla_prods').css('display', 'none');
+	if (selected_item_id != 0 && flip) {
+		revert_flip();
+	}
 }
 
 function mostrar_item(id) {
+	if (selected_item_id != 0 && flip) {
+		revert_flip();
+		jQuery('.fila_prod').remove();
+		jQuery('#tabla_prods').append('<tr class="fila_prod"><td>Buscando...</td></tr>');
+	}
+	
 	selected_item_id = id;
 
 	jQuery('.filas_tabla').css('background-color', '');
@@ -213,19 +222,19 @@ function mostrar_item(id) {
 	jQuery('#div_tabla_pvs').css('display', '');
 	jQuery('#div_tabla_prods').css('display', '');
 
-	jQuery(".chzn-select").chosen({no_results_text: 'Sin resultados para'});
+	jQuery(".chzn-select").chosen({no_results_text: 'Sin resultados para', allow_single_deselect: true});
     jQuery('.chzn-single').focus(function(e){
         e.preventDefault();
     });
 	jQuery('div.chzn-container ul').attr("tabindex",-1);
-	jQuery('#pv_' + properties[properties_sorted[0]].id + '_chzn a.chzn-single').focus();
+	jQuery('#p_' + properties[properties_sorted[0]].id + '_chzn a.chzn-single').focus();
 
 	buscar_productos();
 	buscar_ultimo_precio_registrado(id);
 }
 
 function hacer_pulldown(item, property, property_value) {
-	var pulldown = '<select data-placeholder="elegir... "id="pv_' + properties[property].id + '" style="font-size: 10px; width: 150px;" class="chzn-select item_pvalues" onChange="buscar_productos();">';
+	var pulldown = '<select data-placeholder="elegir... "id="p_' + properties[property].id + '" style="font-size: 10px; width: 150px;" class="chzn-select item_pvalues" onChange="buscar_productos();">';
 	pulldown += '<option></option>';
 	var options = {};
 	jQuery.each(properties[property]['values'], function(i, v) {
@@ -253,7 +262,7 @@ function buscar_productos() {
 
 	var data = 'property_values=' + pvalues.join(',');
 	data += '&country=' + country_id + '&fast=yeah';
-	data += '&marca=' + jQuery('#pv_' + properties['marca'].id).val();
+	data += '&marca=' + jQuery('#p_' + properties['marca'].id).val();
 
 	jQuery.ajax({
 		url: "http://api." + global_hostname + "/products/search_productizador",
@@ -291,7 +300,7 @@ function mostrar_match_productos(data) {
 	} else {
 		jQuery('#tabla_prods').append('<tr class="fila_prod"><td>No se encontró ninguno.</td></tr>');
 	}
-	jQuery('#tabla_prods').append('<tr class="fila_prod"><td>(crear nuevo producto)</td></tr>');
+	jQuery('#tabla_prods').append('<tr class="fila_prod"><td><span style="cursor: pointer;" onClick="crear_producto();">(crear nuevo producto)</span></td></tr>');
 }
 
 function flip_producto(params) {
@@ -308,9 +317,12 @@ function flip_producto(params) {
 		speed: 150,
 		color: '#eee'
 	});
+
+	flip = true;
 }
 
 function revert_flip() {
+	flip = false;
 	jQuery('#div_tabla_prods').revertFlip();
 }
 
@@ -343,7 +355,87 @@ function enlazar(product_id) {
 			cache: false,
 			statusCode: {
 				200: function() {
-					revert_flip()
+					revert_flip();
+					reset_item();
+					jQuery('#item_' + selected_item_id).remove();
+					selected_item_id = 0;
+				},
+				400: function() {
+					alert('Error 400!');
+				}
+			}
+		});
+
+	}
+}
+
+function crear_producto() {
+	var contenido = '<br/>';
+
+	contenido += '<h3>Ingresar valores faltantes:</h3>';
+	contenido += '<table width="80%" align="center" border="0">';
+	jQuery('.item_pvalues').each(function (i) {
+		if (!jQuery(this).val()) {
+			if (result = /p_(\d+)/.exec(this.id)) {
+				jQuery.each(properties, function(i,v) {
+					if (result[1] == v.id) {
+						contenido += '<tr>';
+						contenido += '<td>' + i + '</td>';
+						contenido += '<td><input class="new_pv" type="text" id="new_p_' + v.id + '"/></td>';
+						contenido += '</tr>';
+						return false;
+					}
+				})
+			}
+		}
+	});
+
+	contenido += '</table><br/>';
+	contenido += '<span style="cursor: pointer;" onClick="revert_flip();">volver</span><br/>';
+	contenido += '<span style="cursor: pointer;" onClick="go_crear_producto();">crear producto</span><br/>';
+
+	jQuery('#div_tabla_prods').flip({
+		direction: 'tb',
+		content: contenido,
+		speed: 150,
+		color: '#eee'
+	});
+
+	flip = true;
+}
+
+function go_crear_producto() {
+	var pvs = new Array;
+	var faltan_campos = 0;
+	jQuery('.item_pvalues').each(function (i) {
+		if (jQuery(this).val()) {
+			pvs.push(jQuery(this).val());
+		}
+	});
+	jQuery('.new_pv').each(function (i) {
+		if (jQuery(this).val()) {
+			if (result = /new_p_(\d+)/.exec(this.id)) {
+				pvs.push(jQuery(this).val() + '|' + result[1]);
+			}
+		} else {		
+			faltan_campos = 1;
+		}
+	});
+
+	if (faltan_campos) {
+		alert('Por favor completar todos los campos.');
+		return false; 
+	}
+
+	if (confirm('Crear?')) {
+		jQuery.ajax({
+			url: 'http://api.' + global_hostname + '/products/create_productizador',
+			data: { item: selected_item_id, property_values: pvs.join(','), product_type: <%=@product_type_id%> },
+			dataType: 'jsonp',
+			cache: false,
+			statusCode: {
+				200: function() {
+					revert_flip();
 					reset_item();
 					jQuery('#item_' + selected_item_id).remove();
 					selected_item_id = 0;
@@ -408,7 +500,6 @@ jQuery(window).load(function() {
 			<% end %>
 			</select>
 		</th>
-		<th width="34px;">SKU</th>
 		<th>Descripción</th>
 	</tr>
 	</table>
