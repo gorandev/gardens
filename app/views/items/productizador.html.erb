@@ -10,7 +10,6 @@
 
 var count = 5;
 var offset = 0;
-var data_items = new Array;
 var items = {};
 
 var selected_item_id = 0;
@@ -53,18 +52,13 @@ function init_properties() {
 function get_items_sin_enlazar(offset, count) {
 	var query_string = 'product=nil&product_type=<%=@product_type_id%>&currency=<%=@currency_id%>';
 	query_string += '&offset=' + offset;
-	query_string += '&count=' + (count*2);
+	query_string += '&count=' + count;
 
 	if (jQuery('#retailer').val() != 0) {
 		query_string += '&retailer=' + jQuery('#retailer').val();
 	}
 
-	jQuery('.filas_tabla').remove();
-	jQuery('#tabla_datos').append('<tr class="filas_tabla"><td colspan="4">Cargando...</td></tr>');
-
-	if (data_items.length != 0) {
-		llenar_tabla(data_items);
-	}
+	jQuery('#tabla_datos').append('<tr class="filas_tabla_loading"><td colspan="4">Cargando...</td></tr>');
 
 	jQuery.ajax({
 		url: "http://api.<%=@hostname%>/items/search",
@@ -73,27 +67,7 @@ function get_items_sin_enlazar(offset, count) {
 		data: query_string,
 		statusCode: {
 			200: function(data) {
-				if (data_items.length == 0) {
-					var filas = 0;
-					var la_data = new Array;
-					jQuery.each(data, function(i,v) {
-						if (filas++ > 4) { 
-							data_items.push(v);
-						} else {
-							la_data.push(v);
-						}
-					});
-					llenar_tabla(la_data);
-				} else {
-					var filas = 0;
-					data_items = new Array;
-					jQuery.each(data, function(i,v) {
-						if (filas++ > 4) { 
-							data_items.push(v);
-						}
-					});
-				}
-				add_paginador();
+				llenar_tabla(data);
 			},
 			400: function() {
 				alert('Error 400!');
@@ -103,14 +77,14 @@ function get_items_sin_enlazar(offset, count) {
 }
 
 function llenar_tabla(data) {
-	jQuery('.filas_tabla').remove();
-	items = {};
+	jQuery('.filas_tabla_loading').remove();
+	jQuery('.filas_tabla_paginador').remove();
 
 	jQuery.each(data, function(i,v) {
 		var html = '<tr id="item_' + v.id + '" class="filas_tabla" height="29px;" style="cursor: pointer;" onClick="mostrar_item(' + v.id + ');">';
 		html += '<td>' + v.id + '</td>';
 		html += '<td>' + v.retailer + '</td>';
-		html += '<td>' + v.description.substr(0, 250) + (v.description.length > 250 ? '...' : '') + '</td>';
+		html += '<td>' + v.description + '</td>';
 		html += '</tr>';
 		jQuery('#tabla_datos').append(html);
 
@@ -135,29 +109,10 @@ function llenar_tabla(data) {
 	});
 
 	if (data.length == 0) {
-		jQuery('#tabla_datos').append('<tr class="filas_tabla"><td colspan="4" align="center">No hay ítems sin asociar.</td></tr>');
-	}
-}
-
-function add_paginador() {
-	if (offset != 0) {
-		if (data_items.length != 0) {
-			jQuery('#tabla_datos').append('<tr class="filas_tabla"><td><span style="cursor: pointer;" onClick="return pagina_anterior();"><<<</span></td><td colspan="3" align="right"><span style="cursor: pointer;" onClick="return pagina_siguiente();">>>></span></td></tr>');
-		} else {
-			jQuery('#tabla_datos').append('<tr class="filas_tabla"><td colspan="4" align="left"><span style="cursor: pointer;" onClick="return pagina_anterior();"><<<</span></td></tr>');
-		}
+		jQuery('#tabla_datos').append('<tr class="filas_tabla"><td colspan="4" align="center">No hay más ítems sin asociar.</td></tr>');
 	} else {
-		if (data_items.length != 0) {
-			jQuery('#tabla_datos').append('<tr class="filas_tabla"><td colspan="4" align="right"><span style="cursor: pointer;" onClick="return pagina_siguiente();">>>></span></td></tr>');
-		}
-	}	
-}
-
-function pagina_anterior() {
-	offset -= 5;
-	data_items = new Array;
-	get_items_sin_enlazar(offset, count);
-	return false;
+		jQuery('#tabla_datos').append('<tr class="filas_tabla_paginador"><td colspan="4" align="center"><span style="cursor: pointer;" onClick="return pagina_siguiente();">cargar más items</span></td></tr>');
+	}
 }
 
 function pagina_siguiente() {
@@ -167,7 +122,9 @@ function pagina_siguiente() {
 }
 
 function reset_tabla() {
-	data_items = new Array;
+	items = {};
+	jQuery('.filas_tabla').remove();
+	jQuery('.filas_tabla_paginador').remove();
 	offset = 0;
 	get_items_sin_enlazar(offset, count);
 }
@@ -452,7 +409,6 @@ function go_crear_producto() {
 jQuery(window).load(function() {
 	get_items_sin_enlazar(0, count);
 	init_properties();
-	FlyJSONP.init();
 });
 
 </script>
