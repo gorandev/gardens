@@ -55,6 +55,18 @@ class ProductsController < ApplicationController
 
   def show
     @product = Product.find(params[:id])
+    if params.has_key?("show_urls") and params.has_key?("country")
+      @urls = Array.new
+      Item.joins(:retailer).where(:retailers => { :country_id => params[:country] }, :product_id => params[:id]).order('retailers.name ASC').each do |i|
+        price = Price.where(:item_id => i.id).order("price_date DESC").limit(1)
+        @urls.push(OpenStruct.new({
+          :url => i.url,
+          :retailer => i.retailer.name,
+          :price => (price.empty?) ? nil : price.first.price
+        }))
+      end
+      render "show_urls" and return
+    end
   end
   
   def new

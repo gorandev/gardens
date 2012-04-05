@@ -264,7 +264,7 @@ function flip_producto(params) {
 	var contenido = params.descripcion;
 	contenido += '<br/>';
 	contenido += '<image height="200" width="200" src="<%=@url_imagen_producto%>/' + params.imagen_id + '_med.jpg"/><br/>';
-	contenido += '<span id="ultimo_precio_registrado_prod"></span><br/>';
+	contenido += '<span id="urls_producto"></span><br/>';
 	contenido += '<span style="cursor: pointer;" onClick="enlazar(' + params.id + ');">enlazar</span><br/>';
 	contenido += '<span style="cursor: pointer;" onClick="revert_flip();">volver</span>';
 
@@ -276,6 +276,28 @@ function flip_producto(params) {
 	});
 
 	flip = true;
+	mostrar_urls_producto(params.id);
+}
+
+function mostrar_urls_producto(id) {
+	jQuery.ajax({
+		url: "http://api." + global_hostname + "/products/" + id,
+		data: { show_urls: 1, country: country_id },
+		dataType: 'jsonp',
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				contenido = '';
+				jQuery.each(data, function(i, v) {
+					contenido += '<a href="' + v.url + '" target="_blank">' + v.retailer + ' $' + v.price + '</a><br/>';
+				})
+				jQuery("#urls_producto").html(contenido);
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
 }
 
 function revert_flip() {
@@ -451,7 +473,7 @@ jQuery(window).load(function() {
 			Retailer
 			<select style="font-size: 10px;" id="retailer" onChange="reset_tabla();">
 				<option value="0" selected>Todos</option>
-			<% Retailer.where(:country_id => @country_id).each do |r| %>
+			<% Retailer.where(:country_id => @country_id).order('name ASC').each do |r| %>
 				<option value="<%=r.id%>"><%=r.name%></option>
 			<% end %>
 			</select>

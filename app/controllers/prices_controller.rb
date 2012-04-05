@@ -105,11 +105,11 @@ class PricesController < ApplicationController
         return render :json => { :errors => { :retailer => "not found" } }, :status => 400
       end
       
-      if join.index(:items).nil?
-        join.push(:items)
+      if join.index(:item).nil?
+        join.push(:item)
       end
 
-      if where.has_key?(:item)
+      if where.has_key?(:items)
         where[:items][:retailer_id] = params[:retailer]
       else
         where[:items] = { :retailer_id => params[:retailer] }
