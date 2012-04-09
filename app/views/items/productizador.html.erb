@@ -264,7 +264,7 @@ function flip_producto(params) {
 	var contenido = params.descripcion;
 	contenido += '<br/>';
 	contenido += '<image height="200" width="200" src="<%=@url_imagen_producto%>/' + params.imagen_id + '_med.jpg"/><br/>';
-	contenido += '<span id="urls_producto"></span><br/>';
+	contenido += '<span id="urls_producto">Buscando links retailers...</span><br/>';
 	contenido += '<span style="cursor: pointer;" onClick="enlazar(' + params.id + ');">enlazar</span><br/>';
 	contenido += '<span style="cursor: pointer;" onClick="revert_flip();">volver</span>';
 
@@ -287,6 +287,7 @@ function mostrar_urls_producto(id) {
 		cache: false,
 		statusCode: {
 			200: function(data) {
+				jQuery("#urls_producto").html('No hay retailers.');
 				contenido = '';
 				jQuery.each(data, function(i, v) {
 					contenido += '<a href="' + v.url + '" target="_blank">' + v.retailer + ' $' + v.price + '</a><br/>';
