@@ -117,6 +117,7 @@ function llenar_tabla(data) {
 
 function pagina_siguiente() {
 	offset += 5;
+	jQuery('.filas_tabla_paginador').remove();
 	get_items_sin_enlazar(offset, count);
 	return false;
 }
