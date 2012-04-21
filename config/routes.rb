@@ -1,4 +1,6 @@
 Gardens::Application.routes.draw do
+  resources :s3_uploads
+
   devise_for :users, :controllers => { :sessions => "users/sessions" }
 
   constraints(:subdomain => "rails") do
@@ -12,6 +14,7 @@ Gardens::Application.routes.draw do
     get 'sales/ver'
     
     match 'items/productizador' => 'items#productizador', :as => 'pagina_productizador'
+    match 'sales/cargapromos' => 'sales#cargapromos', :as => 'pagina_cargapromos'
 
     resources :saved_reports, :defaults => { :format => :json }
   end

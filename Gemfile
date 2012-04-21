@@ -11,6 +11,7 @@ gem 'thin'
 gem 'redis'
 gem 'devise'
 gem 'jammit'
+gem 's3_swf_upload', :git => 'git://github.com/nathancolgate/s3-swf-upload-plugin'
 
 group :development do
   gem 'rspec-rails'

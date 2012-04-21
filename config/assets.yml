@@ -58,6 +58,9 @@ javascripts:
     - public/javascripts/highcharts_graficar.js
     - public/javascripts/modalbox.js
 
+  s3upload:
+    - public/javascripts/s3_upload.js
+
 stylesheets:
   basico:
     - public/stylesheets/estilos.css

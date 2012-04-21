@@ -1,0 +1,380 @@
+<% content_for :titulo_pagina do %>Cargador de Promociones<% end %>
+<% content_for :stylesheet do %>
+<%= include_stylesheets :chosen_productizador, :media => 'all' %>
+<% end %>
+<% content_for :javascript do %>
+<%= javascript_include_tag "http://code.jquery.com/jquery-1.7.min.js" %>
+<script type="text/javascript">jQuery.noConflict();</script>
+<%= include_javascripts :chosen, :flip, :s3upload %>
+<script type="text/javascript">
+
+var count = 5;
+var offset = 0;
+var items = {};
+
+var selected_item_id = 0;
+var flip = false;
+
+var properties = {};
+var properties_sorted = new Array;
+
+var country_id = <%=@country_id%>;
+var product_type_id = <%=@product_type_id%>;
+
+function init_properties() {
+	jQuery.ajax({
+		url: "http://api.<%=@hostname%>/properties/search",
+		type: 'POST',
+		dataType: 'jsonp',
+		data: 'product_type=<%=@product_type_id%>',
+		statusCode: {
+			200: function(data) {
+				jQuery.each(data, function(i, v) {
+					var values = {};
+					jQuery.each(v.possible_values, function(j, w) {
+						values[w.id] = w.value;
+					});
+					properties[v.name] = {
+						id: v.id,
+						values: values
+					};
+					properties_sorted.push(v.name);
+				});
+				properties_sorted = properties_sorted.sort();
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
+}
+
+function hacer_pulldown(item, property, property_value) {
+	var pulldown = '<select data-placeholder="elegir... "id="p_' + properties[property].id + '" style="font-size: 10px; width: 150px;" class="chzn-select item_pvalues" onChange="buscar_productos();">';
+	pulldown += '<option></option>';
+	var options = {};
+	jQuery.each(properties[property]['values'], function(i, v) {
+		options[v] = i;
+	})
+	jQuery.each(Object.keys(options).sort(), function(i,v) {
+		var selected = '';
+		if (property_value && options[v] == property_value) { selected = ' selected'; }
+		pulldown += '<option value="' + options[v] + '"' + selected + '>' + v + '</option>';
+	})
+	pulldown += '</select>';
+	return pulldown;
+}
+
+function buscar_productos() {
+	var pvalues = new Array;
+	jQuery('.item_pvalues').each(function(i) {
+		if (jQuery(this).val()) {
+			pvalues.push(jQuery(this).val());
+		}
+	});
+
+	jQuery('.fila_prod').remove();
+	jQuery('#tabla_prods').append('<tr class="fila_prod"><td>Buscando...</td></tr>');
+
+	var data = 'property_values=' + pvalues.join(',');
+	data += '&country=' + country_id + '&fast=yeah';
+	data += '&marca=' + jQuery('#p_' + properties['marca'].id).val();
+
+	jQuery.ajax({
+		url: "http://api." + global_hostname + "/products/search_productizador",
+		data: data,
+		dataType: 'jsonp',
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				mostrar_match_productos(data);
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
+}
+
+function mostrar_match_productos(data) {
+	jQuery('.fila_prod').remove();
+
+	if (data.length > 0) {
+		jQuery.each(data, function (i,v) {
+			var html = '<tr class="fila_prod">';
+
+			html += '<td><span onClick="flip_producto({id: ' + v.id + ',descripcion: \'' + v.descripcion + '\', imagen_id: ' + v.imagen_id + '});" style="cursor: pointer;">';
+
+			html += v.descripcion;
+			if (v.ultimo_precio_registrado) {
+				html += (' <b>$' + v.ultimo_precio_registrado + '</b>');
+			}
+
+			html += '</span></td></tr>';
+			jQuery('#tabla_prods').append(html);
+		});
+	} else {
+		jQuery('#tabla_prods').append('<tr class="fila_prod"><td>No se encontró ninguno.</td></tr>');
+	}
+	jQuery('#tabla_prods').append('<tr class="fila_prod"><td><span style="cursor: pointer;" onClick="crear_producto();">(crear nuevo producto)</span></td></tr>');
+}
+
+function flip_producto(params) {
+	var contenido = params.descripcion;
+	contenido += '<br/>';
+	contenido += '<image height="200" width="200" src="<%=@url_imagen_producto%>/' + params.imagen_id + '_med.jpg"/><br/>';
+	contenido += '<span id="urls_producto">Buscando links retailers...</span><br/>';
+	contenido += '<span style="cursor: pointer;" onClick="enlazar(' + params.id + ');">enlazar</span><br/>';
+	contenido += '<span style="cursor: pointer;" onClick="revert_flip();">volver</span>';
+
+	jQuery('#div_tabla_prods').flip({
+		direction: 'rl',
+		content: contenido,
+		speed: 150,
+		color: '#eee'
+	});
+
+	flip = true;
+	mostrar_urls_producto(params.id);
+}
+
+function mostrar_urls_producto(id) {
+	jQuery.ajax({
+		url: "http://api." + global_hostname + "/products/" + id,
+		data: { show_urls: 1, country: country_id },
+		dataType: 'jsonp',
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				jQuery("#urls_producto").html('No hay retailers.');
+				contenido = '';
+				jQuery.each(data, function(i, v) {
+					contenido += '<a href="' + v.url + '" target="_blank">' + v.retailer + ' $' + v.price + '</a><br/>';
+				})
+				jQuery("#urls_producto").html(contenido);
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
+}
+
+function revert_flip() {
+	flip = false;
+	jQuery('#div_tabla_prods').revertFlip();
+}
+
+function buscar_ultimo_precio_registrado(id) {
+	jQuery.ajax({
+		url: "http://api." + global_hostname + "/prices/search",
+		data: 'item=' + id + '&count=1',
+		dataType: 'jsonp',
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				if (data.length != 0) {
+					jQuery('#ultimo_precio_registrado').html('<b>$ ' + data[0].price + '</b> (' + data[0].price_date.split('-').reverse().join('/') + ')');
+				}
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
+}
+
+function crear_producto() {
+	var contenido = '<br/>';
+
+	contenido += '<h3>Ingresar valores faltantes:</h3>';
+	contenido += '<table width="80%" align="center" border="0">';
+	jQuery('.item_pvalues').each(function (i) {
+		if (!jQuery(this).val()) {
+			if (result = /p_(\d+)/.exec(this.id)) {
+				jQuery.each(properties, function(i,v) {
+					if (result[1] == v.id) {
+						contenido += '<tr>';
+						contenido += '<td>' + i + '</td>';
+						contenido += '<td><input class="new_pv" type="text" id="new_p_' + v.id + '"/></td>';
+						contenido += '</tr>';
+						return false;
+					}
+				})
+			}
+		}
+	});
+
+	contenido += '</table><br/>';
+	contenido += '<span style="cursor: pointer;" onClick="revert_flip();">volver</span><br/>';
+	contenido += '<span style="cursor: pointer;" onClick="go_crear_producto();">crear producto</span><br/>';
+
+	jQuery('#div_tabla_prods').flip({
+		direction: 'tb',
+		content: contenido,
+		speed: 150,
+		color: '#eee'
+	});
+
+	flip = true;
+}
+
+function go_crear_producto() {
+	var pvs = new Array;
+	var faltan_campos = 0;
+	jQuery('.item_pvalues').each(function (i) {
+		if (jQuery(this).val()) {
+			pvs.push(jQuery(this).val());
+		}
+	});
+	jQuery('.new_pv').each(function (i) {
+		if (jQuery(this).val()) {
+			if (result = /new_p_(\d+)/.exec(this.id)) {
+				pvs.push(jQuery(this).val() + '|' + result[1]);
+			}
+		} else {		
+			faltan_campos = 1;
+		}
+	});
+
+	if (faltan_campos) {
+		alert('Por favor completar todos los campos.');
+		return false; 
+	}
+
+	if (confirm('Crear?')) {
+		jQuery.ajax({
+			url: 'http://api.' + global_hostname + '/products/create_productizador',
+			data: { item: selected_item_id, property_values: pvs.join(','), product_type: <%=@product_type_id%> },
+			dataType: 'jsonp',
+			cache: false,
+			statusCode: {
+				200: function() {
+					revert_flip();
+					reset_item();
+					jQuery('#item_' + selected_item_id).remove();
+					selected_item_id = 0;
+				},
+				400: function() {
+					alert('Error 400!');
+				}
+			}
+		});
+
+	}
+}
+
+jQuery(window).load(function() {
+	init_properties();
+	jQuery(".chzn-select").chosen({no_results_text: 'Sin resultados para', allow_single_deselect: true});
+    jQuery('.chzn-single').focus(function(e){
+        e.preventDefault();
+    });
+	jQuery('div.chzn-container ul').attr("tabindex",-1);
+});
+
+</script>
+<% end %>
+<br/>
+<div style="margin: 0px auto; width: 1025px; height: 600px; border: 2px dotted blue; overflow-y: auto; float: left;">
+<script type="text/javascript">
+
+var uploadingStartHandler = function() {
+	jQuery('#upload_button').attr('disabled', 'disabled').attr('value', 'Subiendo...');
+}
+
+var uploadCompleteHandler = function(upload_options,event){
+	jQuery('#image_uploaded').attr('src', 'https://s3.amazonaws.com/<%=@bucket%>/' + upload_options.FileName);
+};
+
+var uploadingFinishHandler = function() {
+	jQuery('#upload_button').attr('value', 'OK!');
+}
+
+</script>
+<%=raw s3_swf_upload_tag(
+	:fileTypes => '*.jpg;*.gif;*.png;',
+	:fileTypeDescs => 'Image files.',
+	:onUploadingStart => "uploadingStartHandler();",
+	:onUploadingFinish => "uploadingFinishHandler();",
+	:onUploadComplete => "uploadCompleteHandler(upload_options,event);",
+	:onSignatureIOError => "alert('Signature IO error');",
+	:onSignatureXMLError => "alert('Signature XML error');",
+	:onSignatureSecurityError => "alert('Signature security error');",
+	:onUploadError => "alert('Upload error');",
+	:onUploadIOError => "alert('Upload IO error');",
+	:onUploadSecurityError => "alert('Upload security error');",
+	:selectMultipleFiles => false,
+	:queueSizeLimit => 1,
+	:fileSizeLimit => 4194304
+) %>
+<input id="upload_button" type="button" value="Start Uploading" onclick="s3_swf_16_object.startUploading();" />
+<img id="image_uploaded"/>
+</div>
+<div style="margin: 0px auto; width: 300px; height: 600px; border: 2px dotted blue; overflow-y: auto; float: left;">
+	<div style="margin: 0px auto; width 300px; height: 200px; border: 2px dotted red; overflow-y: auto;">
+		<h3>Detalles de la promoción</h3>
+		<table width="100%" border="0">
+			<tr>
+				<td align="right" width="35%">Fuente</td>
+				<td align="left"><input type="text" size="5"/></td>
+				<td align="right">P&aacute;gina</td>
+				<td align="left"><input type="text" size="5"/></td>
+			</tr>
+			<tr>
+				<td align="right">Fecha</td>
+				<td align="left"><input type="text" size="5"/></td>
+				<td align="right">Retailer</td>
+				<td align="left"><input type="text" size="5"/></td>
+			</tr>
+			<tr>
+				<td align="right">Precio</td>
+				<td align="left"><input type="text" size="5"/></td>
+				<td align="right">Origen</td>
+				<td align="left"><input type="text" size="5"/></td>
+			</tr>
+			<tr>
+				<td align="right">Unidades disponibles</td>
+				<td align="left"><input type="text" size="5"/></td>
+				<td align="right">Bundle?</td>
+				<td align="left" width="30%"><input type="radio"/>S&iacute;<input type="radio"/>No</td>
+			</tr>
+			<tr>
+				<td align="right">V&aacute;lida desde</td>
+				<td align="left"><input type="text" size="5"/></td>
+				<td align="right" width="35%">V&aacute;lida hasta</td>
+				<td align="left"><input type="text" size="5"/></td>
+			</tr>
+		</table>
+	</div>
+	<div style="margin: 0px auto; height: 200px; width: 300px; overflow-y: auto; border: 2px dotted yellow; float: left;" id="div_tabla_pvs">
+		<h3>Propiedades del producto</h3>
+		<table border="1" align="center" width="80%" id="tabla_pvs">
+			<tr>
+				<th>Propiedad</th>
+				<th>Valor</th>
+			</tr>
+<% Property.order('name').all.each do |p| %>
+			<tr>
+				<td><%=p.name%></td>
+				<td>
+					<select data-placeholder="elegir..." id="p_<%=p.id%>" style="font-size: 10px; width: 150px;" class="chzn-select item_pvalues" onChange="buscar_productos();">
+						<option></option>
+	<% p.property_values.order('value').all.each do |pv| %>
+						<option value="<%=pv.id%>"><%=pv.value%></option>
+	<% end %>
+					</select>
+				</td>
+			<tr>
+<% end %>
+		</table>
+	</div>
+	<div style="background-color: #eee; position: height: 200px; width: 300px; overflow-y: auto; float: left;" id="div_tabla_prods">
+		<h3>Posibles productos</h3>
+		<table border="1" align="center" width="80%" id="tabla_prods">
+			<tr class="fila_prod">
+				<td>(click en 'buscar')</td>
+			</tr>
+		</table>
+	</div>
+</div>

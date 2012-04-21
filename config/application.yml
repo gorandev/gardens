@@ -106,6 +106,7 @@
 
 development:
   host: "idashboard.local"
+  aws_bucket: "idashboard_dev"
   <<: *defaults
 
 test:
@@ -113,4 +114,5 @@ test:
 
 production:
   host: "idashboard.la"
+  aws_bucket: "idashboard_heroku"
   <<: *defaults

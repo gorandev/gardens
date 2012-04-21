@@ -1,4 +1,10 @@
 GIT
+  remote: git://github.com/nathancolgate/s3-swf-upload-plugin
+  revision: 76f36fa49f60cf5ac33aa0959c4a33cbc3ee0290
+  specs:
+    s3_swf_upload (0.3.2)
+
+GIT
   remote: https://github.com/nesquena/rabl.git
   revision: ab76f0692adcd4cdf8f22549ce3b6ee5652b661f
   specs:
@@ -163,6 +169,7 @@ DEPENDENCIES
   rspec
   rspec-http (~> 0.0.1)
   rspec-rails
+  s3_swf_upload!
   settingslogic
   sqlite3
   thin

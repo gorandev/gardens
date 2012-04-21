@@ -1,0 +1,14 @@
+development:
+  bucket: idashboard_dev
+  max_file_size: 4194304
+  acl: public-read
+    
+test:
+  bucket: 
+  max_file_size: 4194304
+  acl: public-read
+  
+production:
+  bucket: idashboard_heroku
+  max_file_size: 4194304
+  acl: public-read
