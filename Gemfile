@@ -10,7 +10,7 @@ gem 'settingslogic'
 gem 'thin'
 gem 'redis'
 gem 'devise'
-gem 'jammit'
+gem 'jammit-s3'
 gem 's3_swf_upload', :git => 'git://github.com/nathancolgate/s3-swf-upload-plugin'
 
 group :development do

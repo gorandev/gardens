@@ -5,7 +5,7 @@
 <% content_for :javascript do %>
 <%= javascript_include_tag "http://code.jquery.com/jquery-1.7.min.js" %>
 <script type="text/javascript">jQuery.noConflict();</script>
-<%= include_javascripts :chosen, :flip, :s3upload %>
+<%= include_javascripts :chosen, :flip, :s3upload, :jquery_ui %>
 <script type="text/javascript">
 
 var count = 5;
@@ -271,8 +271,24 @@ jQuery(window).load(function() {
         e.preventDefault();
     });
 	jQuery('div.chzn-container ul').attr("tabindex",-1);
-});
 
+	jQuery("#fecha_promocion").datepicker();
+
+	var dates = jQuery( "#valida_desde, #valida_hasta" ).datepicker({
+		defaultDate: "+1w",
+		changeMonth: true,
+		changeYear: true,
+		onSelect: function( selectedDate ) {
+			var option = this.id == "valida_desde" ? "minDate" : "maxDate",
+				instance = jQuery( this ).data( "datepicker" ),
+				date = jQuery.datepicker.parseDate(
+					instance.settings.dateFormat ||
+					jQuery.datepicker._defaults.dateFormat,
+					selectedDate, instance.settings );
+			dates.not( this ).datepicker( "option", option, date );
+		}
+	});
+});
 </script>
 <% end %>
 <br/>
@@ -314,36 +330,60 @@ var uploadingFinishHandler = function() {
 <div style="margin: 0px auto; width: 300px; height: 600px; border: 2px dotted blue; overflow-y: auto; float: left;">
 	<div style="margin: 0px auto; width 300px; height: 200px; border: 2px dotted red; overflow-y: auto;">
 		<h3>Detalles de la promoción</h3>
-		<table width="100%" border="0">
+		<table border="1" align="center" width="80%">
 			<tr>
-				<td align="right" width="35%">Fuente</td>
-				<td align="left"><input type="text" size="5"/></td>
-				<td align="right">P&aacute;gina</td>
-				<td align="left"><input type="text" size="5"/></td>
+				<td>Fuente</td>
+				<td>
+					<select data-placeholder="elegir..." style="font-size: 10px; width: 150px;" class="chzn-select item_pvalues" name="media_channel">
+						<option></option>
+						<% MediaChannel.joins('left join retailers on retailers.id = media_channels.retailer_id').where('media_channels.country_id = ? OR retailers.country_id = ?', @country_id, @country_id).order(:name).each do |mc| %>
+							<option value="<%=mc.id%>"><%=raw mc.name%></option>
+						<% end %>
+					</select>
+				</td>
 			</tr>
 			<tr>
-				<td align="right">Fecha</td>
-				<td align="left"><input type="text" size="5"/></td>
-				<td align="right">Retailer</td>
-				<td align="left"><input type="text" size="5"/></td>
+				<td>P&aacute;gina</td>
+				<td><input type="text" size="2"/></td>
 			</tr>
 			<tr>
-				<td align="right">Precio</td>
-				<td align="left"><input type="text" size="5"/></td>
-				<td align="right">Origen</td>
-				<td align="left"><input type="text" size="5"/></td>
+				<td>Fecha</td>
+				<td><input type="text" size="9" id="fecha_promocion" name="fecha_promocion"/></td>
 			</tr>
 			<tr>
-				<td align="right">Unidades disponibles</td>
-				<td align="left"><input type="text" size="5"/></td>
-				<td align="right">Bundle?</td>
-				<td align="left" width="30%"><input type="radio"/>S&iacute;<input type="radio"/>No</td>
+				<td>Retailer</td>
+				<td>
+					<select data-placeholder="elegir..." style="font-size: 10px; width: 150px;" class="chzn-select item_pvalues" name="retailer">
+						<option></option>
+						<% Retailer.where(:country_id => @country_id).order(:name).each do |r| %>
+							<option value="<%=r.id%>"><%=raw r.name%></option>
+						<% end %>
+					</select>
+				</td>
 			</tr>
 			<tr>
-				<td align="right">V&aacute;lida desde</td>
-				<td align="left"><input type="text" size="5"/></td>
-				<td align="right" width="35%">V&aacute;lida hasta</td>
-				<td align="left"><input type="text" size="5"/></td>
+				<td>Precio</td>
+				<td><input type="text" size="5"/></td>
+			</tr>
+			<tr>
+				<td>Origen</td>
+				<td><input type="text" size="12"/></td>
+			</tr>
+			<tr>
+				<td>Unidades disponibles</td>
+				<td><input type="text" size="5"/></td>
+			</tr>
+			<tr>
+				<td>Bundle?</td>
+				<td><input type="radio" value="1" name="bundle" id="bundle_si"/><label for="bundle_si">S&iacute;</label>&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" value="0" name="bundle" id="bundle_no" checked/><label for="bundle_no">No</label></td>
+			</tr>
+			<tr>
+				<td>V&aacute;lida desde</td>
+				<td><input type="text" name="valida_desde" id="valida_desde" size="9"/></td>
+			</tr>
+			<tr>
+				<td>V&aacute;lida hasta</td>
+				<td><input type="text" name="valida_hasta" id="valida_hasta" size="9"/></td>
 			</tr>
 		</table>
 	</div>

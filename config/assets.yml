@@ -1,6 +1,9 @@
 embed_assets: datauri # (on, off, datauri)
-package_assets: on # (on, off, always)
+package_assets: always # (on, off, always)
 javascript_compressor: uglifier
+s3_bucket: idashboard_assets
+s3_access_key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+s3_secret_access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
 
 javascripts:
   basico:
