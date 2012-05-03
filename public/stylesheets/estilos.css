@@ -39,18 +39,18 @@ abbr{
 	}
 #marca{
 	display:block;position:absolute;width:1em;height:10.2em;
-	background-image:url(/images/fondoEncabezadoIzq.gif);background-position:left bottom;background-repeat:no-repeat;
+	background-image:url(../images/fondoEncabezadoIzq.gif);background-position:left bottom;background-repeat:no-repeat;
 	z-index:2
 	}
 #encabezado h1{
 	display:block;position:absolute;width:21.5em;height:9.2em;margin:0;padding:0;
 	font-size:1em;text-indent:-1000em;
-	background-image:url(/images/logo.jpg);background-position:center bottom;background-repeat:no-repeat;
+	background-image:url(../images/logo.jpg);background-position:center bottom;background-repeat:no-repeat;
 	z-index:1;
 	}
 #aclaracionMarca{
 	display:block;position:absolute;width:98em;height:10.2em;
-	background-image:url(/images/fondoEncabezadoDer.gif);background-position:right bottom;background-repeat:no-repeat;
+	background-image:url(../images/fondoEncabezadoDer.gif);background-position:right bottom;background-repeat:no-repeat;
 	z-index:2
 	}
 #encabezado h2{
@@ -66,12 +66,12 @@ abbr{
 }
 #encabezado #login{
 	width:27.1em;padding:0.5em 2em 1em 1em;
-	background-color:#CCC;background-image:url(/images/fondoLogin.gif);background-position:left bottom;background-repeat:no-repeat;
+	background-color:#CCC;background-image:url(../images/fondoLogin.gif);background-position:left bottom;background-repeat:no-repeat;
 	float:left;
 	}
 #encabezado #buscar{
 	display:block;width:21.2em;padding:0.5em 1em 1em 0;
-	background-color:#CCC;background-image:url(/images/fondoBuscador.gif);background-position:right bottom;background-repeat:no-repeat;
+	background-color:#CCC;background-image:url(../images/fondoBuscador.gif);background-position:right bottom;background-repeat:no-repeat;
 	float:left;
 }
 #usuarioTxt{
@@ -96,7 +96,7 @@ abbr{
 
 #cuerpo{
 	width:97.9em;margin:1.5em 0 0 0;padding:0;
-	background-image:url(/images/fondoLinea.gif);background-repeat:repeat-y;background-position:right;
+	background-image:url(../images/fondoLinea.gif);background-repeat:repeat-y;background-position:right;
 	float:left;
 	}
 
@@ -166,7 +166,7 @@ abbr{
 
 .esteticaIzq{
 	width:98em;
-	background-image:url(/images/fondoLinea.gif);background-repeat:repeat-y;background-position:14.9em 0;
+	background-image:url(../images/fondoLinea.gif);background-repeat:repeat-y;background-position:14.9em 0;
 	float:left;
 	}
 	
@@ -178,17 +178,17 @@ abbr{
 	}
 .esteticaSup{
 	display:block;width:83.1em;height:1em;margin-right:2em;
-	background-image:url(/images/fondoLinea.gif);background-repeat:repeat-x;background-position:top;
+	background-image:url(../images/fondoLinea.gif);background-repeat:repeat-x;background-position:top;
 	float:left;
 	}
 .esteticaSupIzq{
 	display:block;width:82em;height:1em;
-	background-image:url(/images/fondoRedondoSupIzq.gif);background-repeat:no-repeat;background-position:top left;
+	background-image:url(../images/fondoRedondoSupIzq.gif);background-repeat:no-repeat;background-position:top left;
 	float:left;
 	}
 .esteticaSupDer{
 	display:block;width:1em;height:1em;
-	background-image:url(/images/fondoRedondoSupDer.gif);
+	background-image:url(../images/fondoRedondoSupDer.gif);
 	float:left;
 	}
 
@@ -200,17 +200,17 @@ abbr{
 	}
 .esteticaInf{
 	display:block;width:83.1em;height:1em;
-	background-image:url(/images/fondoLinea.gif);background-repeat:repeat-x;background-position:bottom;
+	background-image:url(../images/fondoLinea.gif);background-repeat:repeat-x;background-position:bottom;
 	float:left;
 	}
 .esteticaInfIzq{
 	display:block;width:82em;height:1em;
-	background-image:url(/images/fondoRedondoInfIzq.gif);background-repeat:no-repeat;background-position:bottom left;
+	background-image:url(../images/fondoRedondoInfIzq.gif);background-repeat:no-repeat;background-position:bottom left;
 	float:left;
 	}
 .esteticaInfDer{
 	display:block;width:1em;height:1em;
-	background-image:url(/images/fondoRedondoInfDer.gif);
+	background-image:url(../images/fondoRedondoInfDer.gif);
 	float:left;
 	}
 
@@ -218,24 +218,24 @@ abbr{
 
 .esteticaMenu{
 	margin:0.5em 0;padding:0;
-	background-image:url(/images/fondoLinea.gif);background-repeat:repeat-y;background-position:left;
+	background-image:url(../images/fondoLinea.gif);background-repeat:repeat-y;background-position:left;
 	border-right:1px solid #FFF;
 	}
 .esteticaMenuSup{
 	height:1em;margin:0;
-	background-image:url(/images/fondoLinea.gif);background-repeat:repeat-x;background-position:top;
+	background-image:url(../images/fondoLinea.gif);background-repeat:repeat-x;background-position:top;
 	}
 .esteticaMenuSupIzq{
 	display:block;width:1em;height:1em;
-	background-image:url(/images/fondoRedondoSupIzq.gif);background-repeat:no-repeat;background-position:left top;
+	background-image:url(../images/fondoRedondoSupIzq.gif);background-repeat:no-repeat;background-position:left top;
 	}
 .esteticaMenuInf{
 	width:100%;height:1em;
-	background-image:url(/images/fondoLinea.gif);background-repeat:repeat-x;background-position:bottom;
+	background-image:url(../images/fondoLinea.gif);background-repeat:repeat-x;background-position:bottom;
 	}
 .esteticaMenuInfIzq{
 	display:block;width:1em;height:1em;
-	background-image:url(/images/fondoRedondoInfIzq.gif);background-repeat:no-repeat;background-position:bottom left;
+	background-image:url(../images/fondoRedondoInfIzq.gif);background-repeat:no-repeat;background-position:bottom left;
 	}
 li li .esteticaMenu a{
 	line-height:0.4em !important;
@@ -291,7 +291,7 @@ li li .esteticaMenu a{
 .listadoProductos a.whyBuy, .listadoProductos a.whyBuy, .listadoProductos a.whyBuy:visited{
 	display:block;width:auto;margin-top:0.5em;padding-left:1.5em;
 	color:#000;font-weight:bold;text-decoration:none;
-	background-image:url(/images/fondoFlechaDer.jpg);background-repeat:no-repeat;background-position:left;
+	background-image:url(../images/fondoFlechaDer.jpg);background-repeat:no-repeat;background-position:left;
 	white-space:nowrap;
 	}
 	
@@ -403,17 +403,17 @@ li li .esteticaMenu a{
 	}
 .ultimasPublicaciones .esteticaSup{
 	display:block;width:80em;height:1em;marging:0 !important;
-	background-image:url(/images/fondoLinea.gif);background-repeat:repeat-x;background-position:top;
+	background-image:url(../images/fondoLinea.gif);background-repeat:repeat-x;background-position:top;
 	float:left;
 	}
 .ultimasPublicaciones .esteticaSupIzq{
 	display:block;width:79em;height:1em;
-	background-image:url(/images/fondoRedondoSupIzq.gif);background-repeat:no-repeat;background-position:top left;
+	background-image:url(../images/fondoRedondoSupIzq.gif);background-repeat:no-repeat;background-position:top left;
 	float:left;
 	}
 .ultimasPublicaciones .esteticaSupDer{
 	display:block;width:1em;height:1em;
-	background-image:url(/images/fondoRedondoSupDer.gif);
+	background-image:url(../images/fondoRedondoSupDer.gif);
 	float:left;
 	}
 
@@ -425,17 +425,17 @@ li li .esteticaMenu a{
 	}
 .ultimasPublicaciones  .esteticaInf{
 	display:block;width:80em;height:1em;
-	background-image:url(/images/fondoLinea.gif);background-repeat:repeat-x;background-position:bottom;
+	background-image:url(../images/fondoLinea.gif);background-repeat:repeat-x;background-position:bottom;
 	float:left;
 	}
 .ultimasPublicaciones  .esteticaInfIzq{
 	display:block;width:79em;height:1em;
-	background-image:url(/images/fondoRedondoInfIzq.gif);background-repeat:no-repeat;background-position:bottom left;
+	background-image:url(../images/fondoRedondoInfIzq.gif);background-repeat:no-repeat;background-position:bottom left;
 	float:left;
 	}
 .ultimasPublicaciones  .esteticaInfDer{
 	display:block;width:1em;height:1em;
-	background-image:url(/images/fondoRedondoInfDer.gif);
+	background-image:url(../images/fondoRedondoInfDer.gif);
 	float:left;
 	}
 	
@@ -660,7 +660,7 @@ div#barra_menu ul li:last-child{
 }
 div#barra_menu{
 	padding:0px 0 10px;
-	background:url(/images/bg-menu.png) repeat-x;
+	background:url(../images/bg-menu.png) repeat-x;
 	position:fixed;
 	width:100%;
 	top:0;
@@ -670,7 +670,7 @@ div#barra_menu{
 	z-index: 9999;
 }
 div#barra_menu h1{
-	background:url(/images/idashboard.png) no-repeat;
+	background:url(../images/idashboard.png) no-repeat;
 	width:420px;
 	height:38px;
 	display:block;
@@ -699,7 +699,7 @@ div#barra_menu ul.paises li img{
 	cursor:pointer;
 }
 div#barra_menu ul.items li a, div#footer div.links a{
-	background:url(/images/sep.gif) no-repeat right 3px;
+	background:url(../images/sep.gif) no-repeat right 3px;
 	display:block;
 	padding-right:8px	
 }
