@@ -243,14 +243,25 @@ class ProductsController < ApplicationController
       if tmp_product_ids.is_a?Array
         product_ids = product_ids & tmp_product_ids
       end
-    end    
+    end
+
+    if params.has_key?(:retailer)
+      tmp_product_ids = REDIS.smembers('retailer:' + params[:retailer])
+      if tmp_product_ids.is_a?Array
+        product_ids = product_ids & tmp_product_ids
+      end
+    end
 
     products_scores = Hash.new
     product_ids.each do |p|
       products_scores[p] = 0
       params[:property_values].each do |pv|
         if REDIS.sismember('property_value:' + pv.to_s, p)
-          products_scores[p] += 1
+          if params[:marca] == pv or params[:modelo] == pv
+            products_scores[p] += 3
+          else
+            products_scores[p] += 1
+          end
         end
       end
     end
@@ -579,11 +590,7 @@ SQL
 
   def create_productizador
     if params.slice(:item, :property_values, :product_type).empty?
-      return render :json => { :errors => { :product => "parameters missing" } }, :status => 400
-    end
-
-    unless item = Item.find_by_id(params[:item])
-      return render :json => { :errors => { :item => "must be valid" } }, :status => 400
+      render :json => { :errors => { :product => "parameters missing" } }, :status => 400 and return
     end
 
     property_values = Array.new
@@ -608,11 +615,14 @@ SQL
     )
     product.save
 
-    item.product = product
-    item.save
+    if item = Item.find_by_id(params[:item])
+      item.product = product
+      item.save
+    end
 
     agregar_producto_a_memstore(product)
-    render :json => "OK" 
+
+    @product = OpenStruct.new({:id => product.id})
   end
 
   private

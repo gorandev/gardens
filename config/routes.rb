@@ -73,6 +73,7 @@ Gardens::Application.routes.draw do
     resources :media_channels, :defaults => { :format => :json }
 
     match 'sales/search' => 'sales#search', :defaults => { :format => :json }
+    match 'sales/create_cargapromos' => 'sales#create_cargapromos', :defaults => { :format => :json }
     resources :sales, :defaults => { :format => :json }
   end
 end

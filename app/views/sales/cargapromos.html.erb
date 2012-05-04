@@ -20,6 +20,7 @@ var properties_sorted = new Array;
 
 var country_id = <%=@country_id%>;
 var product_type_id = <%=@product_type_id%>;
+var currency_id = <%=@currency_id%>;
 
 function init_properties() {
 	jQuery.ajax({
@@ -76,9 +77,13 @@ function buscar_productos() {
 	jQuery('.fila_prod').remove();
 	jQuery('#tabla_prods').append('<tr class="fila_prod"><td>Buscando...</td></tr>');
 
-	var data = 'property_values=' + pvalues.join(',');
-	data += '&country=' + country_id + '&fast=yeah';
-	data += '&marca=' + jQuery('#p_' + properties['marca'].id).val();
+	var data = {
+		property_values: pvalues.join(','),
+		country: country_id,
+		fast: 'yeah',
+		marca: jQuery('#p_' + properties['marca'].id).val(),
+		modelo: jQuery('#p_' + properties['modelo'].id).val()
+	};
 
 	jQuery.ajax({
 		url: "http://api." + global_hostname + "/products/search_productizador",
@@ -124,7 +129,7 @@ function flip_producto(params) {
 	contenido += '<br/>';
 	contenido += '<image height="200" width="200" src="<%=@url_imagen_producto%>/' + params.imagen_id + '_med.jpg"/><br/>';
 	contenido += '<span id="urls_producto">Buscando links retailers...</span><br/>';
-	contenido += '<span style="cursor: pointer;" onClick="enlazar(' + params.id + ');">enlazar</span><br/>';
+	contenido += '<span style="cursor: pointer;" onClick="salvar_promocion(' + params.id + ');">salvar promoción</span><br/>';
 	contenido += '<span style="cursor: pointer;" onClick="revert_flip();">volver</span>';
 
 	jQuery('#div_tabla_prods').flip({
@@ -237,7 +242,7 @@ function go_crear_producto() {
 		}
 	});
 
-	if (faltan_campos) {
+	if (faltan_campos || !validar_datos_promocion()) {
 		alert('Por favor completar todos los campos.');
 		return false; 
 	}
@@ -245,15 +250,13 @@ function go_crear_producto() {
 	if (confirm('Crear?')) {
 		jQuery.ajax({
 			url: 'http://api.' + global_hostname + '/products/create_productizador',
-			data: { item: selected_item_id, property_values: pvs.join(','), product_type: <%=@product_type_id%> },
+			data: { property_values: pvs.join(','), product_type: <%=@product_type_id%> },
 			dataType: 'jsonp',
 			cache: false,
 			statusCode: {
-				200: function() {
-					revert_flip();
-					reset_item();
-					jQuery('#item_' + selected_item_id).remove();
-					selected_item_id = 0;
+				200: function(data) {
+					console.log(data.id);
+					salvar_promocion(data.id);
 				},
 				400: function() {
 					alert('Error 400!');
@@ -261,6 +264,68 @@ function go_crear_producto() {
 			}
 		});
 
+	}
+}
+
+function salvar_promocion(producto) {
+	if (!validar_datos_promocion()) {
+		return false;
+	}
+
+	var data = {
+		sale_date: jQuery('#fecha').val(),
+		price: jQuery('#precio').val(),
+		origin: jQuery('#origen').val(),
+		units_available: jQuery('#unidades_disponibles').val(),
+		valid_since: jQuery('#valida_desde').val(),
+		valid_until: jQuery('#valida_hasta').val(),
+		bundle: jQuery('#bundle_si:checked').length,
+		media_channel: jQuery('#media_channel').val(),
+		retailer: jQuery('#retailer').val(),
+		product: producto,
+		page: jQuery('#pagina').val(),
+		currency: currency_id,
+		aws_filename: filename
+	};
+
+	jQuery.ajax({
+		url: 'http://api.' + global_hostname + '/sales/create_cargapromos',
+		data: data,
+		dataType: 'jsonp',
+		cache: false,
+		statusCode: {
+			200: function() {
+				revert_flip();
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
+}
+
+function validar_datos_promocion() {
+	if (filename == '') {
+		alert('Falta cargar imagen');
+		return false;
+	}
+
+	var fields = new Array(
+		'media_channel', 'pagina', 'fecha', 'retailer', 'precio'
+	);
+
+	var todo_ok = true;
+	for (var i = 0; i < fields.length; i++) {
+		if (!jQuery('#' + fields[i]).val()) {
+			todo_ok = false;
+		}
+	}
+
+	if (!todo_ok) {
+		alert('Falta cargar campos de la promoción');
+		return false;
+	} else {
+		return true;
 	}
 }
 
@@ -272,7 +337,7 @@ jQuery(window).load(function() {
     });
 	jQuery('div.chzn-container ul').attr("tabindex",-1);
 
-	jQuery("#fecha_promocion").datepicker();
+	jQuery("#fecha").datepicker();
 
 	var dates = jQuery( "#valida_desde, #valida_hasta" ).datepicker({
 		defaultDate: "+1w",
@@ -299,8 +364,11 @@ var uploadingStartHandler = function() {
 	jQuery('#upload_button').attr('disabled', 'disabled').attr('value', 'Subiendo...');
 }
 
+var filename = '';
+
 var uploadCompleteHandler = function(upload_options,event){
 	jQuery('#image_uploaded').attr('src', 'https://s3.amazonaws.com/<%=@bucket%>/' + upload_options.FileName);
+	filename = upload_options.FileName;
 };
 
 var uploadingFinishHandler = function() {
@@ -334,7 +402,7 @@ var uploadingFinishHandler = function() {
 			<tr>
 				<td>Fuente</td>
 				<td>
-					<select data-placeholder="elegir..." style="font-size: 10px; width: 150px;" class="chzn-select item_pvalues" name="media_channel">
+					<select data-placeholder="elegir..." style="font-size: 10px; width: 150px;" class="chzn-select" name="media_channel" id="media_channel">
 						<option></option>
 						<% MediaChannel.joins('left join retailers on retailers.id = media_channels.retailer_id').where('media_channels.country_id = ? OR retailers.country_id = ?', @country_id, @country_id).order(:name).each do |mc| %>
 							<option value="<%=mc.id%>"><%=raw mc.name%></option>
@@ -344,16 +412,16 @@ var uploadingFinishHandler = function() {
 			</tr>
 			<tr>
 				<td>P&aacute;gina</td>
-				<td><input type="text" size="2"/></td>
+				<td><input type="text" size="2" name="pagina" id="pagina"/></td>
 			</tr>
 			<tr>
 				<td>Fecha</td>
-				<td><input type="text" size="9" id="fecha_promocion" name="fecha_promocion"/></td>
+				<td><input type="text" size="9" id="fecha" name="fecha"/></td>
 			</tr>
 			<tr>
 				<td>Retailer</td>
 				<td>
-					<select data-placeholder="elegir..." style="font-size: 10px; width: 150px;" class="chzn-select item_pvalues" name="retailer">
+					<select data-placeholder="elegir..." style="font-size: 10px; width: 150px;" class="chzn-select" name="retailer" id="retailer">
 						<option></option>
 						<% Retailer.where(:country_id => @country_id).order(:name).each do |r| %>
 							<option value="<%=r.id%>"><%=raw r.name%></option>
@@ -363,15 +431,15 @@ var uploadingFinishHandler = function() {
 			</tr>
 			<tr>
 				<td>Precio</td>
-				<td><input type="text" size="5"/></td>
+				<td><input type="text" size="5" name="precio" id="precio"/></td>
 			</tr>
 			<tr>
 				<td>Origen</td>
-				<td><input type="text" size="12"/></td>
+				<td><input type="text" size="12" name="origen" id="origen"/></td>
 			</tr>
 			<tr>
 				<td>Unidades disponibles</td>
-				<td><input type="text" size="5"/></td>
+				<td><input type="text" size="5" name="unidades_disponibles" id="unidades_disponibles"/></td>
 			</tr>
 			<tr>
 				<td>Bundle?</td>

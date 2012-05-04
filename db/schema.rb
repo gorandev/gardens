@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120225220006) do
+ActiveRecord::Schema.define(:version => 20120504022053) do
 
   create_table "countries", :force => true do |t|
     t.string   "iso_code"
@@ -182,6 +182,7 @@ ActiveRecord::Schema.define(:version => 20120225220006) do
     t.integer  "page"
     t.integer  "currency_id"
     t.integer  "imagen_id"
+    t.string   "aws_filename"
   end
 
   add_index "sales", ["currency_id"], :name => "index_sales_on_currency_id"

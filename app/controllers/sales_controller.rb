@@ -10,6 +10,10 @@ class SalesController < ApplicationController
 		@sale = Sale.find(params[:id])
 	end
 
+  def create_cargapromos
+    self.create
+  end
+
 	def create
 		sale = Sale.new(
 			:sale_date => params[:sale_date],
@@ -24,7 +28,8 @@ class SalesController < ApplicationController
 			:product => Product.find_by_id(params[:product]),
 			:page => params[:page],
 			:currency => Currency.find_by_id(params[:currency]),
-			:imagen_id => params[:imagen_id]
+			:imagen_id => params[:imagen_id],
+      :aws_filename => params[:aws_filename]
 		)
 
 		if sale.save
@@ -131,6 +136,7 @@ class SalesController < ApplicationController
   def ver
   	@pagina = 'Publicaciones'
     @id_producto = 0
+    @bucket = Settings['aws_bucket']
   	if params.has_key?(:id_producto)
   		@id_producto = params[:id_producto]
   	end
