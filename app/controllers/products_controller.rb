@@ -618,6 +618,15 @@ SQL
     if item = Item.find_by_id(params[:item])
       item.product = product
       item.save
+    else
+      item = create_item({
+        :property_values => product.property_values.collect { |pv| pv.id },
+        :product => product.id,
+        :retailer => params[:retailer],
+        :product_type => params[:product_type],
+        :source => 'papel',
+        :description => product.descripcion
+      })
     end
 
     agregar_producto_a_memstore(product)

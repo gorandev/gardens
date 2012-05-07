@@ -26,7 +26,11 @@ class ApplicationController < ActionController::Base
       return render :json => { :errors => { :product => "must be valid" } }, :status => 400
     end
     
-    item = Item.find_or_initialize_by_url(params[:url])
+    if params.has_key?(:url)
+      item = Item.find_or_initialize_by_url(params[:url])
+    else
+      item = Item.new()
+    end
     
     item.retailer = Retailer.find_by_id(params[:retailer]) || item.retailer
     item.product = Product.find_by_id(params[:product]) || item.product
@@ -152,6 +156,7 @@ class ApplicationController < ActionController::Base
     @product_type_id = session[:product_type_id]
     @currency_id = Country.find(@country_id).currency.id
     @hostname = Settings['host']
+    @bucket = Settings['aws_bucket']
 
     @offset = params[:offset] || 0
     @count = params[:count] || 16

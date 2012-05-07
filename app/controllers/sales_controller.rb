@@ -136,7 +136,6 @@ class SalesController < ApplicationController
   def ver
   	@pagina = 'Publicaciones'
     @id_producto = 0
-    @bucket = Settings['aws_bucket']
   	if params.has_key?(:id_producto)
   		@id_producto = params[:id_producto]
   	end
@@ -145,6 +144,5 @@ class SalesController < ApplicationController
   def cargapromos
     @layout_grande = true
     @url_imagen_producto = Settings["product_type_#{@product_type_id}"]['url_imagen_producto']
-    @bucket = Settings['aws_bucket']
   end
 end

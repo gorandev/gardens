@@ -144,9 +144,10 @@ available_countries[<%=c%>] = true;
 			valid_until: '<%=s.valid_until%>',
 			bundle: <%=s.bundle%>,
 			page: <%=s.page.nil? ? 0 : s.page%>,
-			imagen_id: <%=s.imagen_id%>,
-			media_channel: '<%=s.media_channel.name%>',
-			retailer: '<%=s.retailer.name%>',
+			imagen_id: <%=s.imagen_id.to_i+0%>,
+			aws_filename: '<%=s.aws_filename%>',
+			media_channel: '<%=raw s.media_channel.name%>',
+			retailer: '<%=raw s.retailer.name%>',
 			id_product: <%=s.product.id%>,
 			currency_id: <%=s.currency.id%>
 		};
@@ -329,14 +330,18 @@ jQuery(window).load(function() {
 		</div>
 	<div class="cuerpoPublicaciones" id="cuerpoPublicaciones">
 	<% @sales.each do |s| %>
-		<% if @product_type_id.to_i == 1 %>
-			<% if @country_id.to_i == 1 %>
-				<img class="imagen_promo" src="http://computadoras.idashboard.com.ar/uploaded_images/promocion-<%=s.imagen_id%>_thumb.png" onClick="mostrar_promos({promo: <%=s.id%>});">
-			<% elsif @country_id.to_i == 2 %>
-				<img class="imagen_promo" src="http://chile.computadoras.idashboard.com.ar/uploaded_images/promocion-<%=s.imagen_id%>_thumb.png" onClick="mostrar_promos({promo: <%=s.id%>});">
+		<% if s.aws_filename.nil? %>
+			<% if @product_type_id.to_i == 1 %>
+				<% if @country_id.to_i == 1 %>
+					<img class="imagen_promo" src="http://computadoras.idashboard.com.ar/uploaded_images/promocion-<%=s.imagen_id%>_thumb.png" onClick="mostrar_promos({promo: <%=s.id%>});">
+				<% elsif @country_id.to_i == 2 %>
+					<img class="imagen_promo" src="http://chile.computadoras.idashboard.com.ar/uploaded_images/promocion-<%=s.imagen_id%>_thumb.png" onClick="mostrar_promos({promo: <%=s.id%>});">
+				<% end %>
+			<% elsif @product_type_id.to_i == 2 %>
+					<img class="imagen_promo" src="http://televisores.idashboard.com.ar/uploaded_images/promocion-<%=s.imagen_id%>_thumb.png" onClick="mostrar_promos({promo: <%=s.id%>});">
 			<% end %>
-		<% elsif @product_type_id.to_i == 2 %>
-				<img class="imagen_promo" src="http://televisores.idashboard.com.ar/uploaded_images/promocion-<%=s.imagen_id%>_thumb.png" onClick="mostrar_promos({promo: <%=s.id%>});">
+		<% else %>
+			<img class="imagen_promo" src="https://s3.amazonaws.com/<%=@bucket%>/<%=s.aws_filename%>" onClick="mostrar_promos({promo: <%=s.id%>});">
 		<% end %>
 	<% end %>
 	<br/><br/><br/><br/><br/><br/><br/>

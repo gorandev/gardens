@@ -250,12 +250,11 @@ function go_crear_producto() {
 	if (confirm('Crear?')) {
 		jQuery.ajax({
 			url: 'http://api.' + global_hostname + '/products/create_productizador',
-			data: { property_values: pvs.join(','), product_type: <%=@product_type_id%> },
+			data: { property_values: pvs.join(','), product_type: <%=@product_type_id%>, retailer: jQuery('#retailer').val() },
 			dataType: 'jsonp',
 			cache: false,
 			statusCode: {
 				200: function(data) {
-					console.log(data.id);
 					salvar_promocion(data.id);
 				},
 				400: function() {

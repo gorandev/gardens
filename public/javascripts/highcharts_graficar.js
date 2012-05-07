@@ -513,12 +513,21 @@ function mostrar_promos(params) {
 
 		promos_html += '<td align="center">';
 
-		if (pr.currency_id == 1) {
-			promos_html += '<a href="http://computadoras.idashboard.com.ar/uploaded_images/promocion-' + pr.imagen_id + '.png" target="verPromo">';
-			promos_html += '<img height="500" width="500" class="img_promo" src="http://computadoras.idashboard.com.ar/uploaded_images/promocion-' + pr.imagen_id + '_med.png" border="0"/>';
+		if (pr.aws_filename) {
+
+			promos_html += '<a href="https://s3.amazonaws.com/' + aws_bucket + '/' + pr.aws_filename + '" target="verPromo">';
+			promos_html += '<img height="500" width="500" class="img_promo" src="https://s3.amazonaws.com/' + aws_bucket + '/' + pr.aws_filename + '" border="0"/>';
+
 		} else {
-			promos_html += '<a href="http://chile.computadoras.idashboard.com.ar/uploaded_images/promocion-' + pr.imagen_id + '.png" target="verPromo">';
-			promos_html += '<img height="500" width="500" class="img_promo" src="http://chile.computadoras.idashboard.com.ar/uploaded_images/promocion-' + pr.imagen_id + '_med.png" border="0"/>';
+
+			if (pr.currency_id == 1) {
+				promos_html += '<a href="http://computadoras.idashboard.com.ar/uploaded_images/promocion-' + pr.imagen_id + '.png" target="verPromo">';
+				promos_html += '<img height="500" width="500" class="img_promo" src="http://computadoras.idashboard.com.ar/uploaded_images/promocion-' + pr.imagen_id + '_med.png" border="0"/>';
+			} else {
+				promos_html += '<a href="http://chile.computadoras.idashboard.com.ar/uploaded_images/promocion-' + pr.imagen_id + '.png" target="verPromo">';
+				promos_html += '<img height="500" width="500" class="img_promo" src="http://chile.computadoras.idashboard.com.ar/uploaded_images/promocion-' + pr.imagen_id + '_med.png" border="0"/>';
+			}
+
 		}
 				
 		promos_html += '</a>';
