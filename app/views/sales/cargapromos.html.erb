@@ -193,13 +193,13 @@ function crear_producto() {
 	var contenido = '<br/>';
 
 	contenido += '<h3>Ingresar valores faltantes:</h3>';
-	contenido += '<table width="80%" align="center" border="0">';
+	contenido += '<table width="80%" border="0">';
 	jQuery('.item_pvalues').each(function (i) {
 		if (!jQuery(this).val()) {
 			if (result = /p_(\d+)/.exec(this.id)) {
 				jQuery.each(properties, function(i,v) {
 					if (result[1] == v.id) {
-						contenido += '<tr>';
+						contenido += '<tr align="left">';
 						contenido += '<td>' + i + '</td>';
 						contenido += '<td><input class="new_pv" type="text" id="new_p_' + v.id + '"/></td>';
 						contenido += '</tr>';
@@ -295,6 +295,16 @@ function salvar_promocion(producto) {
 		statusCode: {
 			200: function() {
 				revert_flip();
+				jQuery('.chzn-select.item_pvalues').each(function() {
+					jQuery(this).val('').trigger('liszt:updated');
+				});
+				jQuery('.fila_prod').remove();
+				jQuery('#precio').val('');
+				jQuery('#origen').val('');
+				jQuery('#unidades_disponibles').val('');
+				jQuery('#bundle_no').attr('checked', 'checked');
+				jQuery('#valida_desde').val('');
+				jQuery('#valida_hasta').val('');
 			},
 			400: function() {
 				alert('Error 400!');
@@ -353,15 +363,10 @@ jQuery(window).load(function() {
 		}
 	});
 });
-</script>
-<% end %>
-<br/>
-<div style="margin: 0px auto; width: 1025px; height: 600px; border: 2px dotted blue; overflow-y: auto; float: left;">
-<script type="text/javascript">
 
 var uploadingStartHandler = function() {
 	jQuery('#upload_button').attr('disabled', 'disabled').attr('value', 'Subiendo...');
-}
+};
 
 var filename = '';
 
@@ -371,11 +376,20 @@ var uploadCompleteHandler = function(upload_options,event){
 };
 
 var uploadingFinishHandler = function() {
-	jQuery('#upload_button').attr('value', 'OK!');
-}
+	jQuery('#upload_button').css('display', 'none');
+};
+
+var fileAddHandler = function(file) {
+	jQuery('#upload_button').attr('value', 'Subir archivo "' + file.name + '"').css('display', '').removeAttr('disabled');
+};
 
 </script>
+<% end %>
+<br/>
+
+<div style="margin: 0px auto; width: 400px; height: 600px; border: 2px dotted blue; overflow-y: auto; float: left;">
 <%=raw s3_swf_upload_tag(
+	:onFileAdd => 'fileAddHandler(file);',
 	:fileTypes => '*.jpg;*.gif;*.png;',
 	:fileTypeDescs => 'Image files.',
 	:onUploadingStart => "uploadingStartHandler();",
@@ -391,97 +405,96 @@ var uploadingFinishHandler = function() {
 	:queueSizeLimit => 1,
 	:fileSizeLimit => 4194304
 ) %>
-<input id="upload_button" type="button" value="Start Uploading" onclick="s3_swf_16_object.startUploading();" />
+<br/>
+<input style="display: none;" id="upload_button" type="button" value="Subir Archivo" onclick="s3_swf_16_object.startUploading();"/>
 <img id="image_uploaded"/>
 </div>
-<div style="margin: 0px auto; width: 300px; height: 600px; border: 2px dotted blue; overflow-y: auto; float: left;">
-	<div style="margin: 0px auto; width 300px; height: 200px; border: 2px dotted red; overflow-y: auto;">
-		<h3>Detalles de la promoción</h3>
-		<table border="1" align="center" width="80%">
-			<tr>
-				<td>Fuente</td>
-				<td>
-					<select data-placeholder="elegir..." style="font-size: 10px; width: 150px;" class="chzn-select" name="media_channel" id="media_channel">
-						<option></option>
-						<% MediaChannel.joins('left join retailers on retailers.id = media_channels.retailer_id').where('media_channels.country_id = ? OR retailers.country_id = ?', @country_id, @country_id).order(:name).each do |mc| %>
-							<option value="<%=mc.id%>"><%=raw mc.name%></option>
-						<% end %>
-					</select>
-				</td>
-			</tr>
-			<tr>
-				<td>P&aacute;gina</td>
-				<td><input type="text" size="2" name="pagina" id="pagina"/></td>
-			</tr>
-			<tr>
-				<td>Fecha</td>
-				<td><input type="text" size="9" id="fecha" name="fecha"/></td>
-			</tr>
-			<tr>
-				<td>Retailer</td>
-				<td>
-					<select data-placeholder="elegir..." style="font-size: 10px; width: 150px;" class="chzn-select" name="retailer" id="retailer">
-						<option></option>
-						<% Retailer.where(:country_id => @country_id).order(:name).each do |r| %>
-							<option value="<%=r.id%>"><%=raw r.name%></option>
-						<% end %>
-					</select>
-				</td>
-			</tr>
-			<tr>
-				<td>Precio</td>
-				<td><input type="text" size="5" name="precio" id="precio"/></td>
-			</tr>
-			<tr>
-				<td>Origen</td>
-				<td><input type="text" size="12" name="origen" id="origen"/></td>
-			</tr>
-			<tr>
-				<td>Unidades disponibles</td>
-				<td><input type="text" size="5" name="unidades_disponibles" id="unidades_disponibles"/></td>
-			</tr>
-			<tr>
-				<td>Bundle?</td>
-				<td><input type="radio" value="1" name="bundle" id="bundle_si"/><label for="bundle_si">S&iacute;</label>&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" value="0" name="bundle" id="bundle_no" checked/><label for="bundle_no">No</label></td>
-			</tr>
-			<tr>
-				<td>V&aacute;lida desde</td>
-				<td><input type="text" name="valida_desde" id="valida_desde" size="9"/></td>
-			</tr>
-			<tr>
-				<td>V&aacute;lida hasta</td>
-				<td><input type="text" name="valida_hasta" id="valida_hasta" size="9"/></td>
-			</tr>
-		</table>
-	</div>
-	<div style="margin: 0px auto; height: 200px; width: 300px; overflow-y: auto; border: 2px dotted yellow; float: left;" id="div_tabla_pvs">
-		<h3>Propiedades del producto</h3>
-		<table border="1" align="center" width="80%" id="tabla_pvs">
-			<tr>
-				<th>Propiedad</th>
-				<th>Valor</th>
-			</tr>
+
+<div style="margin: 0px auto; width 300px; height: 600px; border: 2px dotted red; overflow-y: auto; float: left;">
+	<h3>Detalles de la promoción</h3>
+	<table border="1" width="100%">
+		<tr align="left">
+			<td>Fuente</td>
+			<td>
+				<select data-placeholder="elegir..." style="font-size: 10px; width: 150px;" class="chzn-select" name="media_channel" id="media_channel">
+					<option></option>
+					<% MediaChannel.joins('left join retailers on retailers.id = media_channels.retailer_id').where('media_channels.country_id = ? OR retailers.country_id = ?', @country_id, @country_id).order(:name).each do |mc| %>
+						<option value="<%=mc.id%>"><%=raw mc.name%></option>
+					<% end %>
+				</select>
+			</td>
+		</tr>
+		<tr align="left">
+			<td>P&aacute;gina</td>
+			<td><input type="text" size="2" name="pagina" id="pagina"/></td>
+		</tr>
+		<tr align="left">
+			<td>Fecha</td>
+			<td><input type="text" size="9" id="fecha" name="fecha"/></td>
+		</tr>
+		<tr align="left">
+			<td>Retailer</td>
+			<td>
+				<select data-placeholder="elegir..." style="font-size: 10px; width: 150px;" class="chzn-select" name="retailer" id="retailer">
+					<option></option>
+					<% Retailer.where(:country_id => @country_id).order(:name).each do |r| %>
+						<option value="<%=r.id%>"><%=raw r.name%></option>
+					<% end %>
+				</select>
+			</td>
+		</tr>
+		<tr align="left">
+			<td>Precio</td>
+			<td><input type="text" size="5" name="precio" id="precio"/></td>
+		</tr>
+		<tr align="left">
+			<td>Origen</td>
+			<td><input type="text" size="12" name="origen" id="origen"/></td>
+		</tr>
+		<tr align="left">
+			<td>Unidades disponibles</td>
+			<td><input type="text" size="5" name="unidades_disponibles" id="unidades_disponibles"/></td>
+		</tr>
+		<tr align="left">
+			<td>Bundle?</td>
+			<td><input type="radio" value="1" name="bundle" id="bundle_si"/><label for="bundle_si">S&iacute;</label>&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" value="0" name="bundle" id="bundle_no" checked/><label for="bundle_no">No</label></td>
+		</tr>
+		<tr align="left">
+			<td>V&aacute;lida desde</td>
+			<td><input type="text" name="valida_desde" id="valida_desde" size="9"/></td>
+		</tr>
+		<tr align="left">
+			<td>V&aacute;lida hasta</td>
+			<td><input type="text" name="valida_hasta" id="valida_hasta" size="9"/></td>
+		</tr>
+	</table>
+</div>
+
+
+<div style="margin: 0px auto; height: 600px; width: 300px; border: 2px dotted yellow; float: left;" id="div_tabla_pvs">
+	<h3>Propiedades del producto</h3>
+	<table border="1" width="100%" id="tabla_pvs">
 <% Property.order('name').all.each do |p| %>
-			<tr>
-				<td><%=p.name%></td>
-				<td>
-					<select data-placeholder="elegir..." id="p_<%=p.id%>" style="font-size: 10px; width: 150px;" class="chzn-select item_pvalues" onChange="buscar_productos();">
-						<option></option>
+		<tr align="left">
+			<td><%=p.name%></td>
+			<td>
+				<select data-placeholder="elegir..." id="p_<%=p.id%>" style="font-size: 10px; width: 150px;" class="chzn-select item_pvalues" onChange="buscar_productos();">
+					<option></option>
 	<% p.property_values.order('value').all.each do |pv| %>
-						<option value="<%=pv.id%>"><%=pv.value%></option>
+					<option value="<%=pv.id%>"><%=pv.value%></option>
 	<% end %>
-					</select>
-				</td>
-			<tr>
+				</select>
+			</td>
+		<tr align="left">
 <% end %>
-		</table>
-	</div>
-	<div style="background-color: #eee; position: height: 200px; width: 300px; overflow-y: auto; float: left;" id="div_tabla_prods">
-		<h3>Posibles productos</h3>
-		<table border="1" align="center" width="80%" id="tabla_prods">
-			<tr class="fila_prod">
-				<td>(click en 'buscar')</td>
-			</tr>
-		</table>
-	</div>
+	</table>
+</div>
+	
+<div style="background-color: #eee; position: height: 600px; width: 300px; overflow-y: auto; float: left;" id="div_tabla_prods">
+	<h3>Posibles productos</h3>
+	<table border="1" width="100%" id="tabla_prods">
+		<tr class="fila_prod">
+			<td>--</td>
+		</tr>
+	</table>
 </div>

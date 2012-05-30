@@ -154,7 +154,11 @@ class ApplicationController < ActionController::Base
     end
     @country_id = session[:country_id]
     @product_type_id = session[:product_type_id]
-    @currency_id = Country.find(@country_id).currency.id
+  
+    if Country.find_by_id(@country_id)
+      @currency_id = Country.find(@country_id).currency.id
+    end
+
     @hostname = Settings['host']
     @bucket = Settings['aws_bucket']
 

@@ -503,7 +503,7 @@ class ProductsController < ApplicationController
     end
 
     Sale.all.each do |s|
-      REDIS.sadd "producto_sale:#{s.producto.id}", s.id
+      REDIS.sadd "producto_sale:#{s.product.id}", s.id
     end
   end
 

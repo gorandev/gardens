@@ -232,7 +232,12 @@ function mostrar_promo(id) {
 	promos_html += '<td align="right"><b>Validez:</b></td>';
 	promos_html += '<td>';
 
-	var fecha_desde = pr.valid_since.split('-');
+	var fecha_desde;
+	if (pr.valid_since) {
+		fecha_desde = pr.valid_since.split('-');
+	} else {
+		fecha_desde = pr.sale_date.split('-');
+	}
 	var fecha_desde_utc = Date.UTC(fecha_desde[0], fecha_desde[1]-1, fecha_desde[2]);
 
 	if (pr.valid_until) {
