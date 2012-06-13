@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 namespace :idashboard do
 	desc 'Add description to properties'
 	task :add_props => :environment do
