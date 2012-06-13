@@ -2,17 +2,17 @@
 namespace :idashboard do
 	desc 'Add description to properties'
 	task :add_props => :environment do
-		Property.where(:name => 'categoria').first.description = 'Categoría'
-		Property.where(:name => 'marca_procesador').first.description = 'Marca de Procesador'
-		Property.where(:name => 'modelo_procesador').first.description = 'Modelo de Procesador'
-		Property.where(:name => 'marca').first.description = 'Marca'
-		Property.where(:name => 'modelo').first.description = 'Modelo'
-		Property.where(:name => 'disco').first.description = 'HDD'
-		Property.where(:name => 'memoria').first.description = 'RAM'
-		Property.where(:name => 'pantalla').first.description = 'Pantalla'
-		Property.where(:name => 'os').first.description = 'OS'
-		Property.where(:name => 'disp_optico').first.description = 'CD/DVD'
-		Property.where(:name => 'familia_procesador').first.description = 'Familia de Procesador'
-		Property.where(:name => 'touch').first.description = 'Touch'
+		Property.where(:name => 'categoria').first.update_attributes(:description => 'Categoría')
+		Property.where(:name => 'marca_procesador').first.update_attributes(:description => 'Marca de Procesador')
+		Property.where(:name => 'modelo_procesador').first.update_attributes(:description => 'Modelo de Procesador')
+		Property.where(:name => 'marca').first.update_attributes(:description => 'Marca')
+		Property.where(:name => 'modelo').first.update_attributes(:description => 'Modelo')
+		Property.where(:name => 'disco').first.update_attributes(:description => 'HDD')
+		Property.where(:name => 'memoria').first.update_attributes(:description => 'RAM')
+		Property.where(:name => 'pantalla').first.update_attributes(:description => 'Pantalla')
+		Property.where(:name => 'os').first.update_attributes(:description => 'OS')
+		Property.where(:name => 'disp_optico').first.update_attributes(:description => 'CD/DVD')
+		Property.where(:name => 'familia_procesador').first.update_attributes(:description => 'Familia de Procesador')
+		Property.where(:name => 'touch').first.update_attributes(:description => 'Touch')
 	end
 end
