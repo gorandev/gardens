@@ -1,5 +1,5 @@
-desc 'jammit'
-  task :jam => :environment do
+desc 'Jammit!'
+task :jam => :environment do
   require 'jammit'
   Jammit.package!
 end
