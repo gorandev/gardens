@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120504022053) do
+ActiveRecord::Schema.define(:version => 20120613145717) do
 
   create_table "countries", :force => true do |t|
     t.string   "iso_code"
@@ -140,6 +140,7 @@ ActiveRecord::Schema.define(:version => 20120504022053) do
     t.integer  "product_type_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "description"
   end
 
   add_index "properties", ["product_type_id"], :name => "index_properties_on_product_type_id"

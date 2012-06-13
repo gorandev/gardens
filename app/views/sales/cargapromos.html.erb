@@ -35,13 +35,19 @@ function init_properties() {
 					jQuery.each(v.possible_values, function(j, w) {
 						values[w.id] = w.value;
 					});
-					properties[v.name] = {
+					properties[v.description] = {
 						id: v.id,
 						values: values
 					};
-					properties_sorted.push(v.name);
+					properties_sorted.push(v.description);
 				});
 				properties_sorted = properties_sorted.sort();
+				<% if defined?@orden_pvs %>
+				properties_sorted = new Array;
+				<% @orden_pvs.each do |pv| %>
+				properties_sorted.push('<%=pv%>');
+				<% end %>
+				<% end %>
 			},
 			400: function() {
 				alert('Error 400!');
@@ -474,9 +480,20 @@ var fileAddHandler = function(file) {
 <div style="margin: 0px auto; height: 600px; width: 300px; border: 2px dotted yellow; float: left;" id="div_tabla_pvs">
 	<h3>Propiedades del producto</h3>
 	<table border="1" width="100%" id="tabla_pvs">
-<% Property.order('name').all.each do |p| %>
+<% 
+	if defined?@orden_pvs
+		pvs = Array.new
+		@orden_pvs.each do |pv|
+			pvs.push(Property.where(:product_type_id => @product_type_id, :description => pv).first)
+		end
+	else
+		pvs = Property.where(:product_type_id => @product_type_id).order('name').all
+ 	end 
+ %>
+
+<% pvs.each do |p| %>
 		<tr align="left">
-			<td><%=p.name%></td>
+			<td><%=p.description%></td>
 			<td>
 				<select data-placeholder="elegir..." id="p_<%=p.id%>" style="font-size: 10px; width: 150px;" class="chzn-select item_pvalues" onChange="buscar_productos();">
 					<option></option>

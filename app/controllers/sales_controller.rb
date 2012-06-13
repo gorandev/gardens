@@ -144,5 +144,6 @@ class SalesController < ApplicationController
   def cargapromos
     @layout_grande = true
     @url_imagen_producto = Settings["product_type_#{@product_type_id}"]['url_imagen_producto']
+    @orden_pvs = Settings["product_type_#{@product_type_id}"]['cargapromos']['propiedades']
   end
 end

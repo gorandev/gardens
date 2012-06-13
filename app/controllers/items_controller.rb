@@ -179,5 +179,6 @@ class ItemsController < ApplicationController
     @layout_grande = true
     @url_imagen_item = Settings["product_type_#{@product_type_id}"]['url_imagen_item']
     @url_imagen_producto = Settings["product_type_#{@product_type_id}"]['url_imagen_producto']
+    @orden_pvs = Settings["product_type_#{@product_type_id}"]['productizador']['propiedades']
   end
 end

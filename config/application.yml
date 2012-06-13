@@ -58,6 +58,40 @@
     url_imagen_producto: "http://computadoras.idashboard.com.ar/images/productos"
     url_imagen_item: "http://computadoras.idashboard.com.ar/images/items"
 
+    productizador: {
+      "propiedades": [
+        "Categoría",
+        "Marca",
+        "Modelo",
+        "Marca de Procesador",
+        "Modelo de Procesador",
+        "Familia de Procesador",
+        "RAM",
+        "HDD",
+        "Pantalla",
+        "CD/DVD",
+        "OS",
+        "Touch"
+      ]
+    }
+
+    cargapromos: {
+      "propiedades": [
+        "Categoría",
+        "Marca",
+        "Modelo",
+        "Marca de Procesador",
+        "Modelo de Procesador",
+        "Familia de Procesador",
+        "RAM",
+        "HDD",
+        "Pantalla",
+        "CD/DVD",
+        "OS",
+        "Touch"
+      ]
+    }
+
   # televisores
   product_type_2:
     precios: [

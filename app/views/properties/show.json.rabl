@@ -1,5 +1,5 @@
 object @property
-attributes :id, :name
+attributes :id, :name, :description
 glue :product_type do
 	attributes :id => :product_type_id, :name => :product_type_name
 end

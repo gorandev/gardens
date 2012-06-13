@@ -34,13 +34,19 @@ function init_properties() {
 					jQuery.each(v.possible_values, function(j, w) {
 						values[w.id] = w.value;
 					});
-					properties[v.name] = {
+					properties[v.description] = {
 						id: v.id,
 						values: values
 					};
-					properties_sorted.push(v.name);
+					properties_sorted.push(v.description);
 				});
 				properties_sorted = properties_sorted.sort();
+				<% if defined?@orden_pvs %>
+				properties_sorted = new Array;
+				<% @orden_pvs.each do |pv| %>
+				properties_sorted.push('<%=pv%>');
+				<% end %>
+				<% end %>
 			},
 			400: function() {
 				alert('Error 400!');
@@ -220,7 +226,7 @@ function buscar_productos() {
 
 	var data = 'property_values=' + pvalues.join(',');
 	data += '&country=' + country_id + '&fast=yeah';
-	data += '&marca=' + jQuery('#p_' + properties['marca'].id).val();
+	data += '&marca=' + jQuery('#p_' + properties['Marca'].id).val();
 
 	jQuery.ajax({
 		url: "http://api." + global_hostname + "/products/search_productizador",
