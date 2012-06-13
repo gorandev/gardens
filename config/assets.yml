@@ -78,3 +78,5 @@ stylesheets:
     - public/stylesheets/jquery-datepicker.css
   chosen_productizador:
     - public/stylesheets/chosen-productizador.css
+  grid_cargapromos:
+    - public/stylesheets/grid_cargapromos.css

@@ -1,6 +1,6 @@
 <% content_for :titulo_pagina do %>Cargador de Promociones<% end %>
 <% content_for :stylesheet do %>
-<%= include_stylesheets :chosen_productizador, :media => 'all' %>
+<%= include_stylesheets :chosen_productizador, :grid_cargapromos, :media => 'all' %>
 <% end %>
 <% content_for :javascript do %>
 <%= javascript_include_tag "http://code.jquery.com/jquery-1.7.min.js" %>
@@ -87,8 +87,8 @@ function buscar_productos() {
 		property_values: pvalues.join(','),
 		country: country_id,
 		fast: 'yeah',
-		marca: jQuery('#p_' + properties['marca'].id).val(),
-		modelo: jQuery('#p_' + properties['modelo'].id).val()
+		marca: jQuery('#p_' + properties['Marca'].id).val(),
+		modelo: jQuery('#p_' + properties['Modelo'].id).val()
 	};
 
 	jQuery.ajax({
@@ -139,9 +139,9 @@ function flip_producto(params) {
 	contenido += '<span style="cursor: pointer;" onClick="revert_flip();">volver</span>';
 
 	jQuery('#div_tabla_prods').flip({
-		direction: 'rl',
+		direction: 'lr',
 		content: contenido,
-		speed: 150,
+		speed: 300,
 		color: '#eee'
 	});
 
@@ -221,9 +221,9 @@ function crear_producto() {
 	contenido += '<span style="cursor: pointer;" onClick="go_crear_producto();">crear producto</span><br/>';
 
 	jQuery('#div_tabla_prods').flip({
-		direction: 'tb',
+		direction: 'lr',
 		content: contenido,
-		speed: 150,
+		speed: 300,
 		color: '#eee'
 	});
 
@@ -393,7 +393,12 @@ var fileAddHandler = function(file) {
 <% end %>
 <br/>
 
-<div style="margin: 0px auto; width: 400px; height: 600px; border: 2px dotted blue; overflow-y: auto; float: left;">
+<!-- CONTAINER -->
+<div class="container_4">
+
+<!-- COLUMNA UNO -->
+<div class="grid_1">
+<!--<div style="margin: 0px auto; width: 400px; height: 600px; border: 2px dotted blue; overflow-y: auto; float: left;">-->
 <%=raw s3_swf_upload_tag(
 	:onFileAdd => 'fileAddHandler(file);',
 	:fileTypes => '*.jpg;*.gif;*.png;',
@@ -415,8 +420,11 @@ var fileAddHandler = function(file) {
 <input style="display: none;" id="upload_button" type="button" value="Subir Archivo" onclick="s3_swf_16_object.startUploading();"/>
 <img id="image_uploaded"/>
 </div>
+<!-- FIN COLUMNA UNO -->
 
-<div style="margin: 0px auto; width 300px; height: 600px; border: 2px dotted red; overflow-y: auto; float: left;">
+<!-- COLUMNA DOS -->
+<div class="grid_1">
+<!--<div style="margin: 0px auto; width 300px; height: 600px; border: 2px dotted red; overflow-y: auto; float: left;">-->
 	<h3>Detalles de la promoción</h3>
 	<table border="1" width="100%">
 		<tr align="left">
@@ -475,9 +483,11 @@ var fileAddHandler = function(file) {
 		</tr>
 	</table>
 </div>
+<!-- FIN COLUMNA DOS -->
 
-
-<div style="margin: 0px auto; height: 600px; width: 300px; border: 2px dotted yellow; float: left;" id="div_tabla_pvs">
+<!-- COLUMNA TRES -->
+<div class="grid_1" id="div_tabla_pvs">
+<!--<div style="margin: 0px auto; height: 600px; width: 300px; border: 2px dotted yellow; float: left;" id="div_tabla_pvs">-->
 	<h3>Propiedades del producto</h3>
 	<table border="1" width="100%" id="tabla_pvs">
 <% 
@@ -506,8 +516,11 @@ var fileAddHandler = function(file) {
 <% end %>
 	</table>
 </div>
+<!-- FIN COLUMNA TRES -->
 	
-<div style="background-color: #eee; position: height: 600px; width: 300px; overflow-y: auto; float: left;" id="div_tabla_prods">
+<!-- COLUMNA CUATRO -->
+<div class="grid_1" id="div_tabla_prods" style="background-color: #eee; height: 475px;">
+<!--<div style="background-color: #eee; position: height: 600px; width: 300px; overflow-y: auto; float: left;" id="div_tabla_prods">-->
 	<h3>Posibles productos</h3>
 	<table border="1" width="100%" id="tabla_prods">
 		<tr class="fila_prod">
@@ -515,3 +528,7 @@ var fileAddHandler = function(file) {
 		</tr>
 	</table>
 </div>
+<!-- FIN COLUMNA CUATRO -->
+
+</div>
+<!-- FIN CONTAINER -->
