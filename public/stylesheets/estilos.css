@@ -712,3 +712,23 @@ div#barra_menu ul.items li a{
 div#barra_menu ul.items li:last-child a, div#footer div.links a:last-child{
 	background:none
 }
+
+span.button{
+	cursor: pointer;
+	background-color: #FFF;
+	border: 1px solid #666;
+	color: #000;
+	text-decoration: none;
+	padding-left: 2px;
+	padding-right: 2px;
+	padding-top: 0px;
+	margin-top: 5px;
+}
+
+span.button:hover{
+	color: #00F;
+}
+
+span.button:active{
+	color: #F00;
+}

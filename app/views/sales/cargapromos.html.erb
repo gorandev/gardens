@@ -127,7 +127,7 @@ function mostrar_match_productos(data) {
 	} else {
 		jQuery('#tabla_prods').append('<tr class="fila_prod"><td>No se encontró ninguno.</td></tr>');
 	}
-	jQuery('#tabla_prods').append('<tr class="fila_prod"><td><span style="cursor: pointer;" onClick="crear_producto();">(crear nuevo producto)</span></td></tr>');
+	jQuery('#tabla_prods').append('<tr class="fila_prod"><td><span class="button" onClick="crear_producto();">crear nuevo producto</span></td></tr>');
 }
 
 function flip_producto(params) {
@@ -135,13 +135,13 @@ function flip_producto(params) {
 	contenido += '<br/>';
 	contenido += '<image height="200" width="200" src="<%=@url_imagen_producto%>/' + params.imagen_id + '_med.jpg"/><br/>';
 	contenido += '<span id="urls_producto">Buscando links retailers...</span><br/>';
-	contenido += '<span style="cursor: pointer;" onClick="salvar_promocion(' + params.id + ');">salvar promoción</span><br/>';
-	contenido += '<span style="cursor: pointer;" onClick="revert_flip();">volver</span>';
+	contenido += '<span class="button" onClick="salvar_promocion(' + params.id + ');">salvar promoción</span><br/><br/>';
+	contenido += '<span class="button" onClick="revert_flip();">volver</span>';
 
 	jQuery('#div_tabla_prods').flip({
 		direction: 'lr',
 		content: contenido,
-		speed: 300,
+		speed: 150,
 		color: '#eee'
 	});
 
@@ -217,13 +217,13 @@ function crear_producto() {
 	});
 
 	contenido += '</table><br/>';
-	contenido += '<span style="cursor: pointer;" onClick="revert_flip();">volver</span><br/>';
-	contenido += '<span style="cursor: pointer;" onClick="go_crear_producto();">crear producto</span><br/>';
+	contenido += '<span class="button" onClick="revert_flip();">volver</span><br/><br/>';
+	contenido += '<span class="button" onClick="go_crear_producto();">crear producto</span><br/>';
 
 	jQuery('#div_tabla_prods').flip({
-		direction: 'lr',
+		direction: 'rl',
 		content: contenido,
-		speed: 300,
+		speed: 150,
 		color: '#eee'
 	});
 
@@ -311,6 +311,7 @@ function salvar_promocion(producto) {
 				jQuery('#bundle_no').attr('checked', 'checked');
 				jQuery('#valida_desde').val('');
 				jQuery('#valida_hasta').val('');
+				alert('Promoción salvada.');
 			},
 			400: function() {
 				alert('Error 400!');
@@ -398,7 +399,6 @@ var fileAddHandler = function(file) {
 
 <!-- COLUMNA UNO -->
 <div class="grid_1">
-<!--<div style="margin: 0px auto; width: 400px; height: 600px; border: 2px dotted blue; overflow-y: auto; float: left;">-->
 <%=raw s3_swf_upload_tag(
 	:onFileAdd => 'fileAddHandler(file);',
 	:fileTypes => '*.jpg;*.gif;*.png;',
@@ -424,7 +424,6 @@ var fileAddHandler = function(file) {
 
 <!-- COLUMNA DOS -->
 <div class="grid_1">
-<!--<div style="margin: 0px auto; width 300px; height: 600px; border: 2px dotted red; overflow-y: auto; float: left;">-->
 	<h3>Detalles de la promoción</h3>
 	<table border="1" width="100%">
 		<tr align="left">
@@ -487,7 +486,6 @@ var fileAddHandler = function(file) {
 
 <!-- COLUMNA TRES -->
 <div class="grid_1" id="div_tabla_pvs">
-<!--<div style="margin: 0px auto; height: 600px; width: 300px; border: 2px dotted yellow; float: left;" id="div_tabla_pvs">-->
 	<h3>Propiedades del producto</h3>
 	<table border="1" width="100%" id="tabla_pvs">
 <% 
@@ -520,9 +518,8 @@ var fileAddHandler = function(file) {
 	
 <!-- COLUMNA CUATRO -->
 <div class="grid_1" id="div_tabla_prods" style="background-color: #eee; height: 475px;">
-<!--<div style="background-color: #eee; position: height: 600px; width: 300px; overflow-y: auto; float: left;" id="div_tabla_prods">-->
 	<h3>Posibles productos</h3>
-	<table border="1" width="100%" id="tabla_prods">
+	<table border="1" width="100%" id="tabla_prods" cellpadding="3">
 		<tr class="fila_prod">
 			<td>--</td>
 		</tr>
