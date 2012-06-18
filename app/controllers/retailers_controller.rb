@@ -58,7 +58,7 @@ class RetailersController < ApplicationController
       return _search_fast
     end
 
-    if params.slice(:name, :country, :id).empty?
+    if params.slice(:name, :country, :currency, :id).empty?
       return render :json => { :errors => { :retailer => "no search parameters" } }, :status => 400
     end
 
@@ -67,6 +67,13 @@ class RetailersController < ApplicationController
         return render :json => { :errors => { :country => "not found" } }, :status => 400
       end
       params[:country_id] = params[:country]
+    end
+
+    if params.has_key?(:currency)
+      unless Currency.find_by_id(params[:currency])
+        return render :json => { :errors => { :currency => "not found" } }, :status => 400
+      end
+      params[:country_id] = Currency.find_by_id(params[:currency]).country.id
     end
 
     if params.has_key?(:id) and params[:id].is_a?String

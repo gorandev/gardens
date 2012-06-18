@@ -32,7 +32,7 @@ function init_properties() {
 				jQuery.each(data, function(i, v) {
 					var values = {};
 					jQuery.each(v.possible_values, function(j, w) {
-						values[w.id] = w.value;
+						values[w.possible_value.id] = w.possible_value.value;
 					});
 					properties[v.description] = {
 						id: v.id,
