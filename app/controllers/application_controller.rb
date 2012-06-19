@@ -43,6 +43,8 @@ class ApplicationController < ActionController::Base
       item.property_values = property_values
     end
 
+    item.description = item.description.encode("UTF-8")
+
     unless item.save
       if params.has_key?(:retailer) && item.retailer.nil?
         item.errors.add(:retailer, "must be valid")
