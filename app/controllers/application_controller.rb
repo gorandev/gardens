@@ -27,7 +27,7 @@ class ApplicationController < ActionController::Base
     end
     
     if params.has_key?(:url)
-      item = Item.find_or_initialize_by_url(params[:url])
+      item = Item.find_or_initialize_by_url(params[:url].encode("UTF-8"))
     else
       item = Item.new()
     end
