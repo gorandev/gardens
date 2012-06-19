@@ -183,11 +183,14 @@ class ItemsController < ApplicationController
   end
 
   def add_aws_filename
+    if params.slice(:url, :aws_filename).empty?
+      return render :json => { :errors => { :item => "no parameters" } }, :status => 400
+    end
     unless item = Item.find_by_url(params[:url])
       return render :json => { :errors => { :url => "must be valid" } }, :status => 400
     end
     item.aws_filename = params[:aws_filename]
     item.save
-    render :json => "OK"
+    render :json => { :id => item.id }
   end
 end
