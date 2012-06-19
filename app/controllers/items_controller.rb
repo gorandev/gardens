@@ -183,8 +183,8 @@ class ItemsController < ApplicationController
   end
 
   def add_aws_filename
-    unless item = Item.find_by_id(params[:id])
-      return render :json => { :errors => { :item => "must be valid" } }, :status => 400
+    unless item = Item.find_by_url(params[:url])
+      return render :json => { :errors => { :url => "must be valid" } }, :status => 400
     end
     item.aws_filename = params[:aws_filename]
     item.save
