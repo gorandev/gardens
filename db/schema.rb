@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120613145717) do
+ActiveRecord::Schema.define(:version => 20120618220007) do
 
   create_table "countries", :force => true do |t|
     t.string   "iso_code"
@@ -56,6 +56,7 @@ ActiveRecord::Schema.define(:version => 20120613145717) do
     t.integer  "imagen_id"
     t.string   "url"
     t.text     "description"
+    t.string   "aws_filename"
   end
 
   add_index "items", ["product_id"], :name => "index_items_on_product_id"

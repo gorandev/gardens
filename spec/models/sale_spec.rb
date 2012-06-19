@@ -19,6 +19,7 @@
 #  page             :integer
 #  currency_id      :integer
 #  imagen_id        :integer
+#  aws_filename     :string(255)
 #
 
 require 'spec_helper'

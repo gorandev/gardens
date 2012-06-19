@@ -181,4 +181,13 @@ class ItemsController < ApplicationController
     @url_imagen_producto = Settings["product_type_#{@product_type_id}"]['url_imagen_producto']
     @orden_pvs = Settings["product_type_#{@product_type_id}"]['productizador']['propiedades']
   end
+
+  def add_aws_filename
+    unless item = Item.find_by_id(params[:id])
+      return render :json => { :errors => { :item => "must be valid" } }, :status => 400
+    end
+    item.aws_filename = params[:aws_filename]
+    item.save
+    render :json => "OK"
+  end
 end

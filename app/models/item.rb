@@ -12,6 +12,7 @@
 #  imagen_id       :integer
 #  url             :string(255)
 #  description     :text
+#  aws_filename    :string(255)
 #
 
 class Item < ActiveRecord::Base
