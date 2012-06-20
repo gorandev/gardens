@@ -35,7 +35,7 @@ class ApplicationController < ActionController::Base
     item.retailer = Retailer.find_by_id(params[:retailer]) || item.retailer
     item.product = Product.find_by_id(params[:product]) || item.product
     item.product_type = ProductType.find_by_id(params[:product_type]) || item.product_type
-    item.source = params[:source] || item.source
+    item.source = params[:source].encode("UTF-8") || item.source
     item.description = params[:description].encode("UTF-8") || item.description
     item.imagen_id = params[:imagen_id] || item.imagen_id
     
