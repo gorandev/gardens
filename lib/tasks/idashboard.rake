@@ -15,4 +15,9 @@ namespace :idashboard do
 		Property.where(:name => 'familia_procesador').first.update_attributes(:description => 'Familia de Procesador')
 		Property.where(:name => 'touch').first.update_attributes(:description => 'Touch')
 	end
+
+	desc 'Send alerts'
+	task :send_alerts => :environment do
+		Pony.mail(:to => 'mondongo@gmail.com', :from => 'dude@idashboard.la', :subject => 'Hello', :body => 'Testy test.')
+	end
 end

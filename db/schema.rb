@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120618220007) do
+ActiveRecord::Schema.define(:version => 20120621230637) do
 
   create_table "countries", :force => true do |t|
     t.string   "iso_code"
@@ -219,9 +219,11 @@ ActiveRecord::Schema.define(:version => 20120618220007) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "authentication_token"
+    t.integer  "last_event_id"
   end
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true
+  add_index "users", ["last_event_id"], :name => "index_users_on_last_event_id"
   add_index "users", ["reset_password_token"], :name => "index_users_on_reset_password_token", :unique => true
 
   create_table "words", :force => true do |t|

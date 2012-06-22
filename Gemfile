@@ -12,6 +12,7 @@ gem 'redis'
 gem 'devise'
 gem 'jammit-s3'
 gem 's3_swf_upload', :git => 'git://github.com/nathancolgate/s3-swf-upload-plugin'
+gem 'pony'
 
 group :development do
   gem 'rspec-rails'
