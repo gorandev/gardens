@@ -12,7 +12,6 @@
 
 class Event < ActiveRecord::Base
   belongs_to :item
-  has_many :users, :foreign_key => "last_event_id", :inverse_of => :last_event
   validates_presence_of :item, :precio_viejo, :precio_nuevo
 end
 
