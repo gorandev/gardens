@@ -1,6 +1,5 @@
 class CreateRules < ActiveRecord::Migration
   def change
-    drop_table :rules
     create_table :rules do |t|
       t.references :alert
       t.references :ruletype
