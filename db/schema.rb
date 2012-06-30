@@ -11,7 +11,17 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120628170042) do
+ActiveRecord::Schema.define(:version => 20120630153818) do
+
+  create_table "alerts", :force => true do |t|
+    t.integer  "event_id"
+    t.integer  "user_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "alerts", ["event_id"], :name => "index_alerts_on_event_id"
+  add_index "alerts", ["user_id"], :name => "index_alerts_on_user_id"
 
   create_table "countries", :force => true do |t|
     t.string   "iso_code"
@@ -166,6 +176,23 @@ ActiveRecord::Schema.define(:version => 20120628170042) do
   end
 
   add_index "retailers", ["country_id"], :name => "index_retailers_on_country_id"
+
+  create_table "rule_types", :force => true do |t|
+    t.string   "description"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "rules", :force => true do |t|
+    t.integer  "alert_id"
+    t.string   "value"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "rule_type_id"
+  end
+
+  add_index "rules", ["alert_id"], :name => "index_rules_on_alert_id"
+  add_index "rules", ["rule_type_id"], :name => "index_rules_on_rule_type_id"
 
   create_table "sales", :force => true do |t|
     t.date     "sale_date"

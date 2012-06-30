@@ -17,6 +17,7 @@ Gardens::Application.routes.draw do
     match 'sales/cargapromos' => 'sales#cargapromos', :as => 'pagina_cargapromos'
 
     resources :saved_reports, :defaults => { :format => :json }
+    resources :alerts
   end
 
   constraints(:subdomain => "api") do
@@ -76,5 +77,9 @@ Gardens::Application.routes.draw do
     match 'sales/search' => 'sales#search', :defaults => { :format => :json }
     match 'sales/create_cargapromos' => 'sales#create_cargapromos', :defaults => { :format => :json }
     resources :sales, :defaults => { :format => :json }
+
+    get 'alerts/create'
+    get 'alerts/destroy'
+    resources :alerts, :defaults => { :format => :json }
   end
 end

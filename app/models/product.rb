@@ -58,6 +58,10 @@ class Product < ActiveRecord::Base
     return get_property_value('marca')
   end
 
+  def modelo
+    return get_property_value('modelo')
+  end
+
   def get_property_value(property)
     propv = String.new
     self.property_values.each do |pv|

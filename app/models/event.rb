@@ -13,5 +13,6 @@
 class Event < ActiveRecord::Base
   belongs_to :item
   validates_presence_of :item, :precio_viejo, :precio_nuevo
+  has_many :alerts
 end
 

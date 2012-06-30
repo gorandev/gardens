@@ -215,7 +215,6 @@ var aws_bucket = '<%=@bucket%>';
 						<% end %>
 						</li>						
 						
-						<!--
 						<li class="menuAlert">
 						<% if defined?@pagina and @pagina == 'Alertas' %>
 						<div class="esteticaMenu">
@@ -223,7 +222,7 @@ var aws_bucket = '<%=@bucket%>';
 						<div class="esteticaMenuSupIzq"></div>
 						</div>
 						<% end %>
-						<a href="/dashboard/alertas">&nbsp;ALERTAS</a>
+						<%= link_to "ALERTAS", alerts_path %>
 						<% if defined?@pagina and @pagina == 'Alertas' %>
 						<div class="esteticaMenuInf">
 						<div class="esteticaMenuInfIzq"></div>
@@ -231,7 +230,6 @@ var aws_bucket = '<%=@bucket%>';
 						</div>
 						<% end %>
 						</li>
-						-->
 						
 						<% if defined?@usuario_admin %>
 						

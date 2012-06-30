@@ -1,0 +1,265 @@
+<% content_for :titulo_pagina do %>Alertas<% end %>
+<% content_for :javascript do %>
+<%= javascript_include_tag "http://code.jquery.com/jquery-1.7.min.js" %>
+<script type="text/javascript">jQuery.noConflict();</script>
+<%= include_javascripts :chosen %>
+<script type="text/javascript">
+
+var country_id = <%=@country_id%>;
+var product_type_id = <%=@product_type_id%>;
+
+function get_products() {
+	if (jQuery('#marca_prod').val().length == 0) {
+		jQuery('#producto').find('option').remove();
+		jQuery('#producto').append('<option></option>');
+		jQuery("#producto").trigger("liszt:updated");
+		return;
+	}
+
+	var data = {
+		property_values: jQuery('#marca_prod').val(),
+		country: country_id,
+		product_type: product_type_id,
+		fast: 'yeah'
+	};
+
+	jQuery.ajax({
+		url: "http://api." + global_hostname + "/products/search",
+		data: data,
+		dataType: 'jsonp',
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				llenar_pulldown_productos(data);
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
+}
+
+function llenar_pulldown_productos(data) {
+	jQuery('#producto').find('option').remove();
+	jQuery('#producto').append('<option></option>');
+	jQuery.each(data, function(k, v) {
+		jQuery('#producto').append('<option value="' + v.id + '">' + v.value + '</option>');
+	});
+	jQuery("#producto").trigger("liszt:updated");
+}
+
+function agregar_alerta() {
+	var data = {
+		retailer: jQuery('#retailer').val(),
+		marca: jQuery('#marca_prod').val(),
+		producto: jQuery('#producto').val()
+	};
+
+	if (jQuery('#tipo_alerta_2:checked').length > 0) {
+		data.porcentaje_precio = jQuery('#alerta_param').val();
+	}
+
+	jQuery.ajax({
+		url: "http://api." + global_hostname + "/alerts/create",
+		data: data,
+		dataType: 'jsonp',
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				agregar_alerta_a_tabla(data);
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
+}
+
+function agregar_alerta_a_tabla(data) {
+	if (jQuery('#alertas').length == 0) {
+		var html = '';
+		html += '<table border="1" cellspacing="5" cellpadding="5" align="center" id="alertas">';
+		html += '<tr>';
+		html += '<th>Marca</th>';
+		html += '<th>Modelo</th>';
+		html += '<th>Retailer</th>';
+		html += '<th>Tipo de alerta</th>';
+		html += '<th>&nbsp;</th>';
+		html += '</tr>';
+		html += '<tbody id="lista_alertas"></tbody>';
+		html += '</table>';
+		jQuery('h4').remove();
+		jQuery('#rootdiv').prepend(html);
+	}
+	var html = '<tr id="fila-' + data.id + '" class="fila_alerta">';
+
+	if (jQuery('#marca_prod option:selected').text() == '') {
+		html += '<td>todas</td>';
+	} else {
+		html += '<td>' + jQuery('#marca_prod option:selected').text() + '</td>';
+	}
+
+	if (jQuery('#producto option:selected').text() == '') {
+		html += '<td>todos</td>';
+	} else {
+		html += '<td>' + jQuery('#producto option:selected').text() + '</td>';
+	}
+
+	if (jQuery('#retailer option:selected').text() == '') {
+		html += '<td>todos</td>';
+	} else {
+		html += '<td>' + jQuery('#retailer option:selected').text() + '</td>';
+	}
+
+	if (jQuery('#tipo_alerta_2:checked').length > 0) {
+		html += '<td>Cambio de precio dentro de un ' + jQuery('#alerta_param').val() + '%</td>';
+	} else {
+		html += '<td>Cambio de precio</td>';
+	}
+
+	html += '<td><a href="#" onClick="return borrar_alerta(' + data.id + ');">borrar</a></td>';
+
+	html += '</tr>';
+	jQuery('#lista_alertas').append(html);
+}
+
+function borrar_alerta(id) {
+	jQuery.ajax({
+		url: "http://api." + global_hostname + "/alerts/destroy",
+		data: { id: id },
+		dataType: 'jsonp',
+		cache: false,
+		context: { id: id },
+		statusCode: {
+			200: function() {
+				jQuery('#fila-' + this.id).remove();
+				if (jQuery('.fila_alerta').length == 0) {
+					jQuery('#alertas').remove();
+					jQuery('#rootdiv').prepend('<h4 align="center">No hay alertas.</h4>');
+				}
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});	
+	return false;
+}
+
+jQuery(window).load(function() {
+	jQuery(".chzn-select").chosen({no_results_text: "No hay resultados para", allow_single_deselect: true});
+	jQuery('#marca_prod').on("change", get_products);
+	jQuery('#tipo_alerta_1').on("click", function(event) {
+		jQuery('#alerta_param').attr('disabled', 'disabled');
+	});
+	jQuery('#tipo_alerta_2').on("click", function(event) {
+		jQuery('#alerta_param').removeAttr('disabled');
+	});
+});
+</script>
+<% end %>
+<div style="width: 800px;" id="rootdiv">
+
+<% if !@alerts.empty? %>
+<table border="1" cellspacing="5" cellpadding="5" align="center" id="alertas">
+<tr>
+<th>Marca</th>
+<th>Modelo</th>
+<th>Retailer</th>
+<th>Tipo de alerta</th>
+<th>&nbsp;</th>
+</tr>
+
+<% @alerts.each do |a| %>
+<tr id="fila-<%=a.id%>" class="fila_alerta">
+<%
+	precio_minimo = nil
+	retailer = nil
+	marca = nil
+	producto = nil
+	a.rules.each do |r|
+		case r.rule_type.description
+		when 'Cambio de precio'
+			precio_minimo = r.value
+		when 'Retailer'
+			retailer = r.value
+		when 'Marca'
+			marca = r.value
+		when 'Producto'
+			producto = r.value
+		end
+	end
+%>
+<td><% if marca.nil? %>todas<% else %><%= PropertyValue.find_by_id(marca).value %><% end %></td>
+<td><% if producto.nil? %>todos<% else %><%= Product.find_by_id(producto).descripcion %><% end %></td>
+<td><% if retailer.nil? %>todos<% else %><%= Retailer.find_by_id(retailer).name %><% end %></td>
+<% if precio_minimo.nil? %>
+<td>Cambio de Precio</td>
+<% else %>
+<td>Cambio de precio dentro de un <%=precio_minimo%>%</td>
+<% end %>
+<td><a href="#" onClick="return borrar_alerta(<%=a.id%>);">borrar</a></td>
+</tr>
+<% end %>
+
+</table>
+<% else %>
+<h4 align="center">No hay alertas.</h4>
+<% end %>
+<br/><br/>
+
+<table border="0">			
+
+<tr>
+<td align="right">
+<b>Retailer:</b></td>
+<td>
+<select id="retailer" class="pulldown_selector chzn-select" data-placeholder="todos" style="width: 200px;">
+<option></option>
+<% Retailer.where(:country_id => @country_id).order(:name).each do |r| %>
+<option value="<%=r.id%>"><%=r.name%></option>
+<% end %>
+</select>
+</td>
+</tr>
+
+<tr>
+<td align="right"><b>Marca:</b></td>
+<td>
+<select id="marca_prod" class="pulldown_selector chzn-select" data-placeholder="todas" style="width: 200px;">
+<option></option>
+<% PropertyValue.select('property_values.id, property_values.value').joins(:property, :products => :retailers).where(:products => { :product_type_id => @product_type_id }, :retailers => { :country_id => @country_id }, :properties => { :name => 'marca'} ).order(:value).group('property_values.id, property_values.value').each do |pv| %>
+<option value="<%=pv.id%>"><%=pv.value%></option>
+<% end %>
+</select>
+</td>
+</tr>
+
+<tr>
+<td align="right"><b>Producto:</b></td>
+<td>
+<select name="producto" id="producto" class="pulldown_selector chzn-select" data-placeholder="todos" style="width: 200px;">
+<option></option>
+</select>
+</td>
+</tr>
+
+<tr>
+<td align="right"><b>Tipo de Alerta</b></td>
+<td>
+<input type="radio" name="tipo_alerta" value="1" id="tipo_alerta_1" checked/><label for="tipo_alerta_1">Si el precio cambia</label><br/>
+<input type="radio" name="tipo_alerta" value="2" id="tipo_alerta_2"/><label for="tipo_alerta_2">Si el precio se modifica en un </label><input type="text" size="2" name="alerta_param" id="alerta_param" disabled/>%
+</td>
+</tr>
+
+<tr>
+<td colspan="2" align="center">
+<input type="button" value="Agregar alerta" onClick="agregar_alerta();"/>
+</td>
+</tr>
+
+</table>
+
+</form>
+
+</div>

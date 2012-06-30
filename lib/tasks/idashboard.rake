@@ -20,4 +20,12 @@ namespace :idashboard do
 	task :send_alerts => :environment do
 		Pony.mail(:to => 'mondongo@gmail.com', :from => 'dude@idashboard.la', :subject => 'Hello', :body => 'Testy test.')
 	end
+
+	desc 'Create ruletypes for rules'
+	task :create_ruletypes => :environment do
+		RuleType.create(:description => 'Cambio de precio').save()
+		RuleType.create(:description => 'Retailer').save()
+		RuleType.create(:description => 'Marca').save()
+		RuleType.create(:description => 'Producto').save()
+	end
 end
