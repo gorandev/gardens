@@ -37,6 +37,8 @@ function get_products() {
 			}
 		}
 	});
+
+	jQuery('#boton_agregar').attr('disabled', 'disabled');
 }
 
 function llenar_pulldown_productos(data) {
@@ -46,6 +48,7 @@ function llenar_pulldown_productos(data) {
 		jQuery('#producto').append('<option value="' + v.id + '">' + v.value + '</option>');
 	});
 	jQuery("#producto").trigger("liszt:updated");
+	jQuery('#boton_agregar').removeAttr('disabled');
 }
 
 function agregar_alerta() {
@@ -63,14 +66,14 @@ function agregar_alerta() {
 		url: "http://api." + global_hostname + "/alerts/create",
 		data: data,
 		dataType: 'jsonp',
-		cache: false,
-		statusCode: {
-			200: function(data) {
-				agregar_alerta_a_tabla(data);
-			},
-			400: function() {
-				alert('Error 400!');
+		success: function(data) {
+			if (data.hasOwnProperty('errors')) {
+				if (data.errors.hasOwnProperty('alert') && data.errors.alert == 'already exists') {
+					alert('Esa alerta ya ha sido definida.');
+				}
+				return;
 			}
+			agregar_alerta_a_tabla(data);
 		}
 	});
 }
@@ -170,6 +173,7 @@ jQuery(window).load(function() {
 <th>&nbsp;</th>
 </tr>
 
+<tbody id="lista_alertas">
 <% @alerts.each do |a| %>
 <tr id="fila-<%=a.id%>" class="fila_alerta">
 <%
@@ -201,6 +205,7 @@ jQuery(window).load(function() {
 <td><a href="#" onClick="return borrar_alerta(<%=a.id%>);">borrar</a></td>
 </tr>
 <% end %>
+</tbody>
 
 </table>
 <% else %>
@@ -254,7 +259,7 @@ jQuery(window).load(function() {
 
 <tr>
 <td colspan="2" align="center">
-<input type="button" value="Agregar alerta" onClick="agregar_alerta();"/>
+<input type="button" value="Agregar alerta" onClick="agregar_alerta();" id="boton_agregar"/>
 </td>
 </tr>
 

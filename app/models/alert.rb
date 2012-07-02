@@ -10,9 +10,13 @@
 #
 
 class Alert < ActiveRecord::Base
-  belongs_to :event
-  belongs_to :user
-  has_many :rules
+	belongs_to :event
+	belongs_to :user
+	has_many :rules
 
-  validates :user_id, :presence => true
+	validates :user_id, :presence => true
+
+	def ruletype_signature
+		 self.rules.sort{|a,b| a.rule_type.description + (a.value.nil? ? '0' : a.value) <=> b.rule_type.description + (b.value.nil? ? '0' : b.value)}.map {|r| r.rule_type.description+(r.value.nil? ? '0' : r.value)}.join(',')
+	end
 end

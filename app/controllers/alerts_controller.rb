@@ -6,6 +6,41 @@ class AlertsController < ApplicationController
   end
 
   def create
+    ruletype_signature = String.new
+
+    if params.has_key?(:porcentaje_precio)
+      ruletype_signature += 'Cambio de precio' + params[:porcentaje_precio]
+    else 
+      ruletype_signature += 'Cambio de precio0'
+    end
+
+    if params.has_key?(:marca) && !params[:marca].empty?
+      if !ruletype_signature.empty?
+        ruletype_signature += ','
+      end
+      ruletype_signature += 'Marca' + params[:marca]
+    end
+
+    if params.has_key?(:producto) && !params[:producto].empty?
+      if !ruletype_signature.empty?
+        ruletype_signature += ','
+      end
+      ruletype_signature += 'Producto' + params[:producto]
+    end
+
+    if params.has_key?(:retailer) && !params[:retailer].empty?
+      if !ruletype_signature.empty?
+        ruletype_signature += ','
+      end
+      ruletype_signature += 'Retailer' + params[:retailer]
+    end
+
+    Alert.where(:user_id => current_user.id).each do |a|
+      if a.ruletype_signature == ruletype_signature
+        return render :json => { :errors => { :alert => "already exists" } }, :callback => params[:callback]
+      end
+    end
+
     alert = Alert.create( 
       :user => current_user
     )
@@ -49,7 +84,7 @@ class AlertsController < ApplicationController
       ))
     end
 
-    alert.rules = rules;
+    alert.rules = rules
     alert.save
 
     render :json => { :id => alert.id }, :callback => params[:callback]
@@ -117,5 +152,4 @@ class AlertsController < ApplicationController
     alert.destroy
     render :nothing => true
   end
-
 end
