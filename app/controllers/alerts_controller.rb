@@ -42,7 +42,8 @@ class AlertsController < ApplicationController
     end
 
     alert = Alert.create( 
-      :user => current_user
+      :user => current_user,
+      :event => Event.last
     )
 
     rules = Array.new
