@@ -83,7 +83,7 @@ namespace :scheduler do
 			 		Pony.mail(
 						:to => a.user.email,
 						:from => 'alertas@idashboard.la',
-						:subject => '[iDashboard Alert] Alerta de cambio de precio - Argentina - ' + Time.now.in_time_zone('America/Argentina/Buenos_Aires').strftime('%d-%m-%y %H:%M'),
+						:subject => '[iDashboard Alert] Alerta de cambio de precio - ' + a.country.name + ' - ' + Time.now.in_time_zone('America/Argentina/Buenos_Aires').strftime('%d-%m-%y %H:%M'),
 						:html_body => ERB.new(mail_template).result(binding)
 					)
 		 		end

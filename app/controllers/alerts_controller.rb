@@ -36,7 +36,7 @@ class AlertsController < ApplicationController
     end
 
     Alert.where(:user_id => current_user.id).each do |a|
-      if a.ruletype_signature == ruletype_signature
+      if a.ruletype_signature == ruletype_signature and a.country_id == @country_id.to_i and a.product_type_id == @product_type_id.to_i
         return render :json => { :errors => { :alert => "already exists" } }, :callback => params[:callback]
       end
     end
