@@ -11,16 +11,20 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120630153818) do
+ActiveRecord::Schema.define(:version => 20120706154232) do
 
   create_table "alerts", :force => true do |t|
     t.integer  "event_id"
     t.integer  "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "product_type_id"
+    t.integer  "country_id"
   end
 
+  add_index "alerts", ["country_id"], :name => "index_alerts_on_country_id"
   add_index "alerts", ["event_id"], :name => "index_alerts_on_event_id"
+  add_index "alerts", ["product_type_id"], :name => "index_alerts_on_product_type_id"
   add_index "alerts", ["user_id"], :name => "index_alerts_on_user_id"
 
   create_table "countries", :force => true do |t|

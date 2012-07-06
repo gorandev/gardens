@@ -2,12 +2,12 @@
 #
 # Table name: rules
 #
-#  id          :integer         not null, primary key
-#  alert_id    :integer
-#  ruletype_id :integer
-#  value       :string(255)
-#  created_at  :datetime
-#  updated_at  :datetime
+#  id           :integer         not null, primary key
+#  alert_id     :integer
+#  value        :string(255)
+#  created_at   :datetime
+#  updated_at   :datetime
+#  rule_type_id :integer
 #
 
 require 'spec_helper'

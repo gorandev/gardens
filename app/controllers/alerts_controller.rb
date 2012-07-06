@@ -43,6 +43,8 @@ class AlertsController < ApplicationController
 
     alert = Alert.create( 
       :user => current_user,
+      :product_type => ProductType.find(@product_type_id),
+      :country => Country.find(@country_id),
       :event => Event.last
     )
 

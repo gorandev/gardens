@@ -13,6 +13,90 @@ namespace :scheduler do
 			ruletype_signatures[a.ruletype_signature].push(a)
 		end
 
+		ruletype_signatures.each do |k,v|
+			events = nil
+			v.first.rules.each do |r|
+				case r.rule_type.description
+				when 'Cambio de precio'
+					if events.nil?
+						events = Event.where('ABS(precio_nuevo - precio_viejo) >= (precio_viejo * :porcentaje)', { :porcentaje => (r.value.nil? ? 0 : r.value.to_i)/100.to_f })
+					else
+						events = events.where('ABS(precio_nuevo - precio_viejo) >= (precio_viejo * :porcentaje)', { :porcentaje => (r.value.nil? ? 0 : r.value.to_i)/100.to_f })
+					end
+				when 'Retailer'
+					if r.value.nil?
+						next
+					end
+					if events.nil?
+						events = Event.joins(:item).where(:items => { :retailer_id => r.value })
+					else
+						events = events.joins(:item).where(:items => { :retailer_id => r.value })
+					end
+				when 'Marca'
+					if r.value.nil?
+						next
+					end
+					if events.nil?
+						events = Event.joins(:item=>{:product => :property_values}).uniq.where(:property_values => { :id => r.value })					
+					else
+						events = events.joins(:item=>{:product => :property_values}).uniq.where(:property_values => { :id => r.value })
+					end
+				when 'Producto'
+					if r.value.nil?
+						next
+					end
+					if events.nil?
+						events = Event.joins(:item).where(:items => { :product_id => r.value })
+					else
+						events = events.joins(:item).where(:items => { :product_id => r.value })
+					end
+				end
+			end
+
+			if events.nil?
+				next
+			end
+
+			v.each do |a|
+				latest_event_id = 0
+				@events_ordered = Hash.new
+
+				ev = events.where('events.id > ?', (a.event.nil? ? 0 : a.event.id))
+				ev = ev.joins(:item => [:product, :retailer]).where(
+					:products => { :product_type_id => a.product_type.id }, :retailers => { :country_id => a.country.id }
+				)
+				
+				ev.each do |e|
+					if e.item.product.nil?
+						next
+					end
+		 			if !@events_ordered[e.item.retailer.name].is_a?Array
+						@events_ordered[e.item.retailer.name] = Array.new
+					end
+					@events_ordered[e.item.retailer.name].push(e)
+					if e.id > latest_event_id
+						latest_event_id = e.id
+					end
+				end
+
+				if @events_ordered.keys.length > 0
+			 		Pony.mail(
+						:to => a.user.email,
+						:from => 'alertas@idashboard.la',
+						:subject => '[iDashboard Alert] Alerta de cambio de precio - Argentina - ' + Time.now.in_time_zone('America/Argentina/Buenos_Aires').strftime('%d-%m-%y %H:%M'),
+						:html_body => ERB.new(mail_template).result(binding)
+					)
+		 		end
+
+				if latest_event_id > 0
+					a.event = Event.find(latest_event_id)
+					a.save
+				end
+			end
+		end
+	end
+end
+
 ## finding retailer
 ## Event.joins(:item).where(:items => { :retailer_id => 4 })
 
@@ -28,56 +112,3 @@ namespace :scheduler do
 
 # combinaciones
 # Event.where('ABS(precio_nuevo - precio_viejo) >= (precio_viejo * :porcentaje)', { :porcentaje => 30/100.to_f }).joins(:item).where(:items => { :retailer_id => 4 })
-
-		ruletype_signatures.each do |k,v|
-			events = nil
-			v.first.rules.each do |r|
-				case r.rule_type.description
-				when 'Cambio de precio'
-					if events.nil?
-						events = Event.where('ABS(precio_nuevo - precio_viejo) >= (precio_viejo * :porcentaje)', { :porcentaje => (r.value.nil? ? 0 : r.value.to_i)/100.to_f })
-					else
-						events = events.where('ABS(precio_nuevo - precio_viejo) >= (precio_viejo * :porcentaje)', { :porcentaje => (r.value.nil? ? 0 : r.value.to_i)/100.to_f })
-					end
-				when 'Retailer'
-					if events.nil?
-						events = Event.joins(:item).where(:items => { :retailer_id => r.value })
-					else
-						events = events.joins(:item).where(:items => { :retailer_id => r.value })
-					end
-				when 'Marca'
-					if events.nil?
-						events = Event.joins(:item=>{:product => :property_values}).uniq.where(:property_values => { :id => r.value })					
-					else
-						events = events.joins(:item=>{:product => :property_values}).uniq.where(:property_values => { :id => r.value })
-					end
-				when 'Producto'
-					if events.nil?
-						events = Event.joins(:item).where(:items => { :product_id => r.value })
-					else
-						events = events.joins(:item).where(:items => { :product_id => r.value })
-					end
-				end
-			end
-
-				@events_ordered = Hash.new
-				events.each do |e|
-					if e.item.product.nil?
-						next
-					end
-	 			if !@events_ordered[e.item.retailer.name].is_a?Array
-					@events_ordered[e.item.retailer.name] = Array.new
-				end
-				@events_ordered[e.item.retailer.name].push(e)
-				end
-
-	 		Pony.mail(
-				:to => 'mondongo@gmail.com',
-				:from => 'alertas@idashboard.la',
-				:subject => '[iDashboard Alert] Alerta de cambio de precio - Argentina - ' + Time.now.in_time_zone('America/Argentina/Buenos_Aires').strftime('%d-%m-%y %H:%M'),
-				:html_body => ERB.new(mail_template).result(binding)
-			)
-				
-		end
-	end
-end

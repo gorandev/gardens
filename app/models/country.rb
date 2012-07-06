@@ -20,6 +20,7 @@ class Country < ActiveRecord::Base
   
   has_many :retailers
   has_many :media_channels
+  has_many :alerts
   validates_presence_of :name, :iso_code, :locale, :time_zone, :currency  
 end
 
