@@ -15,6 +15,7 @@ namespace :scheduler do
 
 		ruletype_signatures.each do |k,v|
 			events = nil
+			desc_alerta = Array.new
 			v.first.rules.each do |r|
 				case r.rule_type.description
 				when 'Cambio de precio'
@@ -22,6 +23,11 @@ namespace :scheduler do
 						events = Event.where('ABS(precio_nuevo - precio_viejo) >= (precio_viejo * :porcentaje)', { :porcentaje => (r.value.nil? ? 0 : r.value.to_i)/100.to_f })
 					else
 						events = events.where('ABS(precio_nuevo - precio_viejo) >= (precio_viejo * :porcentaje)', { :porcentaje => (r.value.nil? ? 0 : r.value.to_i)/100.to_f })
+					end
+					if r.value.nil?
+						desc_alerta.push('Cambio de precio: cualquiera')
+					else
+						desc_alerta.push("Cambio de precio: en un #{r.value}%")
 					end
 				when 'Retailer'
 					if r.value.nil?
@@ -32,6 +38,7 @@ namespace :scheduler do
 					else
 						events = events.joins(:item).where(:items => { :retailer_id => r.value })
 					end
+					desc_alerta.push('Retailer: ' + Retailer.find(r.value).name)
 				when 'Marca'
 					if r.value.nil?
 						next
@@ -41,6 +48,7 @@ namespace :scheduler do
 					else
 						events = events.joins(:item=>{:product => :property_values}).uniq.where(:property_values => { :id => r.value })
 					end
+					desc_alerta.push('Marca: ' + PropertyValue.find(r.value).value)
 				when 'Producto'
 					if r.value.nil?
 						next
@@ -50,6 +58,7 @@ namespace :scheduler do
 					else
 						events = events.joins(:item).where(:items => { :product_id => r.value })
 					end
+					desc_alerta.push('Producto: ' + Product.find(r.value).descripcion)
 				end
 			end
 
@@ -60,6 +69,7 @@ namespace :scheduler do
 			v.each do |a|
 				latest_event_id = 0
 				@events_ordered = Hash.new
+				@desc_alerta = desc_alerta.join(', ')
 
 				ev = events.where('events.id > ?', (a.event.nil? ? 0 : a.event.id))
 				ev = ev.joins(:item => [:product, :retailer]).where(
