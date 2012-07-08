@@ -26,7 +26,7 @@ class ApplicationController < ActionController::Base
       return render :json => { :errors => { :product => "must be valid" } }, :status => 400
     end
     
-    if params.has_key?(:url)
+    if params.has_key?(:url) and params[:url].is_a?String
       item = Item.find_or_initialize_by_url(params[:url].encode("UTF-8"))
     else
       item = Item.new()
