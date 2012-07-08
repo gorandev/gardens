@@ -36,7 +36,9 @@ class ApplicationController < ActionController::Base
     item.product = Product.find_by_id(params[:product]) || item.product
     item.product_type = ProductType.find_by_id(params[:product_type]) || item.product_type
     item.source = params[:source].encode("UTF-8") || item.source
-    item.description = params[:description].encode("UTF-8") || item.description
+    if params.has_key?(:description) and params[:description].is_a?String
+      item.description = params[:description].encode("UTF-8") || item.description
+    end
     item.imagen_id = params[:imagen_id] || item.imagen_id
     
     if property_values.size
