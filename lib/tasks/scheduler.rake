@@ -70,6 +70,7 @@ namespace :scheduler do
 				latest_event_id = 0
 				@events_ordered = Hash.new
 				@desc_alerta = desc_alerta.join(', ')
+				@country_id = a.country.id
 
 				ev = events.where('events.id > ?', (a.event.nil? ? 0 : a.event.id))
 				ev = ev.joins(:item => [:product, :retailer]).where(
