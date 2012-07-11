@@ -1,7 +1,7 @@
 class AlertsController < ApplicationController
 
   def index
-    @alerts = Alert.where(:product_type_id => @product_type_id, :country_id => @country_id)
+    @alerts = Alert.where(:product_type_id => @product_type_id, :country_id => @country_id, :user_id => current_user.id)
     @pagina = 'Alertas'
   end
 
