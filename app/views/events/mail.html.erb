@@ -31,8 +31,8 @@
 			   <td><%=e.created_at.in_time_zone('America/Argentina/Buenos_Aires').strftime('%Y-%m-%d %H:%M:%S')%></td>
 			   <td><a href="http://rails.<%=Settings['host']%>/products/pagina_producto/<%=e.item.product.id%>?country_id=<%=@country_id%>"><%=e.item.product.descripcion%></a></td>
 			   <td><%=e.item.product.get_property_value('categoria')%></td>
-			   <td>$ <%=e.precio_viejo%></td>
-			   <td>$ <%=e.precio_nuevo%></td>
+			   <td><%=ActionController::Base.helpers.number_to_currency(e.precio_viejo, {:delimiter => '.', :separator => ',', :unit => '$ ', :precision => 0})%></td>
+			   <td><%=ActionController::Base.helpers.number_to_currency(e.precio_nuevo, {:delimiter => '.', :separator => ',', :unit => '$ ', :precision => 0})%></td>
 			 </tr>
 <%
 		end
