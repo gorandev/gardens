@@ -384,7 +384,7 @@ jQuery(window).load(function() {
 <select name="mediachannel" id="mediachannel_pulldown" class="pulldown_selector chzn-select" size="4" multiple title="Medio" data-placeholder="Medio">
 <option></option>
 <% MediaChannel.where(:country_id => @country_id).each do |m| %>
-<option value="<%=m.id%>"><%=m.name%></option>
+<option value="<%=m.id%>"><%=raw m.name%></option>
 <% end %>
 </select>
 </span>

@@ -14,6 +14,9 @@ gem 'jammit-s3'
 gem 's3_swf_upload', :git => 'git://github.com/nathancolgate/s3-swf-upload-plugin'
 gem 'pony'
 
+gem 'dynamic_form'
+gem 'rails_log_stdout'
+
 group :development do
   gem 'rspec-rails'
   gem 'annotate'

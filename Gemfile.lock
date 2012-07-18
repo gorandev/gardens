@@ -57,6 +57,7 @@ GEM
       railties (~> 3.1)
       warden (~> 1.2.1)
     diff-lcs (1.1.3)
+    dynamic_form (1.1.4)
     erubis (2.7.0)
     eventmachine (0.12.10)
     factory_girl (3.5.0)
@@ -108,6 +109,8 @@ GEM
       activesupport (= 3.2.6)
       bundler (~> 1.0)
       railties (= 3.2.6)
+    rails_log_stdout (0.1.1)
+      rails (~> 3.2.0)
     railties (3.2.6)
       actionpack (= 3.2.6)
       activesupport (= 3.2.6)
@@ -167,6 +170,7 @@ PLATFORMS
 DEPENDENCIES
   annotate
   devise
+  dynamic_form
   factory_girl_rails
   formtastic (~> 1.2.3)
   jammit-s3
@@ -174,6 +178,7 @@ DEPENDENCIES
   pony
   rabl!
   rails (= 3.2.6)
+  rails_log_stdout
   redis
   rspec
   rspec-http (~> 0.0.1)

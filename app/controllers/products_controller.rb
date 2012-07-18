@@ -505,6 +505,8 @@ class ProductsController < ApplicationController
     Sale.all.each do |s|
       REDIS.sadd "producto_sale:#{s.product.id}", s.id
     end
+
+    render :nothing => true
   end
 
   def categorias
