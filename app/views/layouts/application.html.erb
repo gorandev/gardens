@@ -234,51 +234,11 @@ var aws_bucket = '<%=@bucket%>';
 						<% if defined?@usuario_admin %>
 						
 						<li class="menuAlert">
-						<% if defined?@pagina and @pagina == 'Productizador' %>
-						<div class="esteticaMenu">
-						<div class="esteticaMenuSup">
-						<div class="esteticaMenuSupIzq"></div>
-						</div>
-						<% end %>
-						<a href="/dashboard/productizador">&nbsp;PRODUCTIZADOR</a>
-						<% if defined?@pagina and @pagina == 'Productizador' %>
-						<div class="esteticaMenuInf">
-						<div class="esteticaMenuInfIzq"></div>
-						</div>
-						</div>
-						<% end %>
+						<%= link_to "PRODUCTIZADOR", pagina_productizador_path, :target => "_blank" %>
 						</li>
 						
 						<li class="menuAlert">
-						<% if defined?@pagina and @pagina == 'Revisar promociones' %>
-						<div class="esteticaMenu">
-						<div class="esteticaMenuSup">
-						<div class="esteticaMenuSupIzq"></div>
-						</div>
-						<% end %>
-						<a href="/dashboard/revisar_promociones">&nbsp;REVISAR PUBS.</a>
-						<% if defined?@pagina and @pagina == 'Revisar promociones' %>
-						<div class="esteticaMenuInf">
-						<div class="esteticaMenuInfIzq"></div>
-						</div>
-						</div>
-						<% end %>
-						</li>
-						
-						<li class="menuAlert">
-						<% if defined?@pagina and @pagina == 'Cargar promociones' %>
-						<div class="esteticaMenu">
-						<div class="esteticaMenuSup">
-						<div class="esteticaMenuSupIzq"></div>
-						</div>
-						<% end %>
-						<a href="/dashboard/cargar_promociones">&nbsp;CARGAR PUBS.</a>
-						<% if defined?@pagina and @pagina == 'Cargar promociones' %>
-						<div class="esteticaMenuInf">
-						<div class="esteticaMenuInfIzq"></div>
-						</div>
-						</div>
-						<% end %>
+						<%= link_to "CARGAR PUBS.", pagina_cargapromos_path, :target => "_blank" %>
 						</li>
 						
 						<% end %>
