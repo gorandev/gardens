@@ -8,16 +8,14 @@ namespace :scheduler do
 		Subscription.select('product_type_id, country_id').group('product_type_id, country_id').each do |s|
 			Retailer.all.each do |r|
 				@sales = Sale.joins(:retailer, :product, :media_channel).where(
-					'extract(month from sale_date) = extract(month from current_date) and extract(year from sale_date) = :anyo and sales.retailer_id = :retailer_id and media_channels.media_channel_type_id = :media_channel_type_id and products.product_type_id = :product_type_id and retailers.country_id = :country_id',
+					'extract(month from sale_date) = extract(month from current_date) and extract(year from sale_date) = extract(year from current_date) and sales.retailer_id = :retailer_id and media_channels.media_channel_type_id = :media_channel_type_id and products.product_type_id = :product_type_id and retailers.country_id = :country_id',
 					{
-						:anyo => 2011, 
 						:retailer_id => r.id, 
 						:media_channel_type_id => MediaChannelType.find_by_name('catalogo').id,
 						:product_type_id => s.product_type_id,
 						:country_id => s.country_id
 					}
 				)
-				# TODO: cambiar '2011' en la linea anterior por extract(year from current_date)
 
 				if !@sales.empty?
 					Subscription.where(:product_type_id => s.product_type_id, :country_id => s.country_id).each do |ss|
