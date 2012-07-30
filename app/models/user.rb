@@ -16,6 +16,7 @@
 #  created_at             :datetime
 #  updated_at             :datetime
 #  authentication_token   :string(255)
+#  administrator          :boolean
 #
 
 class User < ActiveRecord::Base
@@ -29,4 +30,5 @@ class User < ActiveRecord::Base
 
   has_many :saved_reports
   has_many :alerts
+  has_many :subscriptions
 end

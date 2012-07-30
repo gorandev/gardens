@@ -1,0 +1,126 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<body style="text-align:center">
+
+<div style="width:600px;margin:0 auto;">
+
+<div style="float:left;background-image:url(https://s3.amazonaws.com/idashboard_assets/images/fondoLinea.gif);background-repeat:repeat-x;background-position:top;">
+
+<div style="display:block;width:590px;height:10px;background-image:url(https://s3.amazonaws.com/idashboard_assets/images/fondoRedondoSupIzq.gif);background-repeat:no-repeat;float:left;">
+</div>
+
+<div style="display:block;width:10px;height:10px;background-image:url(https://s3.amazonaws.com/idashboard_assets/images/fondoRedondoSupDer.gif);background-repeat:no-repeat;float:left;">
+</div>
+
+</div>
+
+<div style="display:block;width:578px;padding:10px;border-left:1px solid #CCC;border-right:1px solid #CCC;">
+<div style="text-align:right">
+<a href="http://rails.<%=Settings['host']%>" target="_blank">
+<img src="https://s3.amazonaws.com/idashboard_assets/images/logo_alerta.jpg" alt="iDashBoard" width="100" height="55" border="0"/></a>
+</div>
+
+<h1 style="display:block;width:100%;margin:0;font-family:Verdana;font-size:26px;font-weight:normal;color:#CCC;line-height:250%;"><%=@titulo%></h1>
+<div class="tablaAlerta">
+<table xmlns="" border="0" cellpadding="5" cellspacing="1" style="width: 100%;font-family:Verdana;font-size:10px;color:#666;font-weight:bold;background-color:#FFF;">
+
+<tr style="background-color:#FFF;">
+
+<% 
+	fecha = 0
+	pagina = 0
+	columna = 0
+	@sales.sort{|a,b| a.sale_date <=> b.sale_date}.sort{|a,b| a.page <=> b.page}.each do |s|
+		if (fecha != s.sale_date or pagina != s.page)
+			if fecha != 0 and pagina != 0
+%>
+				</td>
+<%
+				columna += 1
+				if columna == 3
+%>
+					</tr><tr style="background-color:#FFF;">
+<%
+					columna = 0
+				end
+			end
+
+			if s.aws_filename.nil?
+				thumb_url = "http://computadoras.idashboard.com.ar/uploaded_images/promocion-" + s.imagen_id.to_s + "_thumb2.png"
+				imagen_url = "http://computadoras.idashboard.com.ar/uploaded_images/promocion-" + s.imagen_id.to_s + ".png"
+			else
+				thumb_url = "https://s3.amazonaws.com/" + Settings['aws_bucket'] + "/" + s.aws_filename
+				imagen_url = thumb_url
+			end
+%>
+			<td valign="top">
+				<a href="<%=imagen_url%>" target="_new"><img src="<%=thumb_url%>" border="0" height="200" width="175"/></a>
+				<br/>
+				<%=s.sale_date.strftime('%d/%m/%Y')%><br/>
+				<%=s.media_channel.name%><br/>
+				P&aacute;gina <%=s.page%><br/>
+				<%=s.retailer.name%><br/>
+				<br/>
+<%
+			fecha = s.sale_date
+			pagina = s.page
+		end
+%>
+	<a href="http://rails.<%=Settings['host']%>/products/pagina_producto/<%=s.product.id%>?country_id=<%=s.retailer.country_id%>"><%=s.product.descripcion + " (" + s.product.get_property_value('categoria') + ") - $" + s.price.to_s%></a>
+	<br/>
+<%
+	end
+
+	if columna != 0
+%>
+	</tr>
+<%
+	end
+%>
+
+<!--
+<TMPL_LOOP NAME="paginas">
+<TMPL_IF NAME="break"></tr><tr style="background-color:#FFF;"></TMPL_IF>
+<td valign="top">
+<a href="<TMPL_VAR NAME="url">/uploaded_images/promocion-<TMPL_VAR NAME="imagen">.png" target="_new">
+<img src="<TMPL_VAR NAME="url">/uploaded_images/promocion-<TMPL_VAR NAME="imagen">_thumb2.png" border="0">
+</a><br/>
+<TMPL_VAR NAME="fecha"><br/>
+<TMPL_VAR NAME="diario"><br/>
+P&aacute;gina <TMPL_VAR NAME="pagina"><br/>
+<TMPL_VAR NAME="retailer"><br/>
+<br/>
+<TMPL_LOOP NAME="promos">
+<TMPL_IF NAME="link">
+<a href="<TMPL_VAR NAME="url">/dashboard/pagina_producto?mail_id=<TMPL_VAR NAME="mail_id">&producto_id=<TMPL_VAR NAME="producto_id">">
+</TMPL_IF>
+<TMPL_VAR NAME="producto_desc"> (<TMPL_VAR NAME="producto_categoria">) - $<TMPL_VAR NAME="precio">
+<TMPL_IF NAME="link"></a></TMPL_IF>
+<br/>
+</TMPL_LOOP>
+</td>
+</TMPL_LOOP>
+-->
+
+</tr>
+
+</table>
+<br/><br/><br/>
+</div>
+</div>
+
+<div style="width:600px;float:left;">
+
+<div style="float:left;background-image:url(https://s3.amazonaws.com/idashboard_assets/images/fondoLinea.gif);background-repeat:repeat-x;background-position:bottom;">
+
+<div style="display:block;width:590px;height:10px;background-image:url(https://s3.amazonaws.com/idashboard_assets/images/fondoRedondoInfIzq.gif);background-repeat:no-repeat;float:left;">
+</div>
+
+<div style="display:block;width:10px;height:10px;background-image:url(https://s3.amazonaws.com/idashboard_assets/images/fondoRedondoInfDer.gif);background-repeat:no-repeat;float:left;">
+</div>
+
+</div>
+
+</div>
+</div>
+</body>
+</html>

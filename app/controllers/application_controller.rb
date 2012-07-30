@@ -167,7 +167,7 @@ class ApplicationController < ActionController::Base
     @offset = params[:offset] || 0
     @count = params[:count] || 16
 
-    if current_user.administrator
+    if current_user and current_user.administrator
       @usuario_admin = 1
     end
   end

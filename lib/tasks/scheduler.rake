@@ -1,5 +1,38 @@
 # -*- coding: utf-8 -*-
 namespace :scheduler do
+	desc 'Send catalogs'
+	task :send_catalogs => :environment do
+		mail_template = File.read(File.join(Rails.root, "app/views/sales/mail.html.erb"))
+		meses = [nil, 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
+
+		Subscription.select('product_type_id, country_id').group('product_type_id, country_id').each do |s|
+			Retailer.all.each do |r|
+				@sales = Sale.joins(:retailer, :product, :media_channel).where(
+					'extract(month from sale_date) = extract(month from current_date) and extract(year from sale_date) = :anyo and sales.retailer_id = :retailer_id and media_channels.media_channel_type_id = :media_channel_type_id and products.product_type_id = :product_type_id and retailers.country_id = :country_id',
+					{
+						:anyo => 2011, 
+						:retailer_id => r.id, 
+						:media_channel_type_id => MediaChannelType.find_by_name('catalogo').id,
+						:product_type_id => s.product_type_id,
+						:country_id => s.country_id
+					}
+				)
+				# TODO: cambiar '2011' en la linea anterior por extract(year from current_date)
+
+				if !@sales.empty?
+					Subscription.where(:product_type_id => s.product_type_id, :country_id => s.country_id).each do |ss|
+						@titulo = 'Publicaciones ' + r.name + ' de ' +  meses[Time.now.in_time_zone('America/Argentina/Buenos_Aires').strftime('%m').to_i]
+				 		Pony.mail(
+							:to => ss.user.email,
+							:from => 'publicaciones@idashboard.la',
+							:subject => '[iDashboard Publicaciones] Publicaciones ' + r.name + ' de ' +  meses[Time.now.in_time_zone('America/Argentina/Buenos_Aires').strftime('%m').to_i],
+							:html_body => ERB.new(mail_template).result(binding)
+						)
+				 	end
+				end
+			end
+		end
+	end
 	desc 'Send alerts'
 	task :send_alerts => :environment do
 

@@ -16,6 +16,7 @@
 #  created_at             :datetime
 #  updated_at             :datetime
 #  authentication_token   :string(255)
+#  administrator          :boolean
 #
 
 require 'spec_helper'

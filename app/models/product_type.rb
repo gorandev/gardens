@@ -12,6 +12,7 @@ class ProductType < ActiveRecord::Base
   has_many :properties
   has_many :saved_reports
   has_many :alerts
+  has_many :subscriptions
   validates_presence_of :name  
 end
 

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120726155829) do
+ActiveRecord::Schema.define(:version => 20120730193332) do
 
   create_table "alerts", :force => true do |t|
     t.integer  "event_id"
@@ -235,6 +235,18 @@ ActiveRecord::Schema.define(:version => 20120726155829) do
 
   add_index "saved_reports", ["product_type_id"], :name => "index_saved_reports_on_product_type_id"
   add_index "saved_reports", ["user_id"], :name => "index_saved_reports_on_user_id"
+
+  create_table "subscriptions", :force => true do |t|
+    t.integer  "product_type_id"
+    t.integer  "country_id"
+    t.integer  "user_id"
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
+  end
+
+  add_index "subscriptions", ["country_id"], :name => "index_subscriptions_on_country_id"
+  add_index "subscriptions", ["product_type_id"], :name => "index_subscriptions_on_product_type_id"
+  add_index "subscriptions", ["user_id"], :name => "index_subscriptions_on_user_id"
 
   create_table "users", :force => true do |t|
     t.string   "email",                                 :default => "", :null => false
