@@ -2,7 +2,11 @@
 namespace :scheduler do
 	desc 'Send catalogs'
 	task :send_catalogs => :environment do
-		mail_template = File.read(File.join(Rails.root, "app/views/sales/mail.html.erb"))
+		if Time.now.in_time_zone('America/Argentina/Buenos_Aires').strftime('%d') != "07"
+			abort('no es el 7 del mes')
+		end
+
+		mail_template = File.read(File.join(Rails.root, "app/views/sales/mail.catalogos.html.erb"))
 		meses = [nil, 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
 
 		Subscription.select('product_type_id, country_id').group('product_type_id, country_id').each do |s|
@@ -29,6 +33,44 @@ namespace :scheduler do
 				 	end
 				end
 			end
+		end
+	end
+	desc 'Send diarios'
+	task :send_diarios => :environment do
+		if Time.now.in_time_zone('America/Argentina/Buenos_Aires').strftime('%w') == "1"
+			interval = " and sale_date > current_date - interval '4 days'"
+		elsif Time.now.in_time_zone('America/Argentina/Buenos_Aires').strftime('%w') == "4"
+			interval = " and sale_date > current_date - interval '3 days'"
+		else
+			abort('ni lunes ni jueves')
+		end
+
+		query = 'media_channels.media_channel_type_id = :media_channel_type_id and products.product_type_id = :product_type_id and retailers.country_id = :country_id' + interval
+
+		mail_template = File.read(File.join(Rails.root, "app/views/sales/mail.diarios.html.erb"))
+		meses = [nil, 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
+
+		Subscription.select('product_type_id, country_id').group('product_type_id, country_id').each do |s|
+			@sales = Sale.joins(:retailer, :product, :media_channel).where(
+				query,
+				{
+					:media_channel_type_id => MediaChannelType.find_by_name('diario').id,
+					:product_type_id => s.product_type_id,
+					:country_id => s.country_id
+				}
+			)
+
+			if !@sales.empty?
+				Subscription.where(:product_type_id => s.product_type_id, :country_id => s.country_id).each do |ss|
+					@titulo = 'Publicaciones al ' +  meses[Time.now.in_time_zone('America/Argentina/Buenos_Aires').strftime('%m').to_i]
+			 		Pony.mail(
+						:to => ss.user.email,
+						:from => 'publicaciones@idashboard.la',
+						:subject => '[iDashboard Publicaciones] Publicaciones al ' +  meses[Time.now.in_time_zone('America/Argentina/Buenos_Aires').strftime('%m').to_i],
+						:html_body => ERB.new(mail_template).result(binding)
+					)
+			 	end
+			end	
 		end
 	end
 	desc 'Send alerts'
