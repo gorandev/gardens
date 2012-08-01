@@ -58,6 +58,11 @@
     url_imagen_producto: "http://computadoras.idashboard.com.ar/images/productos"
     url_imagen_item: "http://computadoras.idashboard.com.ar/images/items"
 
+    url_imagen_promo: {
+      "Argentina": "http://computadoras.idashboard.com.ar",
+      "Chile": "http://chile.computadoras.idashboard.com.ar"
+    }
+
     productizador: {
       "propiedades": [
         "Categoría",

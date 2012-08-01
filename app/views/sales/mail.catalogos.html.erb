@@ -45,8 +45,8 @@
 			end
 
 			if s.aws_filename.nil?
-				thumb_url = "http://computadoras.idashboard.com.ar/uploaded_images/promocion-" + s.imagen_id.to_s + "_thumb2.png"
-				imagen_url = "http://computadoras.idashboard.com.ar/uploaded_images/promocion-" + s.imagen_id.to_s + ".png"
+				thumb_url = Settings['product_type_' + s.product.product_type.id.to_s]['url_imagen_promo'][s.retailer.country.name] + "/uploaded_images/promocion-" + s.imagen_id.to_s + "_thumb2.png"
+				imagen_url = Settings['product_type_' + s.product.product_type.id.to_s]['url_imagen_promo'][s.retailer.country.name] + "/uploaded_images/promocion-" + s.imagen_id.to_s + ".png"
 			else
 				thumb_url = "https://s3.amazonaws.com/" + Settings['aws_bucket'] + "/" + s.aws_filename
 				imagen_url = thumb_url
