@@ -1,18 +1,25 @@
 # -*- coding: utf-8 -*-
 namespace :scheduler do
 	desc 'Send catalogs'
-	task :send_catalogs => :environment do
-		if Time.now.in_time_zone('America/Argentina/Buenos_Aires').strftime('%d') != "07"
+	task :send_catalogs, [:mes] => [:environment] do |t, args|
+		if Time.now.in_time_zone('America/Argentina/Buenos_Aires').strftime('%d') != "07" and args.mes.nil?
 			abort('no es el 7 del mes')
 		end
 
 		mail_template = File.read(File.join(Rails.root, "app/views/sales/mail.catalogos.html.erb"))
 		meses = [nil, 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
 
+		if !args.mes.nil?
+			query = 'extract(month from sale_date) = ' + args.mes + ' and extract(year from sale_date) = extract(year from current_date) and sales.retailer_id = :retailer_id and media_channels.media_channel_type_id = :media_channel_type_id and products.product_type_id = :product_type_id and retailers.country_id = :country_id'
+		else
+			query = 'extract(month from sale_date) = extract(month from current_date) and extract(year from sale_date) = extract(year from current_date) and sales.retailer_id = :retailer_id and media_channels.media_channel_type_id = :media_channel_type_id and products.product_type_id = :product_type_id and retailers.country_id = :country_id'
+		end
+		
+
 		Subscription.select('product_type_id, country_id').group('product_type_id, country_id').each do |s|
 			Retailer.all.each do |r|
 				@sales = Sale.joins(:retailer, :product, :media_channel).where(
-					'extract(month from sale_date) = extract(month from current_date) and extract(year from sale_date) = extract(year from current_date) and sales.retailer_id = :retailer_id and media_channels.media_channel_type_id = :media_channel_type_id and products.product_type_id = :product_type_id and retailers.country_id = :country_id',
+					query,
 					{
 						:retailer_id => r.id, 
 						:media_channel_type_id => MediaChannelType.find_by_name('catalogo').id,
@@ -36,19 +43,22 @@ namespace :scheduler do
 		end
 	end
 	desc 'Send diarios'
-	task :send_diarios => :environment do
-		if Time.now.in_time_zone('America/Argentina/Buenos_Aires').strftime('%w') == "1"
-			interval = " and sale_date > current_date - interval '4 days'"
-		elsif Time.now.in_time_zone('America/Argentina/Buenos_Aires').strftime('%w') == "4"
-			interval = " and sale_date > current_date - interval '3 days'"
+	task :send_diarios, [:custom_date] => [:environment] do |t, args|
+		if !args.custom_date.nil?
+			interval = " and sale_date > '" + args.custom_date + "'"
 		else
-			abort('ni lunes ni jueves')
+			if Time.now.in_time_zone('America/Argentina/Buenos_Aires').strftime('%w') == "1"
+				interval = " and sale_date > current_date - interval '4 days'"
+			elsif Time.now.in_time_zone('America/Argentina/Buenos_Aires').strftime('%w') == "4"
+				interval = " and sale_date > current_date - interval '3 days'"
+			else
+				abort('ni lunes ni jueves')
+			end
 		end
 
 		query = 'media_channels.media_channel_type_id = :media_channel_type_id and products.product_type_id = :product_type_id and retailers.country_id = :country_id' + interval
 
 		mail_template = File.read(File.join(Rails.root, "app/views/sales/mail.diarios.html.erb"))
-		meses = [nil, 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
 
 		Subscription.select('product_type_id, country_id').group('product_type_id, country_id').each do |s|
 			@sales = Sale.joins(:retailer, :product, :media_channel).where(
@@ -62,11 +72,11 @@ namespace :scheduler do
 
 			if !@sales.empty?
 				Subscription.where(:product_type_id => s.product_type_id, :country_id => s.country_id).each do |ss|
-					@titulo = 'Publicaciones al ' +  meses[Time.now.in_time_zone('America/Argentina/Buenos_Aires').strftime('%m').to_i]
+					@titulo = 'Publicaciones al ' +  Time.now.in_time_zone('America/Argentina/Buenos_Aires').strftime('%d/%m/%Y')
 			 		Pony.mail(
 						:to => ss.user.email,
 						:from => 'publicaciones@idashboard.la',
-						:subject => '[iDashboard Publicaciones] Publicaciones al ' +  meses[Time.now.in_time_zone('America/Argentina/Buenos_Aires').strftime('%m').to_i],
+						:subject => '[iDashboard Publicaciones] Publicaciones al ' +  Time.now.in_time_zone('America/Argentina/Buenos_Aires').strftime('%d/%m/%Y'),
 						:html_body => ERB.new(mail_template).result(binding)
 					)
 			 	end
@@ -180,19 +190,3 @@ namespace :scheduler do
 		end
 	end
 end
-
-## finding retailer
-## Event.joins(:item).where(:items => { :retailer_id => 4 })
-
-## finding marca
-## Event.joins(:item => :property_values).where(:property_values => { :id => 36 })
-## Event.joins(:item=>{:product => :property_values}).uniq.where(:property_values => { :id => 36 })
-
-## finding modelo
-## Event.joins(:item).where(:items => { :product_id => 412 })
-
-## finding porcentaje de cambio de precio
-## Event.joins(:item).where('ABS(precio_nuevo - precio_viejo) >= (precio_viejo * :porcentaje)', { :porcentaje => 30/100.to_f })
-
-# combinaciones
-# Event.where('ABS(precio_nuevo - precio_viejo) >= (precio_viejo * :porcentaje)', { :porcentaje => 30/100.to_f }).joins(:item).where(:items => { :retailer_id => 4 })

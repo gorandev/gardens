@@ -26,12 +26,13 @@
 <tr style="background-color:#FFF;">
 
 <% 
+	diario = 0
 	fecha = 0
 	pagina = 0
 	columna = 0
-	@sales.sort{|a,b| a.sale_date <=> b.sale_date}.sort{|a,b| a.page <=> b.page}.each do |s|
-		if (fecha != s.sale_date or pagina != s.page)
-			if fecha != 0 and pagina != 0
+	@sales.sort_by{|s| [s.sale_date, s.media_channel.name, s.page]}.each do |s|
+		if (diario != s.media_channel.name or fecha != s.sale_date or pagina != s.page)
+			if diario != 0 and fecha != 0 and pagina != 0
 %>
 				</td>
 <%
@@ -61,6 +62,7 @@
 				<%=s.retailer.name%><br/>
 				<br/>
 <%
+			diario = s.media_channel.name
 			fecha = s.sale_date
 			pagina = s.page
 		end

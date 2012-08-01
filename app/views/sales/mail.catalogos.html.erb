@@ -29,7 +29,7 @@
 	fecha = 0
 	pagina = 0
 	columna = 0
-	@sales.sort{|a,b| a.sale_date <=> b.sale_date}.sort{|a,b| a.page <=> b.page}.each do |s|
+	@sales.sort_by{|s| [s.sale_date, s.page]}.each do |s|
 		if (fecha != s.sale_date or pagina != s.page)
 			if fecha != 0 and pagina != 0
 %>
