@@ -18,6 +18,10 @@ Gardens::Application.routes.draw do
 
     resources :saved_reports, :defaults => { :format => :json }
     resources :alerts
+
+    scope "/admin" do
+        resources :users
+    end
   end
 
   constraints(:subdomain => "api") do

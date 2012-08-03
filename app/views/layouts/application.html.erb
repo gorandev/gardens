@@ -241,6 +241,22 @@ var aws_bucket = '<%=@bucket%>';
 						<%= link_to "CARGAR PUBS.", pagina_cargapromos_path, :target => "_blank" %>
 						</li>
 						
+						<li class="menuAlert">
+						<% if defined?@pagina and @pagina == 'Usuarios' %>
+						<div class="esteticaMenu">
+						<div class="esteticaMenuSup">
+						<div class="esteticaMenuSupIzq"></div>
+						</div>
+						<% end %>
+						<%= link_to "USUARIOS", users_path %>
+						<% if defined?@pagina and @pagina == 'Usuarios' %>
+						<div class="esteticaMenuInf">
+						<div class="esteticaMenuInfIzq"></div>
+						</div>
+						</div>
+						<% end %>
+						</li>
+
 						<% end %>
 						
 					</ul>

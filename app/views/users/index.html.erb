@@ -1,0 +1,74 @@
+<% content_for :titulo_pagina do %>Usuarios<% end %>
+<% content_for :javascript do %>
+<%= include_javascripts :ejs %>
+<%= javascript_include_tag "http://code.jquery.com/jquery-1.7.min.js" %>
+<script type="text/javascript">jQuery.noConflict();</script>
+<script type="text/javascript">
+jQuery(window).load(function() {
+	jQuery('#agregar').on('click', function(event) {
+		jQuery.ajax({
+			url: '/admin/users',
+			type: 'POST',
+			data: { email: jQuery('#email').val() },
+			context: { email: jQuery('#email').val() },
+			cache: false,
+			statusCode: {
+				200: function(data) {
+					jQuery('#usuarios').append(new EJS({url: '/ejs_templates/users/fila_user.ejs'}).render({u: { id: data.id, email: this.email }}));
+					jQuery('#email').val('');
+				},
+				400: function() {
+					alert('Error 400!');
+				}
+			}
+		});
+	});
+});
+
+function borrar_usuario(id) {
+	if (!confirm('¿Borrar?')) {
+		return;
+	}
+	jQuery.ajax({
+		url: '/admin/users/' + id,
+		type: 'DELETE',
+		context: { id: id },
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				jQuery('tr.fila#' + this.id).remove();
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
+}
+
+</script>
+<% end %>
+<% if !@users.empty? %>
+<table>
+	<tr>
+		<th width="40%">E-Mail</th>
+		<th>&nbsp;</th>
+	</tr>
+	<tbody id="usuarios">
+<% @users.each do |u| %>
+	<tr class="fila" id="<%=u.id%>">
+		<td>
+			<%=u.email%>
+		</td>
+		<td>
+			<input type="button" value="enviar bienvenida" onClick="enviar_bienvenida(<%=u.id%>;"/>
+			<input type="button" value="borrar" onClick="borrar_usuario(<%=u.id%>);"/>
+		</td>
+	</tr>
+<% end %>
+	</tbody>
+</table>
+<% else %>
+No hay usuarios.
+<% end %>
+<br/><br/>
+E-mail: <input type="text" id="email"> <input type="button" id="agregar" value="Agregar"/>

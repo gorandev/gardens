@@ -14,6 +14,6 @@ class Subscription < ActiveRecord::Base
   belongs_to :product_type
   belongs_to :country
   belongs_to :user
-  attr_accessible :id
+  attr_accessible :id, :country, :product_type, :user
   validates :product_type_id, :country_id, :user_id, :presence => true
 end
