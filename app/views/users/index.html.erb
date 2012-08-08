@@ -60,8 +60,8 @@ function borrar_usuario(id) {
 			<%=u.email%>
 		</td>
 		<td>
-			<input type="button" value="enviar bienvenida" onClick="enviar_bienvenida(<%=u.id%>;"/>
 			<input type="button" value="borrar" onClick="borrar_usuario(<%=u.id%>);"/>
+			<input type="button" value="resetear password y enviar mail"/>
 		</td>
 	</tr>
 <% end %>
@@ -71,4 +71,5 @@ function borrar_usuario(id) {
 No hay usuarios.
 <% end %>
 <br/><br/>
-E-mail: <input type="text" id="email"> <input type="button" id="agregar" value="Agregar"/>
+<b>Nuevo usuario</b><br/><br/>
+E-mail: <input type="text" id="email"> <input type="button" id="agregar" value="Agregar y enviar mail de bienvenida (si el usuario no existe)"/>

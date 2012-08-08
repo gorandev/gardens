@@ -3,7 +3,7 @@ Gardens::Application.routes.draw do
 
   devise_for :users, :controllers => { :sessions => "users/sessions" }
 
-  constraints(:subdomain => "rails") do
+  constraints(:subdomain => "app") do
     root :to => 'products#prices'
     get 'products/prices'      
     match 'products/pagina_producto(/:id)' => 'products#pagina_producto', :as => 'pagina_producto'
