@@ -671,10 +671,11 @@ div#barra_menu{
 }
 div#barra_menu h1{
 	background:url(../images/idashboard.png) no-repeat;
-	width:420px;
+	width:320px;
 	height:38px;
 	display:block;
-	text-indent:-9999px
+	text-indent:-9999px;
+
 }
 div#barra_menu h1, div#barra_menu ul{
 	margin-right:66px
