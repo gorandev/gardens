@@ -45,6 +45,27 @@ function borrar_usuario(id) {
 	});
 }
 
+function reset_password(id) {
+	if (!confirm('¿Cambiar password?')) {
+		return;
+	}
+	jQuery.ajax({
+		url: '/admin/users/reset_password',
+		data: { id: id },
+		type: 'POST',
+		context: { id: id },
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				alert('Mail enviado.')
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});	
+}
+
 </script>
 <% end %>
 <% if !@users.empty? %>
@@ -54,14 +75,14 @@ function borrar_usuario(id) {
 		<th>&nbsp;</th>
 	</tr>
 	<tbody id="usuarios">
-<% @users.each do |u| %>
+<% @users.sort_by{|u| [u.email]}.each do |u| %>
 	<tr class="fila" id="<%=u.id%>">
 		<td>
 			<%=u.email%>
 		</td>
 		<td>
 			<input type="button" value="borrar" onClick="borrar_usuario(<%=u.id%>);"/>
-			<input type="button" value="resetear password y enviar mail"/>
+			<input type="button" value="resetear password y enviar mail" onClick="reset_password(<%=u.id%>);"/>
 		</td>
 	</tr>
 <% end %>

@@ -20,6 +20,7 @@ Gardens::Application.routes.draw do
     resources :alerts
 
     scope "/admin" do
+        match 'users/reset_password' => 'users#reset_password', :defaults => { :format => :json }
         resources :users
     end
   end
