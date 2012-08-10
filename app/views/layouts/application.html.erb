@@ -81,7 +81,9 @@ var aws_bucket = '<%=@bucket%>';
             <li><%= link_to image_tag(image_chile, :title => "Chile", :border => 0), url_for(:country_id => 2), :id => 'link_chile' %></li>
         </ul>
         <ul class="items">
-        	<li><%= link_to "SALIR", destroy_user_session_path, :method => :delete %></li>
+        	<% if defined?@logged_in %>
+        		<li><%= link_to "SALIR", destroy_user_session_path, :method => :delete %></li>
+        	<% end %>
         </ul>
     </div>
 </div>

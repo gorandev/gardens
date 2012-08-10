@@ -1,10 +1,42 @@
+<%= javascript_include_tag "http://code.jquery.com/jquery-1.7.min.js" %>
+<script type="text/javascript">jQuery.noConflict();</script>
+<script type="text/javascript">
+function reset_password() {
+	
+	if (jQuery('#email').val() == '') {
+		alert('Por favor ingrese su e-mail.');
+		return false;
+	}
 
+	jQuery.ajax({
+		url: '/admin/users/reset_password_by_mail',
+		data: { email: jQuery('#email').val() },
+		type: 'POST',
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				alert('Mail enviado.');
+			},
+			400: function() {
+				alert('Mail enviado.');
+			}
+		}
+	});	
+}
+
+jQuery(window).load(function() {
+	jQuery('#email').focus();
+})
+
+</script>
 <%= form_for(resource, :as => resource_name, :url => session_path(resource_name)) do |f| %>
   <div><%= f.label :email %><br />
-  <%= f.email_field :email %></div>
+  <%= f.email_field :email, :tabindex => 1, :id => 'email' %>
+  <input type="button" value="Olvidé mi password" onClick="reset_password();"/>
+</div>
 
   <div><%= f.label :password %><br />
-  <%= f.password_field :password %></div>
+  <%= f.password_field :password, :tabindex => 2 %></div>
 
   <% if devise_mapping.rememberable? -%>
     <div><%= f.check_box :remember_me %> <%= f.label :recordarme %></div>

@@ -1,15 +1,36 @@
 # -*- coding: utf-8 -*-
 class UsersController < ApplicationController
+	skip_before_filter :authenticate_user!, :only => [:reset_password_by_mail]
+
 	def index
 		@pagina = 'Usuarios'
 		@users = User.joins(:subscriptions).where(:subscriptions => { :country_id => @country_id, :product_type_id => @product_type_id})
+	end
+
+	def reset_password_by_mail
+		unless user = User.find_by_email(params[:email])
+			return render :json => { :errors => { :user => "must be valid" } }, :status => 400
+		end
+
+		@email = user.email
+		@pass = Devise.friendly_token.first(6)
+		user.password = @pass
+		user.save
+
+		mail_template = File.read(File.join(Rails.root, "app/views/users/mail.newpassword.html.erb"))
+		Pony.mail(
+			:to => user.email,
+			:from => 'cuentas@idashboard.la',
+			:subject => '¡Su cuenta tiene una nueva clave!',
+			:html_body => ERB.new(mail_template).result(binding)
+		)
+		render :json => "OK"
 	end
 
 	def reset_password
 		unless current_user and current_user.administrator
 			return render :json => { :errors => { :user => "not admin" } }, :status => 400
 		end
-
 		unless user = User.find_by_id(params[:id])
 			return render :json => { :errors => { :user => "must be valid" } }, :status => 400
 		end
