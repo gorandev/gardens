@@ -26,6 +26,7 @@ javascripts:
     - public/javascripts/modalbox.js
     - public/javascripts/jquery-ui-1.8.14.custom.min.js
     - public/javascripts/jquery-ui-datepicker-es.js
+    - public/javascripts/s3_upload.js
 
   publicaciones:
     - public/javascripts/highcharts.js

@@ -52,6 +52,7 @@ Gardens::Application.routes.draw do
     match 'items/search' => 'items#search', :defaults => { :format => :json }
     resources :items, :defaults => { :format => :json }
 
+    match 'products/set_aws_filename' => 'products#set_aws_filename', :defaults => { :format => :json }
     match 'products/get_dates' => 'products#get_dates', :defaults => { :format => :json }
     match 'products/search' => 'products#search', :defaults => { :format => :json }
     match 'products/search_productizador' => 'products#search_productizador', :defaults => { :format => :json }

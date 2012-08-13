@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120810060225) do
+ActiveRecord::Schema.define(:version => 20120813175403) do
 
   create_table "alerts", :force => true do |t|
     t.integer  "event_id"
@@ -141,6 +141,7 @@ ActiveRecord::Schema.define(:version => 20120810060225) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "imagen_id"
+    t.string   "aws_filename"
   end
 
   add_index "products", ["product_type_id"], :name => "index_products_on_product_type_id"

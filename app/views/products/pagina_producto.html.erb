@@ -68,9 +68,16 @@ function llenar_pulldown_productos(data) {
 	} else {
 		jQuery('#boton_mostrar').css('display', 'none');
 	}
+
+	if (jQuery('#producto_pulldown').val() == product_selected) {
+		jQuery('#boton_mostrar').css('display', 'none');
+		jQuery('#producto_pulldown').on('change', function() { jQuery('#boton_mostrar').css('display', '') });
+	}
 }
 
 <% unless @product.nil? %>
+var product_selected = <%=@product.id%>;
+
 var prices_last_query_string_sent = {};
 
 function crear_query_string(params) {
@@ -154,6 +161,56 @@ available_countries[<%=c%>] = true;
 	}
 <% end %>
 
+var uploadingStartHandler = function() {
+	jQuery('#upload_button').attr('disabled', 'disabled').attr('value', 'Subiendo...');
+};
+
+var filename = '';
+var src_imagen_original = '';
+var uploadCompleteHandler = function(upload_options, event){
+	jQuery('#imagen_producto').attr('src', 'https://s3.amazonaws.com/<%=@bucket%>/' + upload_options.FileName);
+	filename = upload_options.FileName;
+};
+
+var uploadingFinishHandler = function() {
+	jQuery('#upload_button').css('display', 'none');
+	jQuery('#cancel_button').css('display', '');
+	jQuery('#confirm_button').css('display', '');
+};
+
+var fileAddHandler = function(file) {
+	jQuery('#upload_button').attr('value', 'Subir archivo "' + file.name + '"').css('display', '').removeAttr('disabled');
+};
+
+function cancel_image() {
+	jQuery('#imagen_producto').attr('src', src_imagen_original);
+	jQuery('#cancel_button').css('display', 'none');
+	jQuery('#confirm_button').css('display', 'none');
+}
+
+function confirm_image() {
+	jQuery('#cancel_button').attr('disabled', true);
+	jQuery('#confirm_button').attr('disabled', true);
+
+	jQuery.ajax({
+		url: 'http://api.<%=@hostname%>/products/set_aws_filename',
+		dataType: 'jsonp',
+		data: { id: <%=@product.id%>, aws_filename: filename },
+		cache: false,
+		statusCode: {
+			200: function(data) {
+				jQuery('#cancel_button').css('display', 'none');
+				jQuery('#confirm_button').css('display', 'none');
+				jQuery('#cancel_button').removeAttr('disabled');
+				jQuery('#confirm_button').removeAttr('disabled');
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
+}
+
 <% end %>
 
 jQuery(window).load(function() {
@@ -173,12 +230,16 @@ jQuery(window).load(function() {
 				'<%=@url_imagen_producto%>/notfound.jpg'
 			);
 		}
+		src_imagen_original = jQuery('#imagen_producto').attr('src');
 	});
 
+	<% if @product.aws_filename.nil? %>
 	jQuery("#imagen_producto").attr(
 		'src',
 		'<%=@url_imagen_producto%>/<%=@product.imagen_id%>_med.png'
 	);
+	<% end %>
+	src_imagen_original = jQuery('#imagen_producto').attr('src');
 
 	jQuery("#fecha_desde").datepicker();
 	jQuery("#fecha_hasta").datepicker();
@@ -242,7 +303,7 @@ jQuery(window).load(function() {
 <span id="span_producto_pulldown">
 </span>
 <br/>
-<input style="float: right; display: none;" type="button" id="boton_mostrar" value="Mostrar detalles" onClick="window.location = '/products/pagina_producto/' + jQuery('#producto_pulldown').val()"/>
+<input style="float: right; display: none;" type="button" id="boton_mostrar" value="Ver producto" onClick="window.location = '/products/pagina_producto/' + jQuery('#producto_pulldown').val()"/>
 
 <% unless @product.nil? %>
 
@@ -250,10 +311,36 @@ jQuery(window).load(function() {
 
 <div class="detalleDescripcion">
 <center>
-<% if @product.imagen_id.nil? %>
-<img src="/images/productos/notfound.jpg">
+<% if !@product.aws_filename.nil? %>
+<img width="200" id="imagen_producto" src="https://s3.amazonaws.com/<%=@bucket%>/<%=@product.aws_filename%>"/>
+<% elsif @product.imagen_id.nil? %>
+<img id="imagen_producto" src="/images/productos/notfound.jpg">
 <% else %>
 <img class="imagen_producto" id="imagen_producto"/>
+<% end %>
+<% if defined?@usuario_admin %>
+<br/>
+<%=raw s3_swf_upload_tag(
+	:onFileAdd => 'fileAddHandler(file);',
+	:fileTypes => '*.jpg;*.gif;*.png;',
+	:fileTypeDescs => 'Image files.',
+	:onUploadingStart => "uploadingStartHandler();",
+	:onUploadingFinish => "uploadingFinishHandler();",
+	:onUploadComplete => "uploadCompleteHandler(upload_options,event);",
+	:onSignatureIOError => "alert('Signature IO error');",
+	:onSignatureXMLError => "alert('Signature XML error');",
+	:onSignatureSecurityError => "alert('Signature security error');",
+	:onUploadError => "alert('Upload error');",
+	:onUploadIOError => "alert('Upload IO error');",
+	:onUploadSecurityError => "alert('Upload security error');",
+	:selectMultipleFiles => false,
+	:queueSizeLimit => 1,
+	:fileSizeLimit => 4194304
+) %>
+<br/>
+<input style="display: none;" id="upload_button" type="button" value="Subir Archivo" onclick="s3_swf_16_object.startUploading();"/>
+<input style="display: none;" id="cancel_button" type="button" value="cancelar" onClick="cancel_image();"/>
+<input style="display: none;" id="confirm_button" type="button" value="confirmar" onClick="confirm_image();"/>
 <% end %>
 </center>
 </div>

@@ -636,6 +636,25 @@ SQL
     @product = OpenStruct.new({:id => product.id})
   end
 
+  def set_aws_filename
+    unless current_user and current_user.administrator
+      return render :json => { :errors => { :user => "not admin" } }, :status => 400
+    end
+
+    unless product = Product.find_by_id(params[:id])
+      return render :json => { :errors => { :product => "must be valid" } }, :status => 400
+    end
+
+    if params.has_key?(:aws_filename)
+      product.aws_filename = params[:aws_filename]
+      product.save
+    else
+      return render :json => { :errors => { :aws_filename => "must exist" } }, :status => 400
+    end
+
+    render :json => { :id => product.id }, :callback => params[:callback]
+  end
+
   private
 
   def _get_dates(product_ids, currency)
