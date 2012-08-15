@@ -20,4 +20,20 @@ jQuery(window).load(function() {
 		<div id="chart_<%=i%>"></div>
 	</div>
 <% end %>
+<% if @saved_reports.empty? %>
+
+<p style="font-size: 14px;">
+Podr&aacute;s <b>guardar</b> los reportes que generes con la aplicaci&oacute;n. 
+Se actualizar&aacute;n <b>en forma automática</b> cada vez que entres a esta p&aacute;gina.
+</p>
+
+<p style="font-size: 14px;">
+Para guardar los reportes se usa el <b>men&uacute; de opciones</b> que tienen todos los gr&aacute;ficos, como se ve aqu&iacute; debajo:
+</p>
+
+<center>
+<img src="https://s3.amazonaws.com/idashboard_assets/images/ejemplo_trans.png"/>
+</center>
+
+<% end %>
 </div>
