@@ -150,7 +150,7 @@ jQuery(window).load(function() {
 <span class="pulldown_span" id="span_categoria_pulldown">
 <select name="categoria" id="categoria_pulldown" class="pulldown_selector chzn-select" size="4" title="Categoría" data-placeholder="Todas las categorías">
 <option></option>
-<% PropertyValue.select('property_values.id, property_values.value').joins(:products => :retailers).where(:property_id => 1, :products => { :retailers => { :country_id => @country_id } } ).order(:value).group('property_values.id, property_values.value').each do |pv| %>
+<% PropertyValue.select('property_values.id, property_values.value').joins(:products => { :items => :retailer }).where(:property_id => 1, :retailers => { :country_id => @country_id } ).order(:value).group('property_values.id, property_values.value').each do |pv| %>
 <option value="<%=pv.id%>"><%=pv.value%></option>
 <% end %>
 </select>

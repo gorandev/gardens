@@ -127,7 +127,7 @@ class SalesController < ApplicationController
 
     if params.has_key?(:pricebands)
       return make_priceband(
-        Settings['computadoras']['pricebands'][Currency.find(params[:currency]).country.iso_code],
+        Settings["product_type_#{@product_type_id}"]['pricebands'][Currency.find(params[:currency]).country.iso_code],
         @sales
       )
     end
