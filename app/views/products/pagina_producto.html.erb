@@ -211,6 +211,28 @@ function confirm_image() {
 	});
 }
 
+function desvincular(id) {
+	jQuery('#tr_item_' + this.id + ' a').last().remove();
+	jQuery.ajax({
+		url: 'http://api.<%=@hostname%>/items/desvincular',
+		dataType: 'jsonp',
+		data: { id: id },
+		context: { id: id },
+		cache: false,
+		statusCode: {
+			200: function() {
+				jQuery('#tr_item_' + this.id).remove();
+				graficar(0);
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	});
+
+	return false;
+}
+
 <% end %>
 
 jQuery(window).load(function() {
@@ -341,6 +363,31 @@ jQuery(window).load(function() {
 <input style="display: none;" id="upload_button" type="button" value="Subir Archivo" onclick="s3_swf_16_object.startUploading();"/>
 <input style="display: none;" id="cancel_button" type="button" value="cancelar" onClick="cancel_image();"/>
 <input style="display: none;" id="confirm_button" type="button" value="confirmar" onClick="confirm_image();"/>
+<br/>
+<% if @product.items.joins(:retailer).where(:retailers => { :country_id => @country_id }).exists? %>
+<table border="1" width="95%">
+	<tr>
+		<th colspan="4">Items</th>
+	</tr>
+	<% @product.items.joins(:retailer).where(:retailers => { :country_id => @country_id }).each do |i| %>
+	<tr id="tr_item_<%=i.id%>">
+		<td valign="top"><%=i.id%></td>
+		<td valign="top">
+			<%=i.retailer.name%><br/><br/>
+			<% pr = Price.where(:item_id => i.id).last %>
+			$<%= pr.price %><br/>
+			(<%=pr.price_date.strftime('%d/%m/%y')%>)
+		</td>
+		<td valign="top"><%=raw i.description%></td>
+		<td>
+			<a target="itemlink" href="<%=raw i.url%>">ver original</a><br/>
+			<br/>
+			<a href="#" onClick="return desvincular(<%=i.id%>);">desvincular</a>
+		</td>
+	</tr>
+	<% end %>
+</table>
+<% end %>
 <% end %>
 </center>
 </div>

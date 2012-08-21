@@ -59,6 +59,7 @@ function get_items_sin_enlazar(offset, count) {
 	var query_string = 'product=nil&product_type=<%=@product_type_id%>&currency=<%=@currency_id%>';
 	query_string += '&offset=' + offset;
 	query_string += '&count=' + count;
+	query_string += '&ascending=yeah';
 
 	if (jQuery('#retailer').val() != 0) {
 		query_string += '&retailer=' + jQuery('#retailer').val();

@@ -163,7 +163,11 @@ class ItemsController < ApplicationController
       join.push(:property_values)
     end
 
-    @items = Item.joins(join).where(params.slice(:retailers, :product_id, :product_type_id, :property_values, :source, :url)).limit(@count).offset(@offset).order(:id)
+    def_order = :id
+    if params.has_key?(:ascending)
+      def_order = "id desc"
+    end
+    @items = Item.joins(join).where(params.slice(:retailers, :product_id, :product_type_id, :property_values, :source, :url)).limit(@count).offset(@offset).order(def_order)
     respond_with(@items)
   end
   
@@ -192,5 +196,14 @@ class ItemsController < ApplicationController
     item.aws_filename = params[:aws_filename]
     item.save
     render :json => { :id => item.id }
+  end
+
+  def desvincular
+    unless item = Item.find_by_id(params[:id])
+      return render :json => { :errors => { :item => "must be valid" } }, :status => 400
+    end
+    item.product = nil
+    item.save
+    render :json => "OK", :callback => params[:callback]
   end
 end
