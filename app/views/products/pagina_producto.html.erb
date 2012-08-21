@@ -212,6 +212,9 @@ function confirm_image() {
 }
 
 function desvincular(id) {
+	if (!confirm('¿Desvincular?')) {
+		return false;
+	}
 	jQuery('#tr_item_' + this.id + ' a').last().remove();
 	jQuery.ajax({
 		url: 'http://api.<%=@hostname%>/items/desvincular',
