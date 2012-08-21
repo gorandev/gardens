@@ -16,6 +16,7 @@ function dibujar_pulldown_productos(obj) {
 		indice = -1;
 		_auto_start = 1;
 	} else {
+		_auto_start = 0;
 		indice = find_prop(obj.name);
 		if (indice < 0) {
 			return;
