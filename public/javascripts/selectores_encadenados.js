@@ -8,10 +8,13 @@ function find_prop(campo) {
 	return indice;
 }
 
+var _auto_start = 0;
+
 function dibujar_pulldown_productos(obj) {
 	var indice;
 	if (obj == 'start_up') {
 		indice = -1;
+		_auto_start = 1;
 	} else {
 		indice = find_prop(obj.name);
 		if (indice < 0) {
@@ -123,6 +126,10 @@ function llenar_pulldowns_propiedades(indice, data, ids_productos) {
 		})
 
 		llenar_pulldown(valores, campo, name);
+	}
+
+	if (_auto_start == 1 && typeof _auto_start_eval !== 'undefined') {
+		eval(_auto_start_eval);
 	}
 }
 

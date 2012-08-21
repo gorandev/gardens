@@ -291,6 +291,8 @@ function mostrar_promo(id) {
 	);
 }
 
+var _auto_start_eval = 'get_promos();';
+
 jQuery(window).load(function() {
 	jQuery(".chzn-select").chosen();
 	selected_product = <%=@id_producto%>;
