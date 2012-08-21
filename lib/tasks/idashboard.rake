@@ -23,4 +23,20 @@ namespace :idashboard do
 		RuleType.create(:description => 'Marca').save()
 		RuleType.create(:description => 'Producto').save()
 	end
+
+	desc 'Add country to catalogs'
+	task :add_country_to_catalogs => :environment do
+		MediaChannel.where(:name => 'cat&aacute;logo Fr&aacute;vega').first.update_attributes(:country => Country.find_by_name('Argentina'))
+		MediaChannel.where(:name => 'cat&aacute;logo Garbarino').first.update_attributes(:country => Country.find_by_name('Argentina'))
+		MediaChannel.where(:name => 'cat&aacute;logo Falabella').first.update_attributes(:country => Country.find_by_name('Argentina'))
+		MediaChannel.where(:name => 'cat&aacute;logo Megatone').first.update_attributes(:country => Country.find_by_name('Argentina'))
+		MediaChannel.where(:name => 'cat&aacute;logo Carrefour').first.update_attributes(:country => Country.find_by_name('Argentina'))
+		MediaChannel.where(:name => 'cat&aacute;logo Compumundo').first.update_attributes(:country => Country.find_by_name('Argentina'))
+		MediaChannel.where(:name => 'cat&aacute;logo Ribeiro').first.update_attributes(:country => Country.find_by_name('Argentina'))
+		MediaChannel.where(:name => 'cat&aacute;logo Falabella').first.update_attributes(:country => Country.find_by_name('Chile'))
+		MediaChannel.where(:name => 'cat&aacute;logo Ripley').first.update_attributes(:country => Country.find_by_name('Chile'))
+		MediaChannel.where(:name => 'cat&aacute;logo Par&iacute;s').first.update_attributes(:country => Country.find_by_name('Chile'))
+		MediaChannel.where(:name => 'cat&aacute;logo La Polar').first.update_attributes(:country => Country.find_by_name('Chile'))
+		MediaChannel.where(:name => 'cat&aacute;logo Abcdin').first.update_attributes(:country => Country.find_by_name('Chile'))
+	end
 end
