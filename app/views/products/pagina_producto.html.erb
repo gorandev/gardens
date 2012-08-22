@@ -378,8 +378,10 @@ jQuery(window).load(function() {
 		<td valign="top">
 			<%=i.retailer.name%><br/><br/>
 			<% pr = Price.where(:item_id => i.id).last %>
+			<% unless pr.nil? %>
 			$<%= pr.price %><br/>
 			(<%=pr.price_date.strftime('%d/%m/%y')%>)
+			<% end %>
 		</td>
 		<td valign="top"><%=raw i.description%></td>
 		<td>
