@@ -108,7 +108,11 @@ function buscar_productos() {
 					flip_producto({
 						id: <%= @sale.product_id %>,
 						descripcion: '<%= @sale.product.descripcion %>',
+						<% if @sale.product.aws_filename %>
+						aws_filename: '<%=@sale.product.aws_filename%>'
+						<% elsif @sale.product.imagen_id %>
 						imagen_id: <%= @sale.product.imagen_id %>
+						<% end %>
 					});
 					initial_mostrar_product = 1;
 				}
@@ -146,8 +150,18 @@ function mostrar_match_productos(data) {
 
 function flip_producto(params) {
 	var contenido = params.descripcion;
+
+	var url_imagen = '';
+	if (params.imagen_id) {
+		url_imagen = '<%=@url_imagen_producto%>/' + params.imagen_id + '_med.png';
+	}
+
+	if (params.aws_filename) {
+		url_imagen = 'https://s3.amazonaws.com/<%=@bucket%>/' + params.aws_filename;
+	}
+
 	contenido += '<br/>';
-	contenido += '<image height="200" width="200" src="<%=@url_imagen_producto%>/' + params.imagen_id + '_med.png"/><br/>';
+	contenido += '<image height="200" width="200" src="' + url_imagen + '"/><br/>';
 	contenido += '<span id="urls_producto">Buscando links retailers...</span><br/>';
 	contenido += '<span class="button" onClick="salvar_promocion(' + params.id + ');">salvar promoción</span><br/><br/>';
 	contenido += '<span class="button" onClick="revert_flip();">volver</span>';
