@@ -181,11 +181,25 @@ class SalesController < ApplicationController
   end
 
   def cargapromos
+    unless current_user and current_user.administrator
+      return render :json => { :errors => { :user => "not admin" } }, :status => 400
+    end
     @layout_grande = true
     @url_imagen_producto = Settings["product_type_#{@product_type_id}"]['url_imagen_producto']
     @orden_pvs = Settings["product_type_#{@product_type_id}"]['cargapromos']['propiedades']
     if params.has_key?(:id) and Sale.exists?(params[:id])
       @sale = Sale.find(params[:id])
     end
+  end
+
+  def eliminar
+    unless current_user and current_user.administrator
+      return render :json => { :errors => { :user => "not admin" } }, :status => 400
+    end
+    unless params.has_key?(:id) and Sale.exists?(params[:id])
+      return render :json => { :errors => { :sale => "must exist" } }, :status => 400
+    end
+    Sale.find(params[:id]).destroy
+    redirect_to '/sales/ver'
   end
 end

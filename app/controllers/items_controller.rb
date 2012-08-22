@@ -180,6 +180,9 @@ class ItemsController < ApplicationController
   end
 
   def productizador
+    unless current_user and current_user.administrator
+      return render :json => { :errors => { :user => "not admin" } }, :status => 400
+    end
     @layout_grande = true
     @url_imagen_item = Settings["product_type_#{@product_type_id}"]['url_imagen_item']
     @url_imagen_producto = Settings["product_type_#{@product_type_id}"]['url_imagen_producto']

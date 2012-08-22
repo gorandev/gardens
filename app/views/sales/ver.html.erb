@@ -115,7 +115,7 @@ function llenar_tabla_promos(data) {
 
 	jQuery.each(data, function(i, v) {
 		globaldataXid[v.id] = v;
-		var celda = '<div style="width: 200px; height: 200px; float: left; text-align: center;" class="celdapromo">';
+		var celda = '<div style="width: 200px; height: <%= (defined?@usuario_admin) ? '250' : '200'%>px; float: left; text-align: center;" class="celdapromo">';
 
 		if (!v.aws_filename) {
 	<% if @country_id.to_i == 1 %>
@@ -140,6 +140,7 @@ function llenar_tabla_promos(data) {
 		celda += '<br/>';
 <% if defined?@usuario_admin %>
 		celda += '<a href="/sales/cargapromos?id=' + v.id + '" target="_blank">editar</a><br/>';
+		celda += '<a href="/sales/eliminar?id=' + v.id + '" onClick="return window.confirm(\'¿Eliminar?\');">eliminar</a><br/>';
 <% end %>		
 
 		celda += '</div>';

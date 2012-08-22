@@ -15,6 +15,7 @@ Gardens::Application.routes.draw do
     
     match 'items/productizador' => 'items#productizador', :as => 'pagina_productizador'
     match 'sales/cargapromos' => 'sales#cargapromos', :as => 'pagina_cargapromos'
+    match 'sales/eliminar' => 'sales#eliminar', :as => 'pagina_eliminarpromo'
 
     resources :saved_reports, :defaults => { :format => :json }
     resources :alerts

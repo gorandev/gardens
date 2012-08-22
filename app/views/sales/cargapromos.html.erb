@@ -370,10 +370,12 @@ function salvar_promocion(producto) {
 }
 
 function validar_datos_promocion() {
+	<% unless defined?@sale %>
 	if (filename == '') {
 		alert('Falta cargar imagen');
 		return false;
 	}
+	<% end %>
 
 	var fields = new Array(
 		'media_channel', 'pagina', 'fecha', 'retailer', 'precio'
