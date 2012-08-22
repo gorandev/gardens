@@ -355,6 +355,9 @@ function salvar_promocion(producto) {
 				jQuery('#valida_desde').val('');
 				jQuery('#valida_hasta').val('');
 				alert('Promoción salvada.');
+				<% if defined?@sale %>
+				window.close();
+				<% end %>
 			},
 			400: function() {
 				alert('Error 400!');
@@ -364,12 +367,10 @@ function salvar_promocion(producto) {
 }
 
 function validar_datos_promocion() {
-	<% unless defined?@sale %>
 	if (filename == '') {
 		alert('Falta cargar imagen');
 		return false;
 	}
-	<% end %>
 
 	var fields = new Array(
 		'media_channel', 'pagina', 'fecha', 'retailer', 'precio'
@@ -428,6 +429,9 @@ jQuery(window).load(function() {
 		<% if @sale.imagen_id %>
 			imagen_id = <%= @sale.imagen_id %>;
 		<% end %>
+		<% if @sale.aws_filename %>
+			filename = '<%= @sale.aws_filename %>';
+		<% end %>
 	<% end %>
 });
 
@@ -483,13 +487,15 @@ var fileAddHandler = function(file) {
 	<% if @sale.aws_filename.nil? %>
 		<% if @product_type_id.to_i == 1 %>
 			<% if @country_id.to_i == 1 %>
-				<img id="image_uploaded" src="http://computadoras.idashboard.com.ar/uploaded_images/promocion-<%=@sale.imagen_id%>.png" onClick="mostrar_promos({promo: <%=@sale.id%>});">
+				<img id="image_uploaded" src="http://computadoras.idashboard.com.ar/uploaded_images/promocion-<%=@sale.imagen_id%>.png">
 			<% elsif @country_id.to_i == 2 %>
-				<img id="image_uploaded" src="http://chile.computadoras.idashboard.com.ar/uploaded_images/promocion-<%=@sale.imagen_id%>.png" onClick="mostrar_promos({promo: <%=@sale.id%>});">
+				<img id="image_uploaded" src="http://chile.computadoras.idashboard.com.ar/uploaded_images/promocion-<%=@sale.imagen_id%>.png">
 			<% end %>
 		<% elsif @product_type_id.to_i == 2 %>
-				<img id="image_uploaded" src="http://televisores.idashboard.com.ar/uploaded_images/promocion-<%=@sale.imagen_id%>.png" onClick="mostrar_promos({promo: <%=@sale.id%>});">
+				<img id="image_uploaded" src="http://televisores.idashboard.com.ar/uploaded_images/promocion-<%=@sale.imagen_id%>.png">
 		<% end %>
+	<% else %>
+		<img id="image_uploaded" src="https://s3.amazonaws.com/<%=@bucket%>/<%=@sale.aws_filename%>"/>
 	<% end %>
 <% else %>
 	<img id="image_uploaded"/>
