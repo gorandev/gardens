@@ -63,13 +63,12 @@ class Product < ActiveRecord::Base
   end
 
   def get_property_value(property)
-    propv = String.new
-    self.property_values.each do |pv|
-      if pv.property.name == property
-        propv = pv.value
-      end
+    pv = PropertyValue.joins(:property, :products).where(:properties => { :name => property }, :products => { :id => self.id }).first
+    if pv.nil?
+      return nil
+    else
+      return pv.value
     end
-    return propv
   end
 end
 

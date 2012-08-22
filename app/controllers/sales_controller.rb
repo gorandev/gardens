@@ -14,6 +14,10 @@ class SalesController < ApplicationController
     self.create
   end
 
+  def update_cargapromos
+    self.update
+  end
+
 	def create
 		sale = Sale.new(
 			:sale_date => params[:sale_date],
@@ -50,6 +54,41 @@ class SalesController < ApplicationController
 			render :json => { :errors => sale.errors }, :status => 400
 		end
 	end
+
+  def update
+    unless sale = Sale.find_by_id(params[:id])
+      return render :json => { :errors => { :sale => "must be valid" } }, :status => 400
+    end
+    
+    old_product_id = sale.product_id  
+
+    [:sale_date, :price, :origin, :units_available, :valid_since, :valid_until, :bundle, :media_channel, :retailer, :product, :currency, :imagen_id, :aws_filename].each do |prop|
+      if params.has_key?(prop) and !params[prop].nil? and !params[prop].empty?
+        if prop == :media_channel and MediaChannel.exists?(params[prop])
+          sale.media_channel = MediaChannel.find_by_id(params[prop])
+        elsif prop == :retailer and Retailer.exists?(params[prop])
+          sale.retailer = Retailer.find_by_id(params[prop])
+        elsif prop == :product and Product.exists?(params[prop])
+          sale.product = Product.find_by_id(params[prop])
+        elsif prop == :currency and Currency.exists?(params[prop])
+          sale.currency = Currency.find_by_id(params[prop])
+        else
+          sale[prop] = params[prop]
+        end
+      end
+    end
+
+    if sale.save
+      if sale.product_id != old_product_id && !old_product_id.nil?
+        REDIS.srem "producto_sale#{old_product_id}", sale.id
+        REDIS.sadd "producto_sale#{sale.product_id}", sale.id
+      end
+
+      render :json => { :id => sale.id }
+    else
+      render :json => { :errors => sale.errors }, :status => 400
+    end
+  end
 
   def search    
     if params.slice(:product, :currency, :date_from, :date_to).empty?
@@ -145,5 +184,8 @@ class SalesController < ApplicationController
     @layout_grande = true
     @url_imagen_producto = Settings["product_type_#{@product_type_id}"]['url_imagen_producto']
     @orden_pvs = Settings["product_type_#{@product_type_id}"]['cargapromos']['propiedades']
+    if params.has_key?(:id) and Sale.exists?(params[:id])
+      @sale = Sale.find(params[:id])
+    end
   end
 end

@@ -84,6 +84,7 @@ Gardens::Application.routes.draw do
 
     match 'sales/search' => 'sales#search', :defaults => { :format => :json }
     match 'sales/create_cargapromos' => 'sales#create_cargapromos', :defaults => { :format => :json }
+    match 'sales/update_cargapromos' => 'sales#update_cargapromos', :defaults => { :format => :json }
     resources :sales, :defaults => { :format => :json }
 
     get 'alerts/create'

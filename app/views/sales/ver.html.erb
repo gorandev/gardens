@@ -138,6 +138,9 @@ function llenar_tabla_promos(data) {
 		
 		celda += v.media_channel + ' - $' + v.price;
 		celda += '<br/>';
+<% if defined?@usuario_admin %>
+		celda += '<a href="/sales/cargapromos?id=' + v.id + '" target="_blank">editar</a><br/>';
+<% end %>		
 
 		celda += '</div>';
 		jQuery('#contenido').append(celda);

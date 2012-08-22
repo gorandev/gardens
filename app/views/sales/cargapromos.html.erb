@@ -48,6 +48,9 @@ function init_properties() {
 				properties_sorted.push('<%=pv%>');
 				<% end %>
 				<% end %>
+				<% if defined?@sale %>
+					buscar_productos();
+				<% end %>
 			},
 			400: function() {
 				alert('Error 400!');
@@ -72,6 +75,7 @@ function hacer_pulldown(item, property, property_value) {
 	return pulldown;
 }
 
+var initial_mostrar_product = 0;
 function buscar_productos() {
 	var pvalues = new Array;
 	jQuery('.item_pvalues').each(function(i) {
@@ -99,6 +103,16 @@ function buscar_productos() {
 		statusCode: {
 			200: function(data) {
 				mostrar_match_productos(data);
+				<% if defined?@sale %>
+				if (initial_mostrar_product == 0) {
+					flip_producto({
+						id: <%= @sale.product_id %>,
+						descripcion: '<%= @sale.product.descripcion %>',
+						imagen_id: <%= @sale.product.imagen_id %>
+					});
+					initial_mostrar_product = 1;
+				}
+				<% end %>
 			},
 			400: function() {
 				alert('Error 400!');
@@ -133,7 +147,7 @@ function mostrar_match_productos(data) {
 function flip_producto(params) {
 	var contenido = params.descripcion;
 	contenido += '<br/>';
-	contenido += '<image height="200" width="200" src="<%=@url_imagen_producto%>/' + params.imagen_id + '_med.jpg"/><br/>';
+	contenido += '<image height="200" width="200" src="<%=@url_imagen_producto%>/' + params.imagen_id + '_med.png"/><br/>';
 	contenido += '<span id="urls_producto">Buscando links retailers...</span><br/>';
 	contenido += '<span class="button" onClick="salvar_promocion(' + params.id + ');">salvar promoción</span><br/><br/>';
 	contenido += '<span class="button" onClick="revert_flip();">volver</span>';
@@ -278,6 +292,9 @@ function salvar_promocion(producto) {
 	}
 
 	var data = {
+		<% if defined?@sale %>
+		id: <%= @sale.id %>,
+		<% end %>
 		sale_date: jQuery('#fecha').val(),
 		price: jQuery('#precio').val(),
 		origin: jQuery('#origen').val(),
@@ -293,8 +310,16 @@ function salvar_promocion(producto) {
 		aws_filename: filename
 	};
 
+	if (imagen_id != 0) {
+		data.imagen_id = imagen_id;
+	}
+
 	jQuery.ajax({
+		<% if defined?@sale %>
+		url: 'http://api.' + global_hostname + '/sales/update_cargapromos',
+		<% else %>
 		url: 'http://api.' + global_hostname + '/sales/create_cargapromos',
+		<% end %>
 		data: data,
 		dataType: 'jsonp',
 		cache: false,
@@ -321,10 +346,12 @@ function salvar_promocion(producto) {
 }
 
 function validar_datos_promocion() {
+	<% unless defined?@sale %>
 	if (filename == '') {
 		alert('Falta cargar imagen');
 		return false;
 	}
+	<% end %>
 
 	var fields = new Array(
 		'media_channel', 'pagina', 'fecha', 'retailer', 'precio'
@@ -345,13 +372,15 @@ function validar_datos_promocion() {
 	}
 }
 
+var imagen_id = 0;
 jQuery(window).load(function() {
-	init_properties();
 	jQuery(".chzn-select").chosen({no_results_text: 'Sin resultados para', allow_single_deselect: true});
     jQuery('.chzn-single').focus(function(e){
         e.preventDefault();
     });
 	jQuery('div.chzn-container ul').attr("tabindex",-1);
+
+	init_properties();
 
 	jQuery("#fecha").datepicker();
 
@@ -369,6 +398,19 @@ jQuery(window).load(function() {
 			dates.not( this ).datepicker( "option", option, date );
 		}
 	});
+
+	<% if defined?@sale %>
+		jQuery("#fecha").datepicker("setDate", "<%=@sale.sale_date.strftime('%d/%m/%Y')%>");
+		<% unless @sale.valid_since.nil? %>
+			jQuery("#valida_desde").datepicker("setDate", "<%=@sale.valid_since.strftime('%d/%m/%Y')%>");
+		<% end %>
+		<% unless @sale.valid_until.nil? %>
+			jQuery("#valida_hasta").datepicker("setDate", "<%=@sale.valid_until.strftime('%d/%m/%Y')%>");
+		<% end %>
+		<% if @sale.imagen_id %>
+			imagen_id = <%= @sale.imagen_id %>;
+		<% end %>
+	<% end %>
 });
 
 var uploadingStartHandler = function() {
@@ -380,6 +422,7 @@ var filename = '';
 var uploadCompleteHandler = function(upload_options,event){
 	jQuery('#image_uploaded').attr('src', 'https://s3.amazonaws.com/<%=@bucket%>/' + upload_options.FileName);
 	filename = upload_options.FileName;
+	imagen_id = 0;
 };
 
 var uploadingFinishHandler = function() {
@@ -418,7 +461,21 @@ var fileAddHandler = function(file) {
 ) %>
 <br/>
 <input style="display: none;" id="upload_button" type="button" value="Subir Archivo" onclick="s3_swf_16_object.startUploading();"/>
-<img id="image_uploaded"/>
+<% if defined?@sale %>
+	<% if @sale.aws_filename.nil? %>
+		<% if @product_type_id.to_i == 1 %>
+			<% if @country_id.to_i == 1 %>
+				<img id="image_uploaded" src="http://computadoras.idashboard.com.ar/uploaded_images/promocion-<%=@sale.imagen_id%>.png" onClick="mostrar_promos({promo: <%=@sale.id%>});">
+			<% elsif @country_id.to_i == 2 %>
+				<img id="image_uploaded" src="http://chile.computadoras.idashboard.com.ar/uploaded_images/promocion-<%=@sale.imagen_id%>.png" onClick="mostrar_promos({promo: <%=@sale.id%>});">
+			<% end %>
+		<% elsif @product_type_id.to_i == 2 %>
+				<img id="image_uploaded" src="http://televisores.idashboard.com.ar/uploaded_images/promocion-<%=@sale.imagen_id%>.png" onClick="mostrar_promos({promo: <%=@sale.id%>});">
+		<% end %>
+	<% end %>
+<% else %>
+	<img id="image_uploaded"/>
+<% end %>
 </div>
 <!-- FIN COLUMNA UNO -->
 
@@ -432,14 +489,14 @@ var fileAddHandler = function(file) {
 				<select data-placeholder="elegir..." style="font-size: 10px; width: 150px;" class="chzn-select" name="media_channel" id="media_channel">
 					<option></option>
 					<% MediaChannel.joins('left join retailers on retailers.id = media_channels.retailer_id').where('media_channels.country_id = ? OR retailers.country_id = ?', @country_id, @country_id).order(:name).each do |mc| %>
-						<option value="<%=mc.id%>"><%=raw mc.name%></option>
+						<option value="<%=mc.id%>"<%= defined?@sale and @sale.media_channel_id == mc.id ? ' selected' : '' %>><%=raw mc.name%></option>
 					<% end %>
 				</select>
 			</td>
 		</tr>
 		<tr align="left">
 			<td>P&aacute;gina</td>
-			<td><input type="text" size="2" name="pagina" id="pagina"/></td>
+			<td><input type="text" size="2" name="pagina" id="pagina"<%=raw (defined?@sale) ? " value=\"#{@sale.page.to_s}\"" : '' %>/></td>
 		</tr>
 		<tr align="left">
 			<td>Fecha</td>
@@ -451,26 +508,31 @@ var fileAddHandler = function(file) {
 				<select data-placeholder="elegir..." style="font-size: 10px; width: 150px;" class="chzn-select" name="retailer" id="retailer">
 					<option></option>
 					<% Retailer.where(:country_id => @country_id).order(:name).each do |r| %>
-						<option value="<%=r.id%>"><%=raw r.name%></option>
+						<option value="<%=r.id%>"<%= defined?@sale and @sale.retailer_id == r.id ? ' selected' : '' %>><%=raw r.name%></option>
 					<% end %>
 				</select>
 			</td>
 		</tr>
 		<tr align="left">
 			<td>Precio</td>
-			<td><input type="text" size="5" name="precio" id="precio"/></td>
+			<td><input type="text" size="5" name="precio" id="precio"<%=raw (defined?@sale) ? " value=\"#{@sale.price.to_s}\"" : '' %>/></td>
 		</tr>
 		<tr align="left">
 			<td>Origen</td>
-			<td><input type="text" size="12" name="origen" id="origen"/></td>
+			<td><input type="text" size="12" name="origen" id="origen"<%=raw (defined?@sale) ? " value=\"#{@sale.origin}\"" : ''%>/></td>
 		</tr>
 		<tr align="left">
 			<td>Unidades disponibles</td>
-			<td><input type="text" size="5" name="unidades_disponibles" id="unidades_disponibles"/></td>
+			<td><input type="text" size="5" name="unidades_disponibles" id="unidades_disponibles"<%=raw (defined?@sale) ? " value=\"#{@sale.units_available.to_s}\"" : ''%>/></td>
 		</tr>
 		<tr align="left">
 			<td>Bundle?</td>
-			<td><input type="radio" value="1" name="bundle" id="bundle_si"/><label for="bundle_si">S&iacute;</label>&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" value="0" name="bundle" id="bundle_no" checked/><label for="bundle_no">No</label></td>
+			<td>
+				<input type="radio" value="1" name="bundle" id="bundle_si"<%= defined?@sale and @sale.bundle ? ' checked' : ''%>/>
+				<label for="bundle_si">S&iacute;</label>&nbsp;&nbsp;&nbsp;&nbsp;
+				<input type="radio" value="0" name="bundle" id="bundle_no"<% unless defined?@sale and @sale.bundle %> checked<% end%>/>
+				<label for="bundle_no">No</label>
+			</td>
 		</tr>
 		<tr align="left">
 			<td>V&aacute;lida desde</td>
@@ -506,7 +568,7 @@ var fileAddHandler = function(file) {
 				<select data-placeholder="elegir..." id="p_<%=p.id%>" style="font-size: 10px; width: 150px;" class="chzn-select item_pvalues" onChange="buscar_productos();">
 					<option></option>
 	<% p.property_values.order('value').all.each do |pv| %>
-					<option value="<%=pv.id%>"><%=pv.value%></option>
+					<option value="<%=pv.id%>"<%= defined?@sale and @sale.product.get_property_value(p.name) == pv.value ? ' selected' : '' %>><%=pv.value%></option>
 	<% end %>
 				</select>
 			</td>
