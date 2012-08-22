@@ -196,10 +196,11 @@ class SalesController < ApplicationController
     unless current_user and current_user.administrator
       return render :json => { :errors => { :user => "not admin" } }, :status => 400
     end
-    unless params.has_key?(:id) and Sale.exists?(params[:id])
+    unless params.has_key?(:id) and sale = Sale.find_by_id(params[:id])
       return render :json => { :errors => { :sale => "must exist" } }, :status => 400
     end
-    Sale.find(params[:id]).destroy
+    REDIS.srem "producto_sale#{sale.product_id}", sale.id
+    sale.destroy
     redirect_to '/sales/ver'
   end
 end
