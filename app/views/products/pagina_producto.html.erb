@@ -385,7 +385,10 @@ jQuery(window).load(function() {
 		</td>
 		<td valign="top"><%=raw i.description%></td>
 		<td>
-			<a target="itemlink" href="<%=raw i.url%>">ver original</a><br/>
+			<% unless pr.nil? %>
+			<a target="itemlink" href="<%=raw i.url%>">ver original</a>
+			<% end %>
+			<br/>
 			<br/>
 			<a href="#" onClick="return desvincular(<%=i.id%>);">desvincular</a>
 		</td>

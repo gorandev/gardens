@@ -188,7 +188,10 @@ function mostrar_urls_producto(id) {
 				jQuery("#urls_producto").html('No hay retailers.');
 				contenido = '';
 				jQuery.each(data, function(i, v) {
-					contenido += '<a href="' + v.url + '" target="_blank">' + v.retailer;
+					if (v.price) {
+						contenido += '<a href="' + v.url + '" target="_blank">';
+					}
+					contenido += v.retailer;
 					if (v.price) {
 						contenido += ' $' + v.price;
 					}
