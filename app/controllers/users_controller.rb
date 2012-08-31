@@ -102,7 +102,10 @@ class UsersController < ApplicationController
 		Subscription.where(:user_id => user.id, :country_id => @country_id, :product_type_id => @product_type_id).each do |s|
 			s.destroy
 		end
-		if !Subscription.where(:user_id => user.id).exists?
+		Alert.where(:user_id => user.id, :country_id => @country_id, :product_type_id => @product_type_id).each do |a|
+			a.destroy
+		end
+		if !Subscription.where(:user_id => user.id).exists? and !Alert.where(:user_id => user.id).exists?
 			user.destroy
 		end
 		render :json => "OK"
