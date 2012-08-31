@@ -1,7 +1,7 @@
 <% content_for :titulo_pagina do %>Usuarios<% end %>
 <% content_for :javascript do %>
 <%= include_javascripts :ejs %>
-<%= javascript_include_tag "http://code.jquery.com/jquery-1.7.min.js" %>
+<%= include_javascripts :jquery %>
 <script type="text/javascript">jQuery.noConflict();</script>
 <script type="text/javascript">
 jQuery(window).load(function() {

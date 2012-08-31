@@ -9,6 +9,13 @@ s3_upload_files:
   - public/javascripts/*
 
 javascripts:
+  jquery:
+    - public/javascripts/jquery.min.js
+
+  prototype_scriptaculous:
+    - public/javascripts/prototype.js
+    - public/javascripts/scriptaculous.js
+
   basico:
     - public/javascripts/prototip.js
     - public/javascripts/lightbox.js

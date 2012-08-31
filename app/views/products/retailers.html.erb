@@ -1,6 +1,6 @@
 <% content_for :titulo_pagina do %>Retailers<% end %>
 <% content_for :javascript do %>
-<%= javascript_include_tag "http://code.jquery.com/jquery-1.7.min.js" %>
+<%= include_javascripts :jquery %>
 <script type="text/javascript">jQuery.noConflict();</script>
 <%= include_javascripts :graficos_sin_selectores_encadenados %>
 <script type="text/javascript">
@@ -79,7 +79,7 @@ function salvar_reporte(num) {
 
 var graficos = [
 	[ 'pricebands', 'publicaciones' ],
-	[ 'pricebands', 'publicaciones' ],
+	[ 'pricebands', 'productos' ],
 	[ 'pie_chart', 'marca' ],
 	[ 'pie_chart', 'medio' ],
 	[ 'pie_chart', 'os' ],

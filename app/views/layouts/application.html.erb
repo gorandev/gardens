@@ -14,8 +14,7 @@ var global_hostname = '<%=@hostname%>';
 var aws_bucket = '<%=@bucket%>';
 </script>
 
-<%= javascript_include_tag "https://ajax.googleapis.com/ajax/libs/prototype/1.7.0.0/prototype.js", "https://ajax.googleapis.com/ajax/libs/scriptaculous/1.9.0/scriptaculous.js?load=effects,builder,dragdrop" %>
-<%= include_javascripts :basico %>
+<%= include_javascripts :prototype_scriptaculous, :basico %>
 <%= yield :javascript %>
 
 <% if defined?@google_analytics_key %>

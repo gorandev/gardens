@@ -3,7 +3,7 @@
 <%= include_stylesheets :chosen_productizador, :grid_cargapromos, :media => 'all' %>
 <% end %>
 <% content_for :javascript do %>
-<%= javascript_include_tag "http://code.jquery.com/jquery-1.7.min.js" %>
+<%= include_javascripts :jquery %>
 <script type="text/javascript">jQuery.noConflict();</script>
 <%= include_javascripts :chosen, :flip, :s3upload, :jquery_ui %>
 <script type="text/javascript">

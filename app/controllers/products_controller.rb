@@ -303,7 +303,7 @@ class ProductsController < ApplicationController
   end
 
   def search    
-    if params.slice(:product_type, :property_values, :retailers, :country).empty?
+    if params.slice(:product_type, :property_values, :retailers, :country, :currency).empty?
       return render :json => { :errors => { :product => "no search parameters" } }, :status => 400
     end
 
@@ -429,6 +429,22 @@ class ProductsController < ApplicationController
       product_ids.each do |id|
         @products.push(Marshal.load(REDIS.get 'obj.product:' + id.to_s))
       end
+    end
+
+    if params.has_key?(:pricebands)
+      products_con_precio = Array.new
+      @products.each do |p|
+        prom = p.precio_promedio(params[:date_to], @country_id)
+        unless prom.nil?
+          products_con_precio.push(OpenStruct.new({
+            :price => prom
+          }))
+        end
+      end
+      return make_priceband(
+        Settings["product_type_#{@product_type_id}"]['pricebands'][Currency.find(params[:currency]).country.iso_code],
+        products_con_precio
+      )
     end
   end
   

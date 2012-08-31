@@ -70,5 +70,13 @@ class Product < ActiveRecord::Base
       return pv.value
     end
   end
-end
 
+  def precio_promedio(fecha = Date.today.strftime('%Y-%m-%d'), country_id)
+    result = Price.select('avg(price) as price').joins(:item => [ :product, :retailer ]).where(:items => { :product_id => self.id }, :price_date => fecha, :retailers => { :country_id => country_id }).group('price')
+    if result.nil? or result.first.nil?
+      return nil
+    else
+      return result.first.price
+    end
+  end
+end
