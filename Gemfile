@@ -17,6 +17,8 @@ gem 'pony'
 gem 'dynamic_form'
 gem 'rails_log_stdout'
 
+gem 'google-analytics-rails'
+
 group :development do
   gem 'rspec-rails'
   gem 'annotate'

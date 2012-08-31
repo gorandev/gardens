@@ -52,4 +52,6 @@ Gardens::Application.configure do
 
   # Add HTTP headers to cache static assets for an hour
   config.static_cache_control = "public, max-age=31556926"
+
+  GA.tracker = "UA-24548835-6"
 end
