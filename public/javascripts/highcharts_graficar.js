@@ -181,6 +181,7 @@ function dibujar_data(params) {
 						producto: Object.keys(prods)[0],
 						fecha: j,
 						marker: {
+							enabled: true,
 							symbol: 'diamond'
 						}
 					});
@@ -289,8 +290,8 @@ function dibujar_data(params) {
 		plotOptions: {
 			series: {
 				marker: {
-					enabled: true,
-					symbol: 'url(/images/blank.png)'
+					enabled: false,
+					symbol: 'circle'
 				},
 				point: {
 					events: {
@@ -326,7 +327,7 @@ function dibujar_data(params) {
 						{
 							text: 'Descargar PNG',
 							onclick: function() {
-								this.exportChart(null,{
+								this.exportChart(null, {
 									subtitle: {
 										text: null
 									}
