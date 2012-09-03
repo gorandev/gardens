@@ -42,6 +42,9 @@ function llenar_pulldown_productos(data) {
 	});
 	
 	for (var i = 0; i < props_ordered.length; i++) {
+		if (!props_ordered[i].value) {
+			continue;
+		}
 		<% unless @product.nil? %>
 		if (props_ordered[i].id == <%=@product.id%>) {
 			select.append('<option selected value="' + props_ordered[i].id + '">' + props_ordered[i].value.replace(jQuery("#marca_pulldown option:selected").text(),'') + '</option>');
