@@ -2,7 +2,7 @@
 #
 # Table name: alerts
 #
-#  id              :integer         not null, primary key
+#  id              :integer          not null, primary key
 #  event_id        :integer
 #  user_id         :integer
 #  created_at      :datetime

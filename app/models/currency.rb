@@ -2,7 +2,7 @@
 #
 # Table name: currencies
 #
-#  id             :integer         not null, primary key
+#  id             :integer          not null, primary key
 #  name           :string(255)
 #  symbol         :string(255)
 #  decimal_places :integer

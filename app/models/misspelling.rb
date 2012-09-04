@@ -2,7 +2,7 @@
 #
 # Table name: misspellings
 #
-#  id         :integer         not null, primary key
+#  id         :integer          not null, primary key
 #  value      :string(255)
 #  word_id    :integer
 #  created_at :datetime

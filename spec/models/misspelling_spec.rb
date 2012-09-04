@@ -1,15 +1,15 @@
+# coding: utf-8
 # == Schema Information
 #
 # Table name: misspellings
 #
-#  id         :integer         not null, primary key
+#  id         :integer          not null, primary key
 #  value      :string(255)
 #  word_id    :integer
 #  created_at :datetime
 #  updated_at :datetime
 #
 
-# coding: utf-8
 require 'spec_helper'
 
 describe Misspelling do

@@ -2,7 +2,7 @@
 #
 # Table name: media_channels
 #
-#  id                    :integer         not null, primary key
+#  id                    :integer          not null, primary key
 #  name                  :string(255)
 #  media_channel_type_id :integer
 #  created_at            :datetime

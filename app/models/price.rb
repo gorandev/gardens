@@ -2,7 +2,7 @@
 #
 # Table name: prices
 #
-#  id          :integer         not null, primary key
+#  id          :integer          not null, primary key
 #  item_id     :integer
 #  price_date  :date
 #  currency_id :integer

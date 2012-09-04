@@ -2,13 +2,14 @@
 #
 # Table name: products
 #
-#  id              :integer         not null, primary key
+#  id              :integer          not null, primary key
 #  status          :string(255)
 #  product_type_id :integer
 #  show_on_search  :boolean
 #  created_at      :datetime
 #  updated_at      :datetime
 #  imagen_id       :integer
+#  aws_filename    :string(255)
 #
 
 class Product < ActiveRecord::Base

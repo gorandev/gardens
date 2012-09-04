@@ -2,7 +2,7 @@
 #
 # Table name: events
 #
-#  id           :integer         not null, primary key
+#  id           :integer          not null, primary key
 #  item_id      :integer
 #  precio_viejo :integer
 #  precio_nuevo :integer

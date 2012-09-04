@@ -59,6 +59,7 @@ function get_items_sin_enlazar(offset, count) {
 	var query_string = 'product=nil&product_type=<%=@product_type_id%>&currency=<%=@currency_id%>';
 	query_string += '&offset=' + offset;
 	query_string += '&count=' + count;
+	query_string += '&ignored=0';
 	query_string += '&ascending=yeah';
 
 	if (jQuery('#retailer').val() != 0) {
@@ -437,6 +438,27 @@ function go_crear_producto() {
 	}
 }
 
+function ignorar_item() {
+	jQuery('#boton_ignorar').attr('disabled', 'disabled');
+	jQuery.ajax({
+		url: 'http://api.' + global_hostname + '/items/ignore',
+		data: { id: selected_item_id },
+		dataType: 'jsonp',
+		cache: false,
+		statusCode: {
+			200: function() {
+				reset_item();
+				jQuery('#item_' + selected_item_id).remove();
+				selected_item_id = 0;
+				jQuery('#boton_ignorar').removeAttr('disabled');
+			},
+			400: function() {
+				alert('Error 400!');
+			}
+		}
+	})
+}
+
 jQuery(window).load(function() {
 	get_items_sin_enlazar(0, count);
 	init_properties();
@@ -471,6 +493,8 @@ jQuery(window).load(function() {
 				<td>(click en 'buscar')</td>
 			</tr>
 		</table>
+		<br/>
+		<input type="button" id="boton_ignorar" value="Ignorar este ítem" onClick="return ignorar_item();"/>
 	</div>
 </div>
 <div style="position: relative; top: 15px; margin: 0px auto; height: 250px; border: 2px dotted blue; overflow-y: auto;">

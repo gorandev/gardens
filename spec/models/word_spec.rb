@@ -1,14 +1,14 @@
+# coding: utf-8
 # == Schema Information
 #
 # Table name: words
 #
-#  id         :integer         not null, primary key
+#  id         :integer          not null, primary key
 #  value      :string(255)
 #  created_at :datetime
 #  updated_at :datetime
 #
 
-# coding: utf-8
 require 'spec_helper'
 
 describe Word do  

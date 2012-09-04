@@ -2,7 +2,7 @@
 #
 # Table name: saved_reports
 #
-#  id              :integer         not null, primary key
+#  id              :integer          not null, primary key
 #  querystring     :text
 #  orden           :integer
 #  user_id         :integer

@@ -2,7 +2,7 @@
 #
 # Table name: items
 #
-#  id              :integer         not null, primary key
+#  id              :integer          not null, primary key
 #  product_id      :integer
 #  retailer_id     :integer
 #  created_at      :datetime
@@ -13,6 +13,7 @@
 #  url             :string(255)
 #  description     :text
 #  aws_filename    :string(255)
+#  ignored         :boolean
 #
 
 class Item < ActiveRecord::Base

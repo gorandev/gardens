@@ -2,7 +2,7 @@
 #
 # Table name: retailers
 #
-#  id         :integer         not null, primary key
+#  id         :integer          not null, primary key
 #  name       :string(255)
 #  country_id :integer
 #  created_at :datetime

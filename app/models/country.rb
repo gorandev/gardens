@@ -2,7 +2,7 @@
 #
 # Table name: countries
 #
-#  id                  :integer         not null, primary key
+#  id                  :integer          not null, primary key
 #  iso_code            :string(255)
 #  name                :string(255)
 #  status              :string(255)

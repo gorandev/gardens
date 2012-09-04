@@ -2,7 +2,7 @@
 #
 # Table name: sales
 #
-#  id               :integer         not null, primary key
+#  id               :integer          not null, primary key
 #  sale_date        :date
 #  price            :integer
 #  origin           :string(255)

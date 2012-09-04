@@ -2,7 +2,7 @@
 #
 # Table name: rules
 #
-#  id           :integer         not null, primary key
+#  id           :integer          not null, primary key
 #  alert_id     :integer
 #  value        :string(255)
 #  created_at   :datetime

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120813175403) do
+ActiveRecord::Schema.define(:version => 20120904142851) do
 
   create_table "alerts", :force => true do |t|
     t.integer  "event_id"
@@ -71,6 +71,7 @@ ActiveRecord::Schema.define(:version => 20120813175403) do
     t.string   "url"
     t.text     "description"
     t.string   "aws_filename"
+    t.boolean  "ignored"
   end
 
   add_index "items", ["product_id"], :name => "index_items_on_product_id"

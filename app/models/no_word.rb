@@ -2,7 +2,7 @@
 #
 # Table name: no_words
 #
-#  id         :integer         not null, primary key
+#  id         :integer          not null, primary key
 #  value      :string(255)
 #  created_at :datetime
 #  updated_at :datetime
