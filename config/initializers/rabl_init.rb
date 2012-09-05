@@ -6,4 +6,5 @@ Rabl.configure do |config|
   config.enable_json_callbacks = true
   # config.xml_options = { :dasherize  => true, :skip_types => false }}
   config.cache_sources = true
+  config.cache_all_output = true
 end
