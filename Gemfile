@@ -19,6 +19,8 @@ gem 'rails_log_stdout'
 
 gem 'google-analytics-rails'
 
+gem 'dalli'
+
 group :development do
   gem 'rspec-rails'
   gem 'annotate'

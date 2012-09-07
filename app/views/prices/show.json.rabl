@@ -1,19 +1,15 @@
 object @price
 cache @price
 attributes :price, :price_date
-glue @item do
-	cache @item
+glue :item do
 	attributes :id => :item
-	glue @retailer do
-		cache @retailer
+	glue :retailer do
 		attributes :name => :retailer, :color => :retailer_color
 	end
-	glue @product do
-		cache @product
+	glue :product do
 		attributes :id => :id_product, :descripcion => :name_product
 	end
 end
-glue @currency do
-	cache @currency
+glue :currency do
 	attributes :name => :currency
 end
