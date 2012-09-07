@@ -1,5 +1,44 @@
 # -*- coding: utf-8 -*-
 namespace :scheduler do
+	desc 'Send totales diarios'
+	task :enviar_totales_diarios, [:fecha] => [:environment] do |t, args|
+		if args.fecha.nil?
+			fecha = Time.now.to_date
+		else
+			fecha = Date.parse(args.fecha)
+		end
+
+		items_hoy = Item.select('retailer_id, count(*)').joins(:prices).where(:prices => { :price_date => fecha }).group('retailer_id')
+		items_ayer = Item.select('retailer_id, count(*)').joins(:prices).where(:prices => { :price_date => fecha - 1.day }).group('retailer_id')
+
+		totales = Hash.new
+		items_ayer.each do |i|
+			if !totales[i.retailer_id].is_a?Hash
+				totales[i.retailer_id] = Hash.new
+			end
+			totales[i.retailer_id]['ayer'] = i.count
+		end
+		items_hoy.each do |i|
+			if !totales[i.retailer_id].is_a?Hash
+				totales[i.retailer_id] = Hash.new
+			end
+			totales[i.retailer_id]['hoy'] = i.count
+		end
+
+		@retailers = Hash.new
+		Retailer.all.each do |r|
+			@retailers[r.id] = [ r.name, r.country.name, totales[r.id] ]
+		end
+
+		mail_template = File.read(File.join(Rails.root, "app/views/items/mail.totales.diarios.html.erb"))
+		@titulo = 'Totales scraping'
+ 		Pony.mail(
+			:to => 'mondongo@gmail.com',
+			:from => 'noreply@idashboard.la',
+			:subject => '[iDashboard] Totales scraping de ' +  fecha.strftime('%d/%m/%Y'),
+			:html_body => ERB.new(mail_template).result(binding)
+		)
+	end
 	desc 'Send catalogs'
 	task :send_catalogs, [:mes] => [:environment] do |t, args|
 		if Time.now.in_time_zone('America/Argentina/Buenos_Aires').strftime('%d') != "07" and args.mes.nil?
