@@ -21,13 +21,14 @@
 
 <h1 style="display:block;width:100%;margin:0;font-family:Verdana;font-size:26px;font-weight:normal;color:#CCC;line-height:250%;"><%=@titulo%></h1>
 <div class="tablaAlerta">
-<table xmlns="" border="1" cellpadding="5" cellspacing="1" style="width:85%;font-family:Verdana;font-size:14px;color:#666;font-weight:bold;background-color:#FFF;">
+<table xmlns="" border="1" cellpadding="5" cellspacing="1" style="width:100%;font-family:Verdana;font-size:12px;color:#666;font-weight:bold;background-color:#FFF;">
 
 <tr>
 	<th>Retailer</th>
 	<th>Pa&iacute;s</th>
 	<th>Ayer</th>
 	<th>Hoy</th>
+	<th>Sin<br/>productizar</th>
 </tr>
 
 <% @retailers.each do |i, r| %>
@@ -41,6 +42,7 @@
 		<td><%=(r[2]['ayer'].nil?) ? "<span style='color: red;'>0</span>" : r[2]['ayer']%></td>
 		<td><%=(r[2]['hoy'].nil?) ? "<span style='color: red;'>0</span>" : r[2]['hoy']%></td>
 	<% end %>
+	<td><%=r[3]%></td>
 </tr>
 <% end %>
 

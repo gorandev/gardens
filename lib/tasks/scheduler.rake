@@ -27,7 +27,7 @@ namespace :scheduler do
 
 		@retailers = Hash.new
 		Retailer.all.each do |r|
-			@retailers[r.id] = [ r.name, r.country.name, totales[r.id] ]
+			@retailers[r.id] = [ r.name, r.country.name, totales[r.id], Item.where(:product_id => nil, :ignored => nil, :retailer_id => r.id).count ]
 		end
 
 		mail_template = File.read(File.join(Rails.root, "app/views/items/mail.totales.diarios.html.erb"))
