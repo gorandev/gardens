@@ -21,7 +21,7 @@
 
 <h1 style="display:block;width:100%;margin:0;font-family:Verdana;font-size:26px;font-weight:normal;color:#CCC;line-height:250%;"><%=@titulo%></h1>
 <div class="tablaAlerta">
-<table xmlns="" border="0" cellpadding="5" cellspacing="1" style="width: 100%;font-family:Verdana;font-size:10px;color:#666;font-weight:bold;background-color:#FFF;">
+<table xmlns="" border="1" cellpadding="5" cellspacing="1" style="width:85%;font-family:Verdana;font-size:14px;color:#666;font-weight:bold;background-color:#FFF;">
 
 <tr>
 	<th>Retailer</th>
@@ -35,11 +35,11 @@
 	<td><%=r[0]%></td>
 	<td><%=r[1]%></td>
 	<% if r[2].nil? %>
-		<td>0</td>
-		<td>0</td>
+		<td><span style="color: red;">0</span></td>
+		<td><span style="color: red;">0</span></td>
 	<% else %>
-		<td><%=(r[2]['ayer'].nil?) ? 0 : r[2]['ayer']%></td>
-		<td><%=(r[2]['hoy'].nil?) ? 0 : r[2]['hoy']%></td>
+		<td><%=(r[2]['ayer'].nil?) ? "<span style='color: red;'>0</span>" : r[2]['ayer']%></td>
+		<td><%=(r[2]['hoy'].nil?) ? "<span style='color: red;'>0</span>" : r[2]['hoy']%></td>
 	<% end %>
 </tr>
 <% end %>
