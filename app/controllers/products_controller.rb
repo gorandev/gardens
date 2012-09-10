@@ -469,62 +469,6 @@ class ProductsController < ApplicationController
     })
   end
 
-  def inicializar_memstore
-    REDIS.flushall
-
-    marcas_por_country = Hash.new
-    marcas_por_product_type = Hash.new
-    Product.all.each do |p|
-      REDIS.set "obj.product:#{p.id}", Marshal.dump(p)
-      REDIS.sadd "descripcion.product:#{p.id}", "#{p.id}|#{p.descripcion}"
-      REDIS.sadd "product_type:#{p.product_type.id}", p.id
-
-      unless marcas_por_product_type.has_key?(p.product_type.id)
-        marcas_por_product_type[p.product_type.id] = Hash.new
-      end
-      marcas_por_product_type[p.product_type.id][p.property_values.joins(:property).where(:properties => { :name => 'marca' }).first.id] = 1;
-
-      p.active_in_countries.each do |c|
-        REDIS.sadd "country:#{c.id}", p.id
-        unless marcas_por_country.has_key?(c.id)
-          marcas_por_country[c.id] = Hash.new
-        end
-        marcas_por_country[c.id][p.property_values.joins(:property).where(:properties => { :name => 'marca' }).first.id] = 1;
-      end
-      p.active_in_retailers.each do |r|
-        REDIS.sadd "retailer:#{r.id}", p.id
-        REDIS.sadd "retailers.product:#{p.id}", r.id
-      end
-      p.property_values.all.each do |pv|
-        REDIS.sadd "property_value:#{pv.id}", p.id
-        REDIS.sadd "pvs_product:#{p.id}", "#{pv.id}|#{pv.value}|#{pv.property.name}"
-      end
-    end
-
-    marcas_por_product_type.keys.each do |pt|
-      marcas_por_product_type[pt].keys.each do |m|
-        REDIS.sadd "marcas_por_product_type:#{pt}", m
-      end
-    end
-
-    marcas_por_country.keys.each do |c|
-      marcas_por_country[c].keys.each do |m|
-        REDIS.sadd "marcas_por_country:#{c}", m
-      end
-    end
-
-    Retailer.all.each do |r|
-      REDIS.set "descripcion.retailer:#{r.id}", r.name
-      REDIS.sadd "retailers_country:#{r.country.id}", r.id
-    end
-
-    Sale.all.each do |s|
-      REDIS.sadd "producto_sale:#{s.product.id}", s.id
-    end
-
-    render :nothing => true
-  end
-
   def categorias
     @pagina = 'Categorias'
   end
