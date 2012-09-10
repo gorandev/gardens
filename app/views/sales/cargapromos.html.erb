@@ -132,7 +132,7 @@ function mostrar_match_productos(data) {
 		jQuery.each(data, function (i,v) {
 			var html = '<tr class="fila_prod">';
 
-			html += '<td><span onClick="flip_producto({id: ' + v.id + ',descripcion: \'' + v.descripcion + '\', imagen_id: ' + v.imagen_id + '});" style="cursor: pointer;">';
+			html += '<td><span onClick="flip_producto({id: ' + v.id + ',descripcion: \'' + v.descripcion.replace(/"/g, '\\"') + '\', imagen_id: ' + v.imagen_id + '});" style="cursor: pointer;">';
 
 			html += v.descripcion;
 			if (v.ultimo_precio_registrado) {
