@@ -71,6 +71,12 @@ namespace :idashboard do
 	        REDIS.sadd "property_value:#{pv.id}", p.id
 	        REDIS.sadd "pvs_product:#{p.id}", "#{pv.id}|#{pv.value}|#{pv.property.name}"
 	      end
+
+	      p.items.all.each do |i|
+	      	i.prices.all.each do |pr|
+			      REDIS.sadd "producto_precio:#{p.id}_#{i.retailer.country.currency.id}", pr.id
+		    	end
+		    end
 	    end
 
 	    marcas_por_product_type.keys.each do |pt|
@@ -88,10 +94,6 @@ namespace :idashboard do
 	    Retailer.all.each do |r|
 	      REDIS.set "descripcion.retailer:#{r.id}", r.name
 	      REDIS.sadd "retailers_country:#{r.country.id}", r.id
-	    end
-
-	    Sale.all.each do |s|
-	      REDIS.sadd "producto_sale:#{s.product.id}", s.id
 	    end
 	end
 end

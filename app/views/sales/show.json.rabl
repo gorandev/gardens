@@ -1,4 +1,5 @@
 object @sale
+cache @sale
 attributes :id, :sale_date, :price, :origin, :units_available, :valid_since, :valid_until, :bundle, :page, :imagen_id, :aws_filename
 glue :media_channel do
 	attributes :name => :media_channel

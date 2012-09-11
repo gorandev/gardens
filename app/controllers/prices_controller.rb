@@ -67,6 +67,14 @@ class PricesController < ApplicationController
       return render :json => { :errors => { :price => "no search parameters" } }, :status => 400
     end
 
+    if params.slice(:currency, :product, :date_from, :no_limit).size == 4
+      fecha_inicial = Date.parse(params[:date_from])
+      fecha_final = (params.has_key?(:date_to)) ? Date.parse(params[:date_to]) : Time.now.to_date
+
+      @prices = Price.includes(:currency, :item => [ :retailer, :product ]).where(:id => REDIS.smembers('producto_precio:' + params[:product] + '_' + params[:currency])).where('price_date between ? and ?', fecha_inicial, fecha_final)
+      return
+    end
+
     where = Hash.new
     join = Array.new
     

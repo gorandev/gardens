@@ -79,11 +79,6 @@ class SalesController < ApplicationController
     end
 
     if sale.save
-      if sale.product_id != old_product_id && !old_product_id.nil?
-        REDIS.srem "producto_sale#{old_product_id}", sale.id
-        REDIS.sadd "producto_sale#{sale.product_id}", sale.id
-      end
-
       render :json => { :id => sale.id }
     else
       render :json => { :errors => sale.errors }, :status => 400
@@ -199,7 +194,6 @@ class SalesController < ApplicationController
     unless params.has_key?(:id) and sale = Sale.find_by_id(params[:id])
       return render :json => { :errors => { :sale => "must exist" } }, :status => 400
     end
-    REDIS.srem "producto_sale#{sale.product_id}", sale.id
     sale.destroy
     redirect_to '/sales/ver'
   end
