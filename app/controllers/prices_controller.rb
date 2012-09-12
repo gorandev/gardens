@@ -67,7 +67,7 @@ class PricesController < ApplicationController
       return render :json => { :errors => { :price => "no search parameters" } }, :status => 400
     end
 
-    if params.slice(:currency, :product, :date_from, :no_limit).size == 4
+    if params.slice(:currency, :product, :date_from, :no_limit).size == 400
       fecha_inicial = Date.parse(params[:date_from])
       fecha_final = (params.has_key?(:date_to)) ? Date.parse(params[:date_to]) : Time.now.to_date
 
