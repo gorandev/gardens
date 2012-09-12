@@ -50,6 +50,9 @@ class PricesController < ApplicationController
           :precio_nuevo => price.price
         )
       end
+      unless price.item.product_id.nil?
+        REDIS.sadd "producto_precio:#{price.item.product.id}_#{price.currency}", price.id
+      end
       render :json => { :id => price.id }
     else
       if params.has_key?(:item) && price.item == nil
@@ -67,11 +70,20 @@ class PricesController < ApplicationController
       return render :json => { :errors => { :price => "no search parameters" } }, :status => 400
     end
 
-    if params.slice(:currency, :product, :date_from, :no_limit).size == 400
+    if params.slice(:currency, :product, :date_from, :no_limit).size == 4
       fecha_inicial = Date.parse(params[:date_from])
       fecha_final = (params.has_key?(:date_to)) ? Date.parse(params[:date_to]) : Time.now.to_date
 
-      @prices = Price.includes(:currency, :item => [ :retailer, :product ]).where(:id => REDIS.smembers('producto_precio:' + params[:product] + '_' + params[:currency])).where('price_date between ? and ?', fecha_inicial, fecha_final)
+      unless params[:product].is_a?Array
+        params[:product] = params[:product].split(',')
+      end
+
+      prods_redis_key = Array.new
+      params[:product].each do |p|
+        prods_redis_key.push('producto_precio:' + p + '_' + params[:currency])
+      end
+
+      @prices = Price.includes(:currency, :item => [ :retailer, :product ]).where(:id => REDIS.sunion(*prods_redis_key)).where('price_date between ? and ?', fecha_inicial, fecha_final)
       return
     end
 

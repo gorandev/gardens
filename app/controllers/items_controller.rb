@@ -38,6 +38,10 @@ class ItemsController < ApplicationController
     item.save
 
     render :json => 'ok', :status => 200
+
+    item.prices.all.each do |pr|
+      REDIS.sadd "producto_precio:#{product.id}_#{item.retailer.country.currency.id}", pr.id
+    end
   end
 
   def update
