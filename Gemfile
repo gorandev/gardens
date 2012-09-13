@@ -21,6 +21,10 @@ gem 'google-analytics-rails'
 
 gem 'dalli'
 
+# usamos Mongoid 2.0 porque la 3 requiere Ruby 1.9.3 -- y para eso hay que mudarse al Cedar Stack de Heroku
+gem "mongoid", "~> 2.4"
+gem "bson_ext", "~> 1.5"
+
 group :development do
   gem 'rspec-rails'
   gem 'annotate'

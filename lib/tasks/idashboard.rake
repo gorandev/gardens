@@ -96,4 +96,23 @@ namespace :idashboard do
 	      REDIS.sadd "retailers_country:#{r.country.id}", r.id
 	    end
 	end
+
+	desc 'Inicializar MongoDB'
+	task :inicializar_mongodb => :environment do
+		Price.find_each do |pr|
+			if pr.item.product_id.nil?
+				next
+			end
+			PricePoint.create(
+				:price => pr.price, 
+				:price_date => pr.price_date,
+				:item => pr.item.id,
+				:retailer => pr.item.retailer.name,
+				:retailer_color => pr.item.retailer.color,
+				:id_product => pr.item.product.id,
+				:name_product => pr.item.product.descripcion,
+				:currency => pr.currency.name
+			)		
+		end
+	end
 end
