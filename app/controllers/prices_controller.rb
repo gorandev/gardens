@@ -70,20 +70,6 @@ class PricesController < ApplicationController
       return render :json => { :errors => { :price => "no search parameters" } }, :status => 400
     end
 
-    if params.slice(:currency, :product, :date_from, :no_limit).size == 4
-      fecha_inicial = Date.parse(params[:date_from])
-      fecha_final = (params.has_key?(:date_to)) ? Date.parse(params[:date_to]) : Time.now.to_date
-
-      unless params[:product].is_a?Array
-        params[:product] = params[:product].split(',')
-      end
-
-      #@pricepoints = PricePoint.any_in(:id_product => params[:product]).where(:price_date => { '$gte' => fecha_inicial, '$lt' => fecha_final }, :currency => Currency.find(params[:currency]).name).ascending(:price_date)
-      @pricepoints = PricePoint.where(:id_product => { '$in' => params[:product] }, :price_date => { '$gte' => fecha_inicial, '$lt' => fecha_final }, :currency => Currency.find(params[:currency]).name).ascending(:price_date)
-      render :json => @pricepoints, :callback => params[:callback]
-      return
-    end
-
     # if params.slice(:currency, :product, :date_from, :no_limit).size == 4
     #   fecha_inicial = Date.parse(params[:date_from])
     #   fecha_final = (params.has_key?(:date_to)) ? Date.parse(params[:date_to]) : Time.now.to_date
@@ -92,12 +78,9 @@ class PricesController < ApplicationController
     #     params[:product] = params[:product].split(',')
     #   end
 
-    #   prods_redis_key = Array.new
-    #   params[:product].each do |p|
-    #     prods_redis_key.push('producto_precio:' + p + '_' + params[:currency])
-    #   end
-
-    #   @prices = Price.includes(:currency, :item => [ :retailer, :product ]).where(:id => REDIS.sunion(*prods_redis_key)).where('price_date between ? and ?', fecha_inicial, fecha_final)
+    #   @pricepoints = PricePoint.any_in(:id_product => params[:product]).where(:price_date => { '$gte' => fecha_inicial, '$lt' => fecha_final }, :currency => Currency.find(params[:currency]).name).ascending(:price_date)
+    #   @pricepoints = PricePoint.where(:id_product => { '$in' => params[:product] }, :price_date => { '$gte' => fecha_inicial, '$lt' => fecha_final }, :currency => Currency.find(params[:currency]).name).ascending(:price_date)
+    #   render :json => @pricepoints, :callback => params[:callback]
     #   return
     # end
 
