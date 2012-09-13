@@ -25,7 +25,6 @@ var currency_id = <%=@currency_id%>;
 function init_properties() {
 	jQuery.ajax({
 		url: "http://api.<%=@hostname%>/properties/search",
-		type: 'POST',
 		dataType: 'jsonp',
 		data: 'product_type=<%=@product_type_id%>',
 		statusCode: {
