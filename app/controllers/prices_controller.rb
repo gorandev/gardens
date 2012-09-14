@@ -51,7 +51,7 @@ class PricesController < ApplicationController
         )
       end
       unless price.item.product_id.nil?
-        PricePoint.create_from_price(price)
+        price.create_pricepoint
       end
       render :json => { :id => price.id }
     else

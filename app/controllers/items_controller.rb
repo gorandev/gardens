@@ -40,7 +40,7 @@ class ItemsController < ApplicationController
     render :json => 'ok', :status => 200
 
     item.prices.all.each do |pr|
-      PricePoint.create_from_price(pr)
+      pr.create_pricepoint
     end
   end
 
