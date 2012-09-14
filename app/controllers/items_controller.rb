@@ -40,7 +40,7 @@ class ItemsController < ApplicationController
     render :json => 'ok', :status => 200
 
     item.prices.all.each do |pr|
-      REDIS.sadd "producto_precio:#{product.id}_#{item.retailer.country.currency.id}", pr.id
+      PricePoint.create_from_price(pr)
     end
   end
 

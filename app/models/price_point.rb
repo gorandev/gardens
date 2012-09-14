@@ -19,4 +19,18 @@ class PricePoint
       [ :currency, Mongo::ASCENDING ]
     ]
   )
+
+  def create_from_price(price)
+    PricePoint.create(
+      :id_postgres => price.id,
+      :price => price.price, 
+      :price_date => price.price_date,
+      :item => price.item.id,
+      :retailer => price.item.retailer.name,
+      :retailer_color => price.item.retailer.color,
+      :id_product => price.item.product.id,
+      :name_product => price.item.product.descripcion,
+      :currency => price.currency.name
+    )
+  end
 end

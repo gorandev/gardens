@@ -103,17 +103,7 @@ namespace :idashboard do
 			if pr.item.product_id.nil? or PricePoint.exists?(conditions: { id_postgres: pr.id })
 				next
 			end
-			PricePoint.create(
-				:id_postgres => pr.id,
-				:price => pr.price, 
-				:price_date => pr.price_date,
-				:item => pr.item.id,
-				:retailer => pr.item.retailer.name,
-				:retailer_color => pr.item.retailer.color,
-				:id_product => pr.item.product.id,
-				:name_product => pr.item.product.descripcion,
-				:currency => pr.currency.name
-			)	
+			PricePoint.create_from_price(pr)
 		end
 	end
 end

@@ -51,7 +51,7 @@ class PricesController < ApplicationController
         )
       end
       unless price.item.product_id.nil?
-        REDIS.sadd "producto_precio:#{price.item.product.id}_#{price.currency}", price.id
+        PricePoint.create_from_price(price)
       end
       render :json => { :id => price.id }
     else
@@ -78,7 +78,6 @@ class PricesController < ApplicationController
         params[:product] = params[:product].split(',')
       end
 
-      @pricepoints = PricePoint.any_in(:id_product => params[:product]).where(:price_date => { '$gte' => fecha_inicial, '$lt' => fecha_final }, :currency => Currency.find(params[:currency]).name).ascending(:price_date)
       @pricepoints = PricePoint.where(:id_product => { '$in' => params[:product] }, :price_date => { '$gte' => fecha_inicial, '$lt' => fecha_final }, :currency => Currency.find(params[:currency]).name).ascending(:price_date)
       render :json => @pricepoints, :callback => params[:callback]
       return
