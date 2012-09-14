@@ -1,5 +1,6 @@
 class PricePoint
   include Mongoid::Document
+  field :id_postgres, type: Integer
   field :price, type: Integer
   field :price_date, type: Date
   field :item, type: Integer
@@ -8,8 +9,8 @@ class PricePoint
   field :id_product, type: Integer
   field :name_product, type: String
   field :currency, type: String
-  field :created_at, type: DateTime
-  field :updated_at, type: DateTime
+
+  index :id_postgres, unique: true
 
   index(
     [

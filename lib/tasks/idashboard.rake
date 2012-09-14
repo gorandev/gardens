@@ -100,10 +100,11 @@ namespace :idashboard do
 	desc 'Inicializar MongoDB'
 	task :inicializar_mongodb => :environment do
 		Price.find_each do |pr|
-			if pr.item.product_id.nil?
+			if pr.item.product_id.nil? or PricePoint.exists?(conditions: { id_postgres: pr.id })
 				next
 			end
 			PricePoint.create(
+				:id_postgres => pr.id,
 				:price => pr.price, 
 				:price_date => pr.price_date,
 				:item => pr.item.id,
@@ -112,7 +113,7 @@ namespace :idashboard do
 				:id_product => pr.item.product.id,
 				:name_product => pr.item.product.descripcion,
 				:currency => pr.currency.name
-			)		
+			)	
 		end
 	end
 end
