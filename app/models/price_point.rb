@@ -1,5 +1,6 @@
 class PricePoint
   include Mongoid::Document
+  cache
   field :id_postgres, type: Integer
   field :price, type: Integer
   field :price_date, type: Date
