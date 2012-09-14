@@ -106,4 +106,16 @@ namespace :idashboard do
 			pr.create_pricepoint
 		end
 	end
+
+	desc 'Refrescar producto en MondgoDB'
+	task :refrescar_mongodb, [:id_producto] => [:environment] do |t, args|
+		unless args.id_producto.nil?
+			PricePoint.where(:id_product => args.id_producto).each do |pp|
+				pp.delete
+			end
+			Price.joins(:item).where(:items => { :product_id => args.id_producto }).each do |pr|
+				pr.create_pricepoint
+			end
+		end	
+	end
 end
