@@ -175,6 +175,9 @@ function mostrar_item(id) {
 
 	for (var i = 0; i < properties_sorted.length; i++) {
 		var html = '<tr class="fila_pv">';
+		if (!properties[properties_sorted[i]]) {
+			continue;
+		}
 		var property = properties[properties_sorted[i]].id;
 		var value = false;
 		if (items[id].property_values.hasOwnProperty(property)) {
