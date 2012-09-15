@@ -198,7 +198,10 @@ function mostrar_item(id) {
         e.preventDefault();
     });
 	jQuery('div.chzn-container ul').attr("tabindex",-1);
-	jQuery('#p_' + properties[properties_sorted[0]].id + '_chzn a.chzn-single').focus();
+
+	if (properties[properties_sorted[i]]) {
+		jQuery('#p_' + properties[properties_sorted[0]].id + '_chzn a.chzn-single').focus();
+	}
 
 	buscar_productos();
 	buscar_ultimo_precio_registrado(id);
