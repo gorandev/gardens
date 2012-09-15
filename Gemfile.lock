@@ -181,7 +181,7 @@ PLATFORMS
 
 DEPENDENCIES
   annotate
-  bson_ext (~> 1.5)
+  bson_ext (~> 1.7.0)
   dalli
   devise
   dynamic_form
@@ -189,6 +189,7 @@ DEPENDENCIES
   formtastic (~> 1.2.3)
   google-analytics-rails
   jammit-s3
+  mongo (~> 1.7.0)
   mongoid (~> 2.4)
   pg
   pony

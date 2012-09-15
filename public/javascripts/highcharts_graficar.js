@@ -101,7 +101,7 @@ function dibujar_data(params) {
 		}
 
 		var fecha = v.price_date.split('-');
-		var fecha_utc = Date.UTC(fecha[0], fecha[1]-1, fecha[2]);
+		var fecha_utc = Date.UTC(fecha[0], fecha[1]-1, fecha[2].split('T')[0]);
 
 		if (!lineas[v.id_product][v.retailer].hasOwnProperty(fecha_utc)) {
 			lineas[v.id_product][v.retailer][fecha_utc] = new Array;

@@ -25,5 +25,6 @@ Gardens::Application.configure do
   config.action_mailer.default_url_options = { :host => 'localhost:3000' }
   
   ENV["REDISTOGO_URL"] = 'redis://localhost:6379'
+  ENV["MONGOHQ_URL"] = 'mongodb://localhost:27017/gardens_development'
 end
 
