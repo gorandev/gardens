@@ -31,9 +31,11 @@ function init_properties() {
 			200: function(data) {
 				jQuery.each(data, function(i, v) {
 					var values = {};
-					jQuery.each(v.possible_values, function(j, w) {
-						values[w.possible_value.id] = w.possible_value.value;
-					});
+					if (v.possible_values) {
+						jQuery.each(v.possible_values, function(j, w) {
+							values[w.possible_value.id] = w.possible_value.value;
+						});
+					}
 					properties[v.description] = {
 						id: v.id,
 						values: values
