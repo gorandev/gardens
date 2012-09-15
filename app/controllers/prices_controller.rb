@@ -78,7 +78,7 @@ class PricesController < ApplicationController
         params[:product] = params[:product].split(',')
       end
 
-      @pricepoints = PricePoint.where(:id_product => { '$in' => params[:product] }, :price_date => { '$gte' => fecha_inicial, '$lt' => fecha_final }, :currency => Currency.find(params[:currency]).name).ascending(:price_date)
+      @pricepoints = PricePoint.where(:id_product => { '$in' => params[:product] }, :price_date => { '$gt' => fecha_inicial, '$lte' => fecha_final }, :currency => Currency.find(params[:currency]).name).ascending(:price_date)
       render :json => @pricepoints, :callback => params[:callback]
       return
     end
