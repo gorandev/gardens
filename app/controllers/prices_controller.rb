@@ -51,7 +51,12 @@ class PricesController < ApplicationController
         )
       end
       unless price.item.product_id.nil?
-        price.create_pricepoint
+        ppoint = PricePoint.where(:id_postgres: price.id).to_a.first
+        if ppoint.nil?
+          price.create_pricepoint
+        else
+          ppoint.update_attributes(:price => price.price)
+        end
       end
       render :json => { :id => price.id }
     else
