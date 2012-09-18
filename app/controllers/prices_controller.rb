@@ -51,7 +51,7 @@ class PricesController < ApplicationController
         )
       end
       unless price.item.product_id.nil?
-        ppoint = PricePoint.where(:id_postgres: price.id).to_a.first
+        ppoint = PricePoint.where(:id_postgres => price.id).to_a.first
         if ppoint.nil?
           price.create_pricepoint
         else

@@ -94,7 +94,7 @@ namespace :idashboard do
 	desc 'Inicializar MongoDB'
 	task :inicializar_mongodb => :environment do
 		Price.joins(:item).where('items.product_id IS NOT NULL').order('prices.price_date ASC').find_each do |pr|
-	        ppoint = PricePoint.where(:id_postgres: pr.id).to_a.first
+	        ppoint = PricePoint.where(:id_postgres=> pr.id).to_a.first
 	        if ppoint.nil?
 	          pr.create_pricepoint
 	        else
