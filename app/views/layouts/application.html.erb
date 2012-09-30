@@ -43,6 +43,11 @@ var aws_bucket = '<%=@bucket%>';
 <%= csrf_meta_tag %>
 <%= favicon_link_tag %>
 <%= analytics_init if Rails.env.production? %>
+
+<script type="text/javascript">
+<%= analytics_set_custom_var(1, 'email', current_user, 2) %>
+</script>
+
 </head>
 <body>
 
