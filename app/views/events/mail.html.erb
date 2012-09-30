@@ -25,7 +25,10 @@
 			   <th style="background-color:#FFF;text-transform:uppercase;text-align:left;" scope="col">$ Actual</th>
 			 </tr>
 <%
-		@events_ordered[k].sort_by{|e| [e.item.product.get_property_value('categoria'), e.item.product.descripcion]}.each do |e|
+		@events_ordered[k].sort_by{|e| [
+			( ( e.item.product.get_property_value('categoria').nil?) ? '' : e.item.product.get_property_value('categoria') ),
+			( ( e.item.product.descripcion.nil?) ? '' : e.item.product.descripcion )
+		]}.each do |e|
 %>
 			 <tr style="background-color:#FFF;">
 			   <td><%=e.created_at.in_time_zone('America/Argentina/Buenos_Aires').strftime('%Y-%m-%d %H:%M:%S')%></td>
