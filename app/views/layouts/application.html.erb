@@ -44,9 +44,11 @@ var aws_bucket = '<%=@bucket%>';
 <%= favicon_link_tag %>
 <%= analytics_init if Rails.env.production? %>
 
+<% if Rails.env.production? and current_user %>
 <script type="text/javascript">
 <%= analytics_set_custom_var(1, 'email', current_user.email, 2) %>
 </script>
+<% end %>
 
 </head>
 <body>
