@@ -34,6 +34,7 @@ namespace :scheduler do
 		@titulo = 'Totales scraping'
  		Pony.mail(
 			:to => 'mondongo@gmail.com',
+			:cc => 'ptraverso@gmail.com',
 			:from => 'noreply@idashboard.la',
 			:subject => '[iDashboard] Totales scraping de ' +  fecha.strftime('%d/%m/%Y'),
 			:html_body => ERB.new(mail_template).result(binding)
