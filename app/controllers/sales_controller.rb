@@ -108,7 +108,7 @@ class SalesController < ApplicationController
       unless params[:property_values].is_a?Array
         params[:property_values] = params[:property_values].split(',')
       end
-      where[:product_id] = REDIS.sinter(*params[:property_values].collect {|pv| 'property_value:' + pv.to_s})
+      where[:product_id] = REDIS.sunion(*params[:property_values].collect {|pv| 'property_value:' + pv.to_s})
     end
     
     if params.has_key?(:media_channel)

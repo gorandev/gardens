@@ -68,6 +68,8 @@ function get_promos() {
 	
 	if (jQuery('#producto_pulldown').val() != null) {
 		data.product = jQuery('#producto_pulldown').val().join(',');
+	} else if (jQuery('#marca_pulldown').val() != null) {
+		data.property_values = jQuery('#marca_pulldown').val().join(',');
 	}
 
 	if (jQuery('#retailer_pulldown').val() != null) {

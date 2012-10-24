@@ -775,7 +775,7 @@ function hacer_grafico(id, url, querystring) {
 	if (product_match.length == 1) {
 		var id_match = product_match[0].match(/product=(\d+)/);
 		jQuery.ajax({
-			url: 'http://dashnode.idashboard.local:5000/get_descripcion_producto',
+			url: global_node_js_app + '/get_descripcion_producto',
 			data: { product: id_match[1] },
 			dataType: 'jsonp',
 			context: graficos_obj[id],
@@ -914,6 +914,9 @@ function chart_default_options(id) {
 			zoomType: 'x'
 		},
 		xAxis: {
+			title: {
+				text: null,
+			},
 			type: 'datetime'
 		},
 		yAxis: {
