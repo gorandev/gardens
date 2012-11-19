@@ -11,6 +11,7 @@ s3_upload_files:
 javascripts:
   jquery:
     - public/javascripts/jquery.min.js
+    - public/javascripts/jquery_stringify.js
 
   prototype_scriptaculous:
     - public/javascripts/prototype.js

@@ -12,6 +12,7 @@
 <script type="text/javascript">
 var global_hostname = '<%=@hostname%>';
 var aws_bucket = '<%=@bucket%>';
+var global_exportar_a_excel = 0;
 </script>
 
 <%= include_javascripts :prototype_scriptaculous, :basico %>
@@ -291,5 +292,9 @@ var aws_bucket = '<%=@bucket%>';
 <% else %>
 <%= yield %>
 <% end %>
+<form id="get_excel" action="<%=Settings['excelAPI']%>" method="post">
+<input type="hidden" name="id_producto" id="id_producto"/>
+<input type="hidden" name="excel_data" id="excel_data"/>
+</form>
 </body>
 </html>

@@ -32,6 +32,8 @@ var global_prods = {};
 
 var graficos_obj = new Array;
 var graficos_url = new Array;
+var graficos_prods = new Array;
+var graficos_data = new Array;
 
 var no_save_buttons = false;
 
@@ -339,6 +341,15 @@ function dibujar_data(params) {
 			}
 		} 
 	};
+
+	if (global_exportar_a_excel == 1) {
+		options['exporting']['buttons']['exportButton']['menuItems'][1] = {
+			text: 'Descargar Excel',
+			onclick: function() {
+				descargar_excel(id);
+			}
+		};
+	}
 
 	if (no_save_buttons) {
 		params['no_save_button'] = true;
@@ -793,6 +804,7 @@ function hacer_grafico(id, url, querystring) {
 			statusCode: {
 				200: function(data) {
 					data_graficos[id] = data;
+					graficos_data[id] = jQuery.stringify(data);
 					get_promos(id, querystring);
 				},
 				400: function() {
@@ -856,4 +868,10 @@ function hacer_pie_chart_o_priceband(id, url, querystring) {
 			}
 		}
 	});
+}
+
+function descargar_excel(id) {
+	jQuery('#excel_data').val(graficos_data[id]);
+	jQuery('#id_producto').val(graficos_prods[id]);
+	jQuery('#get_excel').submit();
 }

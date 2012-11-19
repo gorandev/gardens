@@ -146,6 +146,7 @@
 development:
   host: "idashboard.local"
   aws_bucket: "idashboard_dev"
+  excelAPI: "http://excel.idashboard.local:8080/excel/index.pl"
   <<: *defaults
 
 test:
@@ -154,4 +155,5 @@ test:
 production:
   host: "idashboard.la"
   aws_bucket: "idashboard_heroku"
+  excelAPI: "http://excel.idashboard.la/index.pl"
   <<: *defaults

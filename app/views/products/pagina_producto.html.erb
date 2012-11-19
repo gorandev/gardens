@@ -5,6 +5,8 @@
 <%= include_javascripts :pagina_producto %>
 <script type="text/javascript">
 
+global_exportar_a_excel = 1;
+
 function get_productos() {
 	if (jQuery('#marca_pulldown').val() == "") {
 		return false;
@@ -84,6 +86,10 @@ var product_selected = <%=@product.id%>;
 var prices_last_query_string_sent = {};
 
 function crear_query_string(params) {
+	if (arguments[1] >= 0) {
+		graficos_prods[arguments[1]] = <%=@product.id%>;
+	}
+
 	var query_string = 'product=<%=@product.id%>';
 	query_string +='&currency=<%=@currency_id%>';
 
@@ -102,7 +108,7 @@ function crear_query_string(params) {
 }
 
 function graficar(id) {
-	hacer_grafico(id, "http://api.<%=@hostname%>/prices/search", crear_query_string({}));
+	hacer_grafico(id, "http://api.<%=@hostname%>/prices/search", crear_query_string({}, id));
 }
 
 function salvar_reporte(params) {
