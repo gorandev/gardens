@@ -32,8 +32,6 @@ var global_prods = {};
 
 var graficos_obj = new Array;
 var graficos_url = new Array;
-var graficos_data = new Array;
-var graficos_prods = new Array;
 
 var no_save_buttons = false;
 
@@ -769,57 +767,6 @@ function hacer_pricebands(obj, data) {
 }
 
 function hacer_grafico(id, url, querystring) {
-
-	graficos_obj[id] = new Highcharts.Chart(chart_default_options(id));
-	graficos_obj[id].showLoading();
-
-	var product_match = querystring.match(/product=(\d+)/g);
-	if (product_match.length == 1) {
-		var id_match = product_match[0].match(/product=(\d+)/);
-		graficos_prods[id] = id_match[1];
-		jQuery.ajax({
-			url: global_node_js_app + '/get_descripcion_producto',
-			data: { product: id_match[1] },
-			dataType: 'jsonp',
-			context: graficos_obj[id],
-			statusCode: {
-				200: function(data) {
-					this.setTitle({
-						text: data.description,
-						style: {
-							fontFamily: 'Verdana',
-							fontSize: '12px',
-							fontWeight: 'bold'
-						}
-					});
-				}
-			}
-		});
-	}
-
-	jQuery.ajax({
-		url: url,
-		data: querystring,
-		dataType: 'jsonp',
-		context: { chart: graficos_obj[id], id: id },
-		statusCode: {
-			200: function(data, status, ajax_obj) {
-				graficos_data[this.id] = jQuery.stringify(data);
-				var chart = this.chart;
-				jQuery.each(data, function(i, v) {
-					v.color = global_colores_retailer[v.name];
-					chart.addSeries(v);
-				});
-				chart.hideLoading();
-			},
-			400: function() {
-				alert('Error 400!')
-			}
-		}
-	});
-}
-
-function old_hacer_grafico(id, url, querystring) {
 	if (/prices\/search/.test(url)) {
 		graficos_obj[id] = new Highcharts.Chart({
 			chart: {
@@ -909,106 +856,4 @@ function hacer_pie_chart_o_priceband(id, url, querystring) {
 			}
 		}
 	});
-}
-
-function chart_default_options(id) {
-
-	var default_options = {
-		chart: {
-			renderTo: 'chart_' + id,
-			zoomType: 'x'
-		},
-		xAxis: {
-			title: {
-				text: null,
-			},
-			type: 'datetime'
-		},
-		yAxis: {
-			title: {
-				text: 'Precio'
-			},
-			labels: {
-				formatter: function() {
-					return Highcharts.numberFormat(this.value, 0, ',', '.');
-				}
-			}
-		},
-		credits: {
-			enabled: false
-		},
-		tooltip: {
-			formatter: function() {
-				var tooltip = new String();
-				
-				tooltip = '<i>' + Highcharts.dateFormat('%A %e %b %Y', this.x) + '</i><br/><br/>';
-
-				this.points.each(function(p){
-					if (p.y) {
-						tooltip += '<b>' + p.series.name + ':</b> $';
-						tooltip += Highcharts.numberFormat(p.y, 0, ',', '.');
-						tooltip += '<br/>';
-					}
-				});
-				
-				return tooltip;
-			},
-			shared: true
-		},
-		plotOptions: {
-			series: {
-				marker: {
-					enabled: false,
-					symbol: 'circle'
-				},
-				point: {
-					events: {
-						click: function() {
-							if (this.promo) {
-								alert('tiene promo');
-							}
-						}
-					}
-				}
-			}	
-		},
-		exporting: {
-			url: 'http://export.idashboard.com.ar',
-			filename: 'idashboard',
-			buttons: {
-				exportButton: {
-					menuItems: [
-						{
-							text: 'Descargar PNG',
-							onclick: function() {
-								this.exportChart(null, {
-									subtitle: {
-										text: null
-									}
-								});
-							}
-						}, {
-							text: 'Descargar Excel',
-							onclick: function() {
-								descargar_excel(id);
-							}
-						},
-						null, null, null
-					]
-				}
-			}
-		}
-	};
-
-	if (global_exportar_a_excel == 0) {
-		default_options['exporting']['buttons']['exportButton']['menuItems'][1] = null;
-	}
-
-	return default_options;
-}
-
-function descargar_excel(id) {
-	jQuery('#excel_data').val(graficos_data[id]);
-	jQuery('#id_producto').val(graficos_prods[id]);
-	jQuery('#get_excel').submit();
 }
