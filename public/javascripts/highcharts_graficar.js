@@ -32,6 +32,8 @@ var global_prods = {};
 
 var graficos_obj = new Array;
 var graficos_url = new Array;
+var graficos_data = new Array;
+var graficos_prods = new Array;
 
 var no_save_buttons = false;
 
@@ -774,6 +776,7 @@ function hacer_grafico(id, url, querystring) {
 	var product_match = querystring.match(/product=(\d+)/g);
 	if (product_match.length == 1) {
 		var id_match = product_match[0].match(/product=(\d+)/);
+		graficos_prods[id] = id_match[1];
 		jQuery.ajax({
 			url: global_node_js_app + '/get_descripcion_producto',
 			data: { product: id_match[1] },
@@ -798,10 +801,11 @@ function hacer_grafico(id, url, querystring) {
 		url: url,
 		data: querystring,
 		dataType: 'jsonp',
-		context: graficos_obj[id],
+		context: { chart: graficos_obj[id], id: id },
 		statusCode: {
-			200: function(data) {
-				var chart = this;
+			200: function(data, status, ajax_obj) {
+				graficos_data[this.id] = jQuery.stringify(data);
+				var chart = this.chart;
 				jQuery.each(data, function(i, v) {
 					v.color = global_colores_retailer[v.name];
 					chart.addSeries(v);
@@ -908,7 +912,8 @@ function hacer_pie_chart_o_priceband(id, url, querystring) {
 }
 
 function chart_default_options(id) {
-	return {
+
+	var default_options = {
 		chart: {
 			renderTo: 'chart_' + id,
 			zoomType: 'x'
@@ -982,10 +987,28 @@ function chart_default_options(id) {
 									}
 								});
 							}
-						}, null, null, null
+						}, {
+							text: 'Descargar Excel',
+							onclick: function() {
+								descargar_excel(id);
+							}
+						},
+						null, null, null
 					]
 				}
 			}
 		}
 	};
+
+	if (global_exportar_a_excel == 0) {
+		default_options['exporting']['buttons']['exportButton']['menuItems'][1] = null;
+	}
+
+	return default_options;
+}
+
+function descargar_excel(id) {
+	jQuery('#excel_data').val(graficos_data[id]);
+	jQuery('#id_producto').val(graficos_prods[id]);
+	jQuery('#get_excel').submit();
 }
