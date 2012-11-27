@@ -33,7 +33,7 @@ namespace :scheduler do
 		mail_template = File.read(File.join(Rails.root, "app/views/items/mail.totales.diarios.html.erb"))
 		@titulo = 'Totales scraping'
  		Pony.mail(
-			:to => 'mondongo@gmail.com',
+			:to => 'andres.marin@idashboard.com.ar',
 			:cc => 'ptraverso@gmail.com',
 			:from => 'noreply@idashboard.la',
 			:subject => '[iDashboard] Totales scraping de ' +  fecha.strftime('%d/%m/%Y'),
