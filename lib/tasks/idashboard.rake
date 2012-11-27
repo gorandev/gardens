@@ -114,4 +114,15 @@ namespace :idashboard do
 			end
 		end 
 	end
+
+	desc 'Agregar flag de admin a un usuario'
+	task :hacer_admin, [:email] => [:environment] do |t, args|
+		unless args.email.nil?
+			u = User.find_by_email(args.email)
+			unless u.nil?
+				u.administrator = true
+				u.update
+			end
+		end
+	end
 end
