@@ -121,7 +121,7 @@ namespace :idashboard do
 			u = User.find_by_email(args.email)
 			unless u.nil?
 				u.administrator = true
-				u.update
+				u.save
 			end
 		end
 	end
